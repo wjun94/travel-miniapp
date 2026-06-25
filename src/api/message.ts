@@ -22,7 +22,7 @@ export const getMessageList = (targetUserId: number) =>
   request<Message[]>({
     url: '/message/list',
     method: 'GET',
-    data: { target_user_id: targetUserId },
+    data: { targetUserId: targetUserId },
   });
 
 /**
@@ -35,5 +35,5 @@ export const sendMessage = (toUserId: number, content: string) =>
   request({
     url: '/message/send',
     method: 'POST',
-    data: { to_user_id: toUserId, content },
+    data: { targetUserId: toUserId, content },
   });

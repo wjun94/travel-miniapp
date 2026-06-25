@@ -24,12 +24,12 @@ export default function Publish() {
 
   const handleCreateTrip = async () => {
     const trip = await createTrip({ destination, days });
-    Taro.navigateTo({ url: `/pages/trip/detail?id=${trip.id}` });
+    Taro.navigateTo({ url: `/pages/trip/detail/index?id=${trip.id}` });
   };
 
   const handleAIGenerate = async () => {
     const trip = await generateTrip({ destination, days, tags });
-    Taro.navigateTo({ url: `/pages/trip/detail?id=${trip.id}` });
+    Taro.navigateTo({ url: `/pages/trip/detail/index?id=${trip.id}` });
   };
 
   return (

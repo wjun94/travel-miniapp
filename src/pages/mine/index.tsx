@@ -40,7 +40,7 @@ export default function Mine() {
         ) : (
           <View>暂无足迹</View>
         )}
-        <Button size="mini" onClick={() => Taro.navigateTo({ url: '/pages/footprint/map' })}>
+        <Button size="mini" onClick={() => Taro.navigateTo({ url: '/pages/footprint/index' })}>
           查看足迹地图
         </Button>
       </View>
