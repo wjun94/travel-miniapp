@@ -8,12 +8,14 @@ interface NavBarProps {
   className?: string
   /** 导航栏标题（可选） */
   title?: string
+  /** 标题对齐方式，默认 center */
+  titleAlign?: 'left' | 'center'
   /** 是否显示返回按钮 */
   showBack?: boolean
 }
 
 /** 自定义导航栏：占据状态栏 + 胶囊按钮区域高度，防止内容被遮挡 */
-export default function NavBar({ backgroundColor = '#FCFBF7', className = '', title, showBack }: NavBarProps) {
+export default function NavBar({ backgroundColor = '#FCFBF7', className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
   const headerHeight = getHeaderHeight()
 
   return (
@@ -30,7 +32,7 @@ export default function NavBar({ backgroundColor = '#FCFBF7', className = '', ti
         <View style={{ fontSize: 20, lineHeight: 1, marginRight: 8 }}>{'‹'}</View>
       )}
       {title && (
-        <View style={{ fontSize: 17, fontWeight: 600, color: '#333', flex: 1, textAlign: 'center', marginRight: showBack ? 32 : 0 }}>
+        <View style={{ fontSize: 16, fontWeight: 600, color: '#333', flex: 1, textAlign: titleAlign, marginRight: showBack ? 32 : 0 }}>
           {title}
         </View>
       )}
