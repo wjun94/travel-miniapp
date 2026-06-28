@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "发布页面",
-          "pathName": "pages/publish/index",
+          "name": "消息中心",
+          "pathName": "pages/message/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "发布页面",
+          "pathName": "pages/publish/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         }
       ]
     }

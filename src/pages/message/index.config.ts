@@ -1,3 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: '消息'
+  navigationStyle: 'custom',
+  navigationBarTitleText: '消息中心'
 })
