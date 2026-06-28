@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "周边游",
-          "pathName": "pages/nearby/index",
+          "name": "我的",
+          "pathName": "pages/mine/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "周边游",
+          "pathName": "pages/nearby/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "消息中心",
