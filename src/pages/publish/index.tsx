@@ -1,82 +1,110 @@
-import { View, Button, Input, Textarea, Picker } from '@tarojs/components';
-import { useState } from 'react';
-import Taro from '@tarojs/taro';
-import { createPost } from '@/api/post';
-import { generateTrip, createTrip } from '@/api/trip';
-import BottomSheet from '@/components/BottomSheet';
-import Modal from '@/components/Modal';
+import { View, Text, Image, ScrollView } from '@tarojs/components'
+import { getSystemInfoSync, getMenuButtonBoundingClientRect } from '@tarojs/taro'
 
-export default function Publish() {
-  const [tab, setTab] = useState(0); // 0攻略 1行程
-  const [showPostModal, setShowPostModal] = useState(false);
-  const [content, setContent] = useState('');
-  const [city, setCity] = useState('');
-  const [destination, setDestination] = useState('');
-  const [days, setDays] = useState(1);
-  const [aiMode, setAiMode] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+export default function PublishPage() {
+  // 获取状态栏高度 + 导航栏（含胶囊按钮）高度，避开右上角胶囊
+  const headerHeight = (() => {
+    try {
+      const info = getSystemInfoSync()
+      const statusBarHeight = info.statusBarHeight || 20
+      const menuButton = getMenuButtonBoundingClientRect()
+      // 导航栏高度 = (胶囊顶部 - 状态栏高度) * 2 + 胶囊高度
+      const navBarHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+      return statusBarHeight + navBarHeight
+    } catch {
+      return 20 + 44 // H5 兜底：状态栏20px + 导航栏44px
+    }
+  })()
+  // 模拟数据 (建议在实际项目中从 API 获取)
+  const features = [
+    { id: 1, title: '图文攻略', desc: '分享你的旅行经验', icon: '📝', bg: 'bg-orange-50', color: 'bg-orange-200', textColor: 'text-orange-500' },
+    { id: 2, title: '视频攻略', desc: '记录旅行精彩瞬间', icon: '🎥', bg: 'bg-red-50', color: 'bg-red-200', textColor: 'text-red-500' },
+    { id: 3, title: '行程规划', desc: 'AI/手动创建行程', icon: '🧭', bg: 'bg-green-50', color: 'bg-green-200', textColor: 'text-green-500' },
+    { id: 4, title: '分享行程', desc: '邀请他人共同编辑', icon: '🔗', bg: 'bg-blue-50', color: 'bg-blue-200', textColor: 'text-blue-500' },
+  ]
 
-  const publishPost = async () => {
-    await createPost({ content: JSON.stringify({ text: content, images: [] }), city });
-    Taro.showToast({ title: '发布成功' });
-    setShowPostModal(false);
-  };
+  const weatherList = [
+    { day: '今天', date: '5/24', icon: '☀️', temp: '22°', minTemp: '8°' },
+    { day: '明天', date: '5/25', icon: '🌧️', temp: '23°', minTemp: '9°' },
+    { day: '周一', date: '5/26', icon: '⛅', temp: '24°', minTemp: '19°' },
+    { day: '周二', date: '5/27', icon: '🌧️', temp: '20°', minTemp: '9°' },
+    { day: '周三', date: '5/28', icon: '🌧️', temp: '19°', minTemp: '8°' },
+    { day: '周四', date: '5/29', icon: '🌧️', temp: '21°', minTemp: '8°' },
+    { day: '周五', date: '5/30', icon: '🌧️', temp: '22°', minTemp: '8°' },
+  ]
 
-  const handleCreateTrip = async () => {
-    const trip = await createTrip({ destination, days });
-    Taro.navigateTo({ url: `/pages/trip/detail/index?id=${trip.id}` });
-  };
-
-  const handleAIGenerate = async () => {
-    const trip = await generateTrip({ destination, days, tags });
-    Taro.navigateTo({ url: `/pages/trip/detail/index?id=${trip.id}` });
-  };
-
+  const destinationList = [
+    { name: '大理', image: 'https://images.unsplash.com/photo-1590076215667-875d4efdb625?w=300&q=80' },
+    { name: '成都', image: 'https://images.unsplash.com/photo-1587474498305-674b62dbd613?w=300&q=80' },
+    { name: '三亚', image: 'https://images.unsplash.com/photo-1540202404-b711e458319c?w=300&q=80' },
+    { name: '西藏', image: 'https://images.unsplash.com/photo-1525049386811-933e144a169b?w=300&q=80' },
+  ]
   return (
-    <View className="p-4">
-      <View className="flex space-x-4 mb-4">
-        <Button size="mini" type={tab === 0 ? 'primary' : 'default'} onClick={() => setTab(0)}>发攻略</Button>
-        <Button size="mini" type={tab === 1 ? 'primary' : 'default'} onClick={() => setTab(1)}>写行程</Button>
+    <View className="min-h-screen px-4 font-sans" style={{ paddingTop: headerHeight }}>
+      {/*  功能区（2x2 网格） - 使用 Grid */}
+      <View className="grid grid-cols-2 gap-3 mb-5 mt-2">
+        {features.map(item => (
+          <View
+            key={item.id}
+            className={`${item.bg} rounded-2xl p-4 flex flex-row items-center shadow-sm`}
+          >
+            {/* 图标区 */}
+            <View className={`w-10 h-10 rounded-full flex flex-shrink-0 items-center justify-center ${item.color} ${item.textColor} mr-3`}>
+              <Text className="text-lg">{item.icon}</Text>
+            </View>
+            {/* 文字区 */}
+            <View className="flex flex-col justify-center overflow-hidden">
+              <Text className="font-bold text-gray-800 truncate">{item.title}</Text>
+              <Text className="text-[24px] text-gray-400 mt-1 truncate">{item.desc}</Text>
+            </View>
+          </View>
+        ))}
       </View>
 
-      {tab === 0 && (
-        <Button onClick={() => setShowPostModal(true)}>写攻略</Button>
-      )}
-
-      {tab === 1 && (
-        <View>
-          <Input placeholder="目的地" value={destination} onInput={e => setDestination(e.detail.value)} />
-          <Picker mode="selector" range={[1, 2, 3, 4, 5, 6, 7]} onChange={e => setDays(+e.detail.value + 1)}>
-            <View className="py-2">{days}天</View>
-          </Picker>
-          <View className="flex space-x-2 mt-2">
-            <Button size="mini" onClick={handleCreateTrip}>手动编辑</Button>
-            <Button size="mini" onClick={() => setAiMode(true)}>AI 生成</Button>
-          </View>
+      {/* 天气预报模块 */}
+      <View className="bg-[#fef1e3] rounded-2xl py-4 px-1px shadow-sm mb-6">
+        <View className="flex justify-between items-center mb-4 px-4">
+          <Text className="text-base font-bold text-gray-800">丽江 · 未来7天天气</Text>
+          <Text className="text-xs text-gray-400">更多 {'>'}</Text>
         </View>
-      )}
 
-      {/* 攻略发布弹窗 */}
-      <Modal
-        visible={showPostModal}
-        title="发布攻略"
-        onCancel={() => setShowPostModal(false)}
-        onConfirm={publishPost}
-        confirmText="发布"
-      >
-        <Textarea placeholder="分享你的旅行故事" value={content} onInput={e => setContent(e.detail.value)} />
-        <Input placeholder="城市" value={city} onInput={e => setCity(e.detail.value)} />
-      </Modal>
-
-      {/* AI 生成底部弹窗 */}
-      <BottomSheet visible={aiMode} title="选择旅行偏好" onClose={() => setAiMode(false)}>
-        <View className="space-y-2">
-          <Picker mode="multiSelector" range={[['特种兵', '慢游', '亲子', '情侣']]} onChange={e => setTags(['特种兵'])}>
-            <View>选择标签</View>
-          </Picker>
-          <Button onClick={handleAIGenerate} type="primary">生成</Button>
+        <View className="w-full flex flex-row justify-between items-center">
+          {weatherList.map((item, index) => (
+            <View
+              key={index}
+              className={`flex flex-col items-center justify-center flex-1 py-2 rounded-xl ${index === 0 ? 'bg-white shadow-sm' : ''
+                }`}
+            >
+              <Text className="text-xs text-gray-500 mb-1">{item.day}</Text>
+              <Text className="text-[24px] text-gray-400 mb-2">{item.date}</Text>
+              <Text className="text-2xl my-1.5">{item.icon}</Text>
+              <Text className="text-sm font-bold text-gray-800">{item.temp}</Text>
+              <Text className="text-[24px] text-gray-400 mt-1">{item.minTemp}</Text>
+            </View>
+          ))}
         </View>
-      </BottomSheet>
+      </View>
+
+      {/* 热门目的地模块 */}
+      <View className="mb-8">
+        <View className="flex justify-between items-center mb-4 px-1">
+          <Text className="text-base font-bold text-gray-800">热门目的地</Text>
+          <Text className="text-xs text-gray-400">更多 {'>'}</Text>
+        </View>
+
+        <ScrollView scrollX className="w-full whitespace-nowrap" showScrollbar={false}>
+          {destinationList.map((dest, index) => (
+            <View key={index} className="inline-block mr-3 last:mr-0 relative w-24 h-32 rounded-xl overflow-hidden shadow-sm">
+              <Image src={dest.image} mode="aspectFill" className="w-full h-full absolute inset-0" />
+              <View className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></View>
+              <Text className="absolute bottom-2 left-0 w-full text-center text-white text-sm font-medium tracking-wider">
+                {dest.name}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+
     </View>
-  );
+  )
 }
