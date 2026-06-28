@@ -1,20 +1,7 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
-import { getSystemInfoSync, getMenuButtonBoundingClientRect } from '@tarojs/taro'
+import { NavBar } from '@/components'
 
 export default function PublishPage() {
-  // 获取状态栏高度 + 导航栏（含胶囊按钮）高度，避开右上角胶囊
-  const headerHeight = (() => {
-    try {
-      const info = getSystemInfoSync()
-      const statusBarHeight = info.statusBarHeight || 20
-      const menuButton = getMenuButtonBoundingClientRect()
-      // 导航栏高度 = (胶囊顶部 - 状态栏高度) * 2 + 胶囊高度
-      const navBarHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
-      return statusBarHeight + navBarHeight
-    } catch {
-      return 20 + 44 // H5 兜底：状态栏20px + 导航栏44px
-    }
-  })()
   // 模拟数据 (建议在实际项目中从 API 获取)
   const features = [
     { id: 1, title: '图文攻略', desc: '分享你的旅行经验', icon: '📝', bg: 'bg-orange-50', color: 'bg-orange-200', textColor: 'text-orange-500' },
@@ -40,7 +27,10 @@ export default function PublishPage() {
     { name: '西藏', image: 'https://images.unsplash.com/photo-1525049386811-933e144a169b?w=300&q=80' },
   ]
   return (
-    <View className="min-h-screen px-4 font-sans" style={{ paddingTop: headerHeight }}>
+    <View className="min-h-screen px-4 font-sans">
+
+      <NavBar />
+
       {/*  功能区（2x2 网格） - 使用 Grid */}
       <View className="grid grid-cols-2 gap-3 mb-5 mt-2">
         {features.map(item => (
@@ -55,7 +45,7 @@ export default function PublishPage() {
             {/* 文字区 */}
             <View className="flex flex-col justify-center overflow-hidden">
               <Text className="font-bold text-gray-800 truncate">{item.title}</Text>
-              <Text className="text-[24px] text-gray-400 mt-1 truncate">{item.desc}</Text>
+              <Text className="text-[22px] text-gray-400 mt-1 truncate">{item.desc}</Text>
             </View>
           </View>
         ))}
