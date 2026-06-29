@@ -101,11 +101,6 @@ export default function HomePage() {
             className="text-sm text-gray-700 flex-1"
           />
         </View>
-        {/* 右侧通知铃铛 */}
-        <View className="ml-4 relative p-1">
-          <Text className="text-xl text-gray-700">🔔</Text>
-          <View className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></View>
-        </View>
       </View>
 
       {/* 2. “寻找搭子” Banner 区域 */}

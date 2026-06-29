@@ -20,13 +20,11 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
     method = 'GET',
     data,
     header = {},
-    showLoading = true,
     showErrorToast = true, // 👈 新增：解构并设置默认值
   } = options;
   const fullUrl = url.startsWith('http') ? url : API_BASE + url;
 
   const token = useAuthStore.getState().token;
-  if (showLoading) Taro.showLoading({ title: '加载中...', mask: true });
 
   try {
     const res = await Taro.request({
@@ -48,12 +46,8 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
       await useAuthStore.getState().fetchUserInfo();
       throw new Error('登录过期，已重新登录');
     } else if (res.data.code !== 0) {
-      if (res.data.code === 1 && res.data.message === '无效或过期的令牌') {
-        useAuthStore.getState().logout();
-        Taro.showToast({ title: '请重新登录', icon: 'none' });
-        Taro.reLaunch({ url: '/pages/index/index' });
-      }
-      throw new Error(res.data.message || '请求失败');
+      Taro.showToast({ title: res.data.msg || '服务器异常', icon: 'none' });
+      throw new Error(res.data.msg || '请求失败');
     }
     return res.data.data;
   } catch (err: any) {
@@ -62,8 +56,6 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
       Taro.showToast({ title: err.message || '网络错误', icon: 'none' });
     }
     throw err;
-  } finally {
-    if (showLoading) Taro.hideLoading();
   }
 }
 

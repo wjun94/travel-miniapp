@@ -1,8 +1,9 @@
 @font-face {
-  font-family: "iconfont"; /* Project id 5201413 */
-  src: url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.woff2?t=1782720479904') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.woff?t=1782720479904') format('woff'),
-       url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.ttf?t=1782720479904') format('truetype');
+  font-family: "iconfont";
+  /* Project id 5201413 */
+  src: url('//at.alicdn.com/t/c/font_5201413_kie24btyp3q.woff2?t=1782721436851') format('woff2'),
+    url('//at.alicdn.com/t/c/font_5201413_kie24btyp3q.woff?t=1782721436851') format('woff'),
+    url('//at.alicdn.com/t/c/font_5201413_kie24btyp3q.ttf?t=1782721436851') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +12,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-partner:before {
+  content: "\e69b";
+}
+
+.icon-follow:before {
+  content: "\e69c";
+}
+
+.icon-follow-fill:before {
+  content: "\e69d";
 }
 
 .icon-checklists:before {
