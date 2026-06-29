@@ -1,13 +1,49 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { NavBar } from '@/components'
+import Taro from '@tarojs/taro'
 
 export default function PublishPage() {
   // 模拟数据 (建议在实际项目中从 API 获取)
   const features = [
-    { id: 1, title: '图文攻略', desc: '分享你的旅行经验', icon: '📝', bg: 'bg-orange-50', color: 'bg-orange-200', textColor: 'text-orange-500' },
-    { id: 2, title: '视频攻略', desc: '记录旅行精彩瞬间', icon: '🎥', bg: 'bg-red-50', color: 'bg-red-200', textColor: 'text-red-500' },
-    { id: 3, title: '行程规划', desc: 'AI/手动创建行程', icon: '🧭', bg: 'bg-green-50', color: 'bg-green-200', textColor: 'text-green-500' },
-    { id: 4, title: '分享行程', desc: '邀请他人共同编辑', icon: '🔗', bg: 'bg-blue-50', color: 'bg-blue-200', textColor: 'text-blue-500' },
+    {
+      id: 1,
+      title: '图文攻略',
+      desc: '分享你的旅行经验',
+      icon: '📝',
+      bg: 'bg-orange-50',
+      color: 'bg-orange-200',
+      textColor: 'text-orange-500',
+      fn: () => {
+        Taro.navigateTo({ url: `../edit/index` })
+      }
+    },
+    {
+      id: 2,
+      title: '视频攻略',
+      desc: '记录旅行精彩瞬间',
+      icon: '🎥',
+      bg: 'bg-red-50',
+      color: 'bg-red-200',
+      textColor: 'text-red-500'
+    },
+    {
+      id: 3,
+      title: '行程规划',
+      desc: 'AI/手动创建行程',
+      icon: '🧭',
+      bg: 'bg-green-50',
+      color: 'bg-green-200',
+      textColor: 'text-green-500'
+    },
+    {
+      id: 4,
+      title: '分享行程',
+      desc: '邀请他人共同编辑',
+      icon: '🔗',
+      bg: 'bg-blue-50',
+      color: 'bg-blue-200',
+      textColor: 'text-blue-500'
+    },
   ]
 
   const weatherList = [
@@ -37,6 +73,9 @@ export default function PublishPage() {
           <View
             key={item.id}
             className={`${item.bg} rounded-2xl p-4 flex flex-row items-center shadow-sm`}
+            onClick={() => {
+              item?.fn?.()
+            }}
           >
             {/* 图标区 */}
             <View className={`w-10 h-10 rounded-full flex flex-shrink-0 items-center justify-center ${item.color} ${item.textColor} mr-3`}>

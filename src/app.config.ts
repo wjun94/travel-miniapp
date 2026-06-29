@@ -4,7 +4,8 @@ export default defineAppConfig({
   pages: [
     'pages/home/index',
     'pages/nearby/index',
-    'pages/publish/index',
+    'pages/publish/index/index',
+    'pages/publish/edit/index',
     'pages/message/index',
     'pages/mine/index',
     'pages/trip/detail/index',
@@ -33,7 +34,7 @@ export default defineAppConfig({
         selectedIconPath: imgUrl + 'addr1.png',
       },
       {
-        pagePath: 'pages/publish/index',
+        pagePath: 'pages/publish/index/index',
         text: '发布',
         iconPath: imgUrl + 'home.png',
         selectedIconPath: imgUrl + 'home1.png',

@@ -22,7 +22,7 @@
       "list": [
         {
           "name": "发布",
-          "pathName": "pages/publish/index",
+          "pathName": "pages/publish/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
