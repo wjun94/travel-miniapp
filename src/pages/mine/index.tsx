@@ -71,14 +71,14 @@ export default function ProfilePage() {
       </View>
 
       {/* 4. 自由行工具箱（浅绿卡片） */}
-      <View className="bg-[#F4F9F3] rounded-3xl p-5 mb-5 shadow-2xs border border-[#E9F3E8]/60">
-        <Text className="text-base font-black text-[#2B4436] tracking-wide block mb-4">自由行工具箱</Text>
+      <View className="bg-[#f0efd5] rounded-3xl p-5 mb-5 shadow-2xs border border-[#E9F3E8]/60">
+        <Text className="text-base font-black text-[#0c0e0c] tracking-wide block mb-4">自由行工具箱</Text>
         <View className="grid grid-cols-4 gap-2 text-center">
           {tools.map((tool) => (
             <View key={tool.id} className="flex flex-col items-center active:opacity-70">
               {/* 工具箱子图标圈 */}
-              <View className="w-11 h-11 rounded-2xl bg-[#E2EFE1] flex items-center justify-center mb-2 shadow-2xs">
-                <Text className={`text-lg iconfont opacity-85 ${tool.icon}`} />
+              <View className="w-11 h-11 rounded-2xl bg-[#d4dcae] flex items-center justify-center mb-2 shadow-2xs">
+                <Text className={`text-46px text-[#312e29] iconfont opacity-85 ${tool.icon}`} />
               </View>
               <Text className="text-xs font-semibold text-gray-700 tracking-wide">{tool.title}</Text>
             </View>

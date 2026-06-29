@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 5201413 */
-  src: url('//at.alicdn.com/t/c/font_5201413_6688epnh0jh.woff2?t=1782666519463') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5201413_6688epnh0jh.woff?t=1782666519463') format('woff'),
-       url('//at.alicdn.com/t/c/font_5201413_6688epnh0jh.ttf?t=1782666519463') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.woff2?t=1782720479904') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.woff?t=1782720479904') format('woff'),
+       url('//at.alicdn.com/t/c/font_5201413_j7uldep3cnh.ttf?t=1782720479904') format('truetype');
 }
 
 .iconfont {
@@ -14,7 +14,7 @@
 }
 
 .icon-checklists:before {
-  content: "\e696";
+  content: "\e69a";
 }
 
 .icon-notepad:before {
