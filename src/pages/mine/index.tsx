@@ -4,10 +4,10 @@ import { NavBar } from '@/components'
 export default function ProfilePage() {
   // 1. 自由行工具箱数据
   const tools = [
-    { id: 1, title: '记账本', icon: '📒' },
-    { id: 2, title: '备忘录', icon: '✍️' },
-    { id: 3, title: '清单', icon: '📝' },
-    { id: 4, title: '汇率换算', icon: '💱' },
+    { id: 1, title: '记账本', icon: 'icon-notepad' },
+    { id: 2, title: '备忘录', icon: 'icon-memos' },
+    { id: 3, title: '清单', icon: 'icon-checklists' },
+    { id: 4, title: '汇率换算', icon: 'icon-rates' },
   ]
 
   // 2. 更多服务数据
@@ -78,7 +78,7 @@ export default function ProfilePage() {
             <View key={tool.id} className="flex flex-col items-center active:opacity-70">
               {/* 工具箱子图标圈 */}
               <View className="w-11 h-11 rounded-2xl bg-[#E2EFE1] flex items-center justify-center mb-2 shadow-2xs">
-                <Text className="text-lg opacity-85">{tool.icon}</Text>
+                <Text className={`text-lg iconfont opacity-85 ${tool.icon}`} />
               </View>
               <Text className="text-xs font-semibold text-gray-700 tracking-wide">{tool.title}</Text>
             </View>
