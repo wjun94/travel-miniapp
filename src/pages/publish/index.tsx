@@ -14,7 +14,7 @@ export default function PublishPage() {
       color: 'bg-orange-200',
       textColor: 'text-orange-500',
       fn: () => {
-        Taro.navigateTo({ url: `../edit/index` })
+        Taro.navigateTo({ url: `/pages/guide/itinerary/index` })
       }
     },
     {

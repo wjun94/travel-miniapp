@@ -4,8 +4,7 @@ export default defineAppConfig({
   pages: [
     'pages/home/index',
     'pages/nearby/index',
-    'pages/publish/index/index',
-    'pages/publish/edit/index',
+    'pages/publish/index',
     'pages/message/index',
     'pages/mine/index',
     'pages/trip/detail/index',
@@ -13,6 +12,8 @@ export default defineAppConfig({
     'pages/accounting/list',
     'pages/checklist/index',
     'pages/footprint/index',
+    'pages/guide/basic/index',
+    'pages/guide/itinerary/index',
   ],
   // 底部 TabBar 配置
   tabBar: {
@@ -34,7 +35,7 @@ export default defineAppConfig({
         selectedIconPath: imgUrl + 'addr1.png',
       },
       {
-        pagePath: 'pages/publish/index/index',
+        pagePath: 'pages/publish/index',
         text: '发布',
         iconPath: imgUrl + 'home.png',
         selectedIconPath: imgUrl + 'home1.png',
