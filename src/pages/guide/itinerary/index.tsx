@@ -18,6 +18,10 @@ interface DayItem {
     longitude: number | null;
     address: string;
     images: string[];
+    // 预约/购票相关字段
+    needReservation: boolean;   // 是否需要预约/购票
+    ticketChannel: string;      // 购票渠道
+    ticketPrice: number | null; // 票价 (null=未填写, 0=免费, >0=付费)
 }
 
 interface DayPlan {
@@ -38,13 +42,16 @@ export default function ItineraryPage() {
                     id: '1-1',
                     sectionType: 'attraction',
                     title: '雅典卫城',
-                    description: '参观雅典卫城，感受古希腊文明的辉煌历史，俯瞰雅典全景。',
-                    startTime: '09:00',
-                    endTime: '11:30',
-                    latitude: 37.9715,
-                    longitude: 23.7267,
-                    address: 'Athina 105 58希腊',
-                    images: []
+                    description: '',
+                    startTime: '',
+                    endTime: '',
+                    latitude: 0,
+                    longitude: 0,
+                    address: '',
+                    images: [],
+                    needReservation: false,
+                    ticketChannel: '',
+                    ticketPrice: null
                 }
             ]
         }
@@ -59,6 +66,9 @@ export default function ItineraryPage() {
         { label: '🛍️ 购物', value: 'shopping' },
         { label: '⚠️ 避坑', value: 'tips' }
     ];
+
+    // 购票渠道数据源
+    const channelOptions = ['公众号', '小程序', '官方网站', '第三方平台', '线下 / 现场'];
 
     const [activeTab, setActiveTab] = useState<number>(1);
     const [toViewId, setToViewId] = useState<string>('');
@@ -176,7 +186,21 @@ export default function ItineraryPage() {
     const handleAddCustomItem = (dayIndex: number) => {
         setDayPlans(dayPlans.map(day => {
             if (day.dayIndex === dayIndex) {
-                const newItem: DayItem = { id: `${dayIndex}-${Date.now()}`, sectionType: 'attraction', title: '', description: '', startTime: '09:00', endTime: '18:00', latitude: null, longitude: null, address: '', images: [] };
+                const newItem: DayItem = {
+                    id: `${dayIndex}-${Date.now()}`,
+                    sectionType: 'attraction',
+                    title: '',
+                    description: '',
+                    startTime: '09:00',
+                    endTime: '18:00',
+                    latitude: null,
+                    longitude: null,
+                    address: '',
+                    images: [],
+                    needReservation: false,
+                    ticketChannel: '',
+                    ticketPrice: null
+                };
                 return { ...day, items: [...day.items, newItem] };
             }
             return day;
@@ -342,7 +366,7 @@ export default function ItineraryPage() {
                                             <Textarea
                                                 showConfirmBar={false}
                                                 autoHeight
-                                                disableDefaultPadding  // 去除小程序原生自带的默认内边距，完全由 Tailwind 掌控
+                                                disableDefaultPadding
                                                 className='w-full min-h-[140px] p-3 bg-gray-50 rounded-xl leading-normal box-border text-gray-800'
                                                 placeholderStyle='color: #9ca3af'
                                                 value={item.description}
@@ -351,13 +375,76 @@ export default function ItineraryPage() {
                                             />
                                         </View>
 
-                                        {/* 4. 九宫格美照上传 */}
+                                        {/* 4. 预约与票价控制盘 */}
+                                        <View className='p-3 bg-green-50/20 rounded-2xl border border-green-500/5 space-y-3 box-border'>
+                                            {/* 来回切换的控制栏 */}
+                                            <View className='flex justify-between items-center box-border'>
+                                                <Text className='text-gray-700 text-[26px] font-medium'>预约/购票需求</Text>
+                                                <View className='flex bg-gray-100 rounded-lg p-0.5 box-border'>
+                                                    <View
+                                                        onClick={() => updateItemField(day.dayIndex, item.id, 'needReservation', true)}
+                                                        className={`px-3 py-1 rounded-md text-[24px] font-bold transition-all ${item.needReservation ? 'bg-green-500 text-white shadow-sm' : 'text-gray-500'}`}
+                                                    >
+                                                        需要
+                                                    </View>
+                                                    <View
+                                                        onClick={() => updateItemField(day.dayIndex, item.id, 'needReservation', false)}
+                                                        className={`px-3 py-1 rounded-md text-[24px] font-bold transition-all ${!item.needReservation ? 'bg-gray-400 text-white shadow-sm' : 'text-gray-500'}`}
+                                                    >
+                                                        不需要
+                                                    </View>
+                                                </View>
+                                            </View>
+
+                                            {/* 联动渲染：只有当需要预约时，才展示购买渠道和预计票价 */}
+                                            {item.needReservation && (
+                                                <View className='space-y-3 pt-1 px-2 rounded-10px border-t border-dashed border-gray-100 box-border animate-fade-in'>
+                                                    {/* 购票渠道 */}
+                                                    <View className='flex justify-between items-center py-0.5 box-border'>
+                                                        <Text className='text-gray-600 text-[26px]'>购票渠道</Text>
+                                                        <Picker
+                                                            mode='selector'
+                                                            range={channelOptions}
+                                                            value={channelOptions.indexOf(item.ticketChannel)}
+                                                            onChange={(e) => {
+                                                                const idx = Number(e.detail.value);
+                                                                updateItemField(day.dayIndex, item.id, 'ticketChannel', channelOptions[idx]);
+                                                            }}
+                                                        >
+                                                            <Text className='text-green-600 font-medium text-[26px]'>
+                                                                {item.ticketChannel || '选择渠道 ▾'}
+                                                            </Text>
+                                                        </Picker>
+                                                    </View>
+
+                                                    {/* 预计票价输入 */}
+                                                    <View className='flex justify-between items-center py-0.5 box-border'>
+                                                        <Text className='text-gray-600 text-[26px]'>预计票价</Text>
+                                                        <View className='flex items-center bg-gray-50 rounded-lg px-2 border border-gray-200/60 box-border w-[220px] h-[60px]'>
+                                                            <Input
+                                                                type='digit'
+                                                                className='w-full h-full text-right pr-1 text-[26px] font-bold text-gray-800'
+                                                                placeholder='输入0为免费'
+                                                                placeholderStyle='color: #9ca3af; font-size: 24rpx; font-weight: normal;'
+                                                                value={item.ticketPrice !== null ? String(item.ticketPrice) : ''}
+                                                                onInput={(e) => {
+                                                                    const val = e.detail.value;
+                                                                    updateItemField(day.dayIndex, item.id, 'ticketPrice', val === '' ? null : Number(val));
+                                                                }}
+                                                            />
+                                                            <Text className='text-[22px] text-gray-400 flex-shrink-0 ml-1'>元</Text>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            )}
+                                        </View>
+
+                                        {/* 5. 九宫格美照上传 */}
                                         <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>记录美照/凭证<Text className='text-gray-400 font-normal text-[24px]'>（可选，{imgList.length}/9）</Text></Text>
                                             <View className='flex flex-wrap gap-2 box-border'>
                                                 {imgList.map((imgUrl, imgIdx) => (
                                                     <View key={imgIdx} className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'>
-                                                        {/* 修复点：小程序内不能使用原生 img 标签，必须改为 Taro 的 Image 组件 */}
                                                         <Image src={imgUrl} mode='aspectFill' className='w-full h-full' onClick={() => Taro.previewImage({ current: imgUrl, urls: imgList })} />
                                                         <View onClick={() => handleDeleteImage(day.dayIndex, item.id, imgList, imgIdx)} className='absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-bl-xl flex items-center justify-center text-[16px] font-bold z-10 active:bg-red-600'>×</View>
                                                     </View>
@@ -368,7 +455,7 @@ export default function ItineraryPage() {
                                             </View>
                                         </View>
 
-                                        {/* 5. 时间模块 */}
+                                        {/* 6. 时间模块 */}
                                         <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>时间<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                             <View className='flex items-center space-x-2 box-border'>
@@ -382,15 +469,15 @@ export default function ItineraryPage() {
                                             </View>
                                         </View>
 
-                                        {/* 6. 位置模块 */}
+                                        {/* 7. 位置模块 */}
                                         <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>位置<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                             <View onClick={() => handleChooseLocation(day.dayIndex, item.id)} className='flex justify-between items-center p-3 bg-gray-50 rounded-xl min-h-[55px] active:bg-gray-100/80 transition-all box-border'>
                                                 <View className='flex-1 pr-2 truncate'>
                                                     <Text className='text-gray-700 block truncate text-[26px] font-medium'>{item.address || '点击调起地图关联经纬度点...'}</Text>
-                                                    {item.latitude && (
+                                                    {item.latitude ? (
                                                         <Text className='text-[20px] text-gray-400 block mt-0.5'>纬度: {item.latitude?.toFixed(4)}, 经度: {item.longitude?.toFixed(4)}</Text>
-                                                    )}
+                                                    ) : null}
                                                 </View>
                                                 <View className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-[18px] flex-shrink-0 font-bold'>📍</View>
                                             </View>
