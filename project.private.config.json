@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "攻略详情",
+          "pathName": "pages/guide/detail/index",
+          "query": "id=2072298469371940864",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "发攻略",
           "pathName": "pages/guide/itinerary/index",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "发布",

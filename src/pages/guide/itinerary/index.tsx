@@ -220,10 +220,6 @@ export default function ItineraryPage() {
 
     const handleNextStep = () => {
         for (const day of dayPlans) {
-            if (!day.title) {
-                Taro.showToast({ title: `请填写${getFormatDayName(day.dayIndex)}的主干大标题`, icon: 'none' });
-                return;
-            }
             if (day.items.length === 0) {
                 Taro.showToast({ title: `${getFormatDayName(day.dayIndex)}还没有任何行程明细`, icon: 'none' });
                 return;

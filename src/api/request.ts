@@ -44,7 +44,7 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
       useAuthStore.getState().setToken(newToken);
       // 获取用户信息
       await useAuthStore.getState().fetchUserInfo();
-      throw new Error('登录过期，已重新登录');
+      // throw new Error('登录过期，已重新登录');
     } else if (res.data.code !== 0) {
       Taro.showToast({ title: res.data.msg || '服务器异常', icon: 'none' });
       throw new Error(res.data.msg || '请求失败');

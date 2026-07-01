@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import Taro from "@tarojs/taro";
-import request from "@/api/request";
+import { getUserInfo } from "@/api/auth";
 
 interface AuthState {
   token: string | null;
@@ -34,18 +34,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchUserInfo: async () => {
     const token = get().token;
     if (!token) return;
-    try {
-      const userInfo = await request<USER.Info>({
-        url: "/user/info",
-        method: "GET",
-        showLoading: false,
-      });
-      set({ userInfo });
-    } catch (err) {
-      console.error("获取用户信息失败", err);
-      // 可选：如果接口返回401（token失效），则自动登出
-      // 但 request 内部已处理 token 失效（会调用 logout 并重定向）
-    }
+    const userInfo = await getUserInfo();
+    set({ userInfo });
   },
 
   logout: () => {

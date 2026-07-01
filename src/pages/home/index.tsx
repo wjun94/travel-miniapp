@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { View, Text, Image, Input, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
 import { getHeaderHeight } from '@/utils'
 import { NavBar, ScrollLoadList } from '@/components'
 import { getGuides } from '@/api/post'
@@ -89,7 +90,10 @@ export default function HomePage() {
 
   // 优化 3: 修复卡片内部文字大小，保证瀑布流不会因大字号撑变形
   const renderCard = useCallback((item: Guide) => (
-    <View className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border">
+    <View
+      className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
+      onClick={() => Taro.navigateTo({ url: `/pages/guide/detail/index?id=${item.id}` })}
+    >
       <View className="w-full h-44 relative bg-gray-50">
         <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
       </View>

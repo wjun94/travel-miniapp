@@ -30,9 +30,10 @@ export const login = (code: string) =>
  * @returns 用户信息
  */
 export const getUserInfo = () =>
-  request<LoginResponse['user']>({
+  request<USER.Info>({
     url: '/user/info',
     method: 'GET',
+    showLoading: false,
   });
 
 /**

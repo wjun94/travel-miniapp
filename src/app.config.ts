@@ -13,6 +13,7 @@ export default defineAppConfig({
     'pages/checklist/index',
     'pages/footprint/index',
     'pages/guide/basic/index',
+    'pages/guide/detail/index',
     'pages/guide/itinerary/index',
   ],
   // 底部 TabBar 配置
