@@ -40,10 +40,8 @@ export default function BasicInfoPage() {
             return;
         }
 
-        // 从页面 1 暂存的缓存中读取每日行程
         const cachedItinerary = Taro.getStorageSync('TEMP_ITINERARY_PLANS') || [];
 
-        // 拼装符合后端的 CreateGuideReq 结构
         const payload = {
             title,
             coverImage,
@@ -57,7 +55,7 @@ export default function BasicInfoPage() {
             difficulty,
             crowdType: targetGroups.join(','),
             isOriginal: isOriginal ? 1 : 0,
-            status: isPublish ? 1 : 0, // 0草稿 / 1已发布
+            status: isPublish ? 1 : 0,
             days: cachedItinerary.map((day: any) => ({
                 date: day.date ? `${day.date}T00:00:00Z` : null,
                 title: day.title,
@@ -79,7 +77,7 @@ export default function BasicInfoPage() {
 
         try {
             const res = await Taro.request({
-                url: 'https://api.yourdomain.com/v1/guides', // 换为你的实际 Go 服务 API 路由
+                url: 'https://api.yourdomain.com/v1/guides',
                 method: 'POST',
                 data: payload,
                 header: { 'content-type': 'application/json' }
@@ -90,10 +88,7 @@ export default function BasicInfoPage() {
 
             if (res.statusCode === 200 || res.statusCode === 201) {
                 Taro.showToast({ title: isPublish ? '发布成功' : '草稿保存成功', icon: 'success' });
-                // 成功后清理本地暂存
                 Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
-
-                // 返回攻略主页列表
                 setTimeout(() => {
                     Taro.navigateBack({ delta: 2 });
                 }, 1500);
@@ -121,46 +116,73 @@ export default function BasicInfoPage() {
             <View className='m-4 p-4 bg-white rounded-2xl shadow-sm space-y-5'>
                 <Text className='text-lg font-bold block border-b border-gray-100 pb-2'>基本信息配置</Text>
 
-                <View className='space-y-1'>
+                {/* 1. 标题输入框（已调整间距为 1.5 并修复大字号溢出） */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>标题 <Text className='text-red-500'>*</Text></Text>
-                    <Input className='w-full p-3 bg-gray-50 rounded-xl text-sm' placeholder='请输入攻略标题' value={title} onInput={(e) => setTitle(e.detail.value)} />
+                    <Input
+                        className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
+                        placeholder='请输入攻略标题'
+                        value={title}
+                        onInput={(e) => setTitle(e.detail.value)}
+                    />
                 </View>
 
-                <View className='space-y-1'>
+                {/* 2. 目的地输入框（已调整间距为 1.5 并修复大字号溢出） */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>目的地 <Text className='text-red-500'>*</Text></Text>
-                    <Input className='w-full p-3 bg-gray-50 rounded-xl text-sm' placeholder='请输入目的地，如：日本·东京' value={destination} onInput={(e) => setDestination(e.detail.value)} />
+                    <Input
+                        className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
+                        placeholder='请输入目的地，如：日本·东京'
+                        value={destination}
+                        onInput={(e) => setDestination(e.detail.value)}
+                    />
                 </View>
 
-                <View className='space-y-1'>
+                {/* 3. 摘要介绍（已调整间距为 1.5 并深度优化防重叠） */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>摘要介绍 <Text className='text-red-500'>*</Text></Text>
                     <View className='relative bg-gray-50 rounded-xl p-3'>
-                        <Textarea className='w-full h-20 text-sm bg-transparent' placeholder='简述这趟精彩行程的核心亮点...' maxlength={150} value={summary} onInput={(e) => setSummary(e.detail.value)} />
-                        <Text className='absolute bottom-2 right-3 text-xs text-gray-400'>{summary.length}/150</Text>
+                        <Textarea
+                            autoHeight
+                            disableDefaultPadding
+                            showConfirmBar={false}
+                            className='w-full min-h-[140px] pb-6 text-[28px] bg-transparent leading-normal box-border'
+                            placeholderStyle='color: #9ca3af'
+                            placeholder='简述这趟精彩行程的核心亮点...'
+                            maxlength={150}
+                            value={summary}
+                            onInput={(e) => setSummary(e.detail.value)}
+                        />
+                        <Text className='absolute bottom-2 right-3 text-xs text-gray-400 z-10 bg-gray-50/80 px-1 rounded'>{summary.length}/150</Text>
                     </View>
                 </View>
 
-                <View className='space-y-1'>
+                {/* 4. 预算输入框 */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>预算范围 (可选)</Text>
                     <View className='flex items-center space-x-2'>
-                        <Input className='flex-1 p-3 bg-gray-50 rounded-xl text-sm text-center' placeholder='￥ 最低' type='digit' value={minBudget} onInput={(e) => setMinBudget(e.detail.value)} />
+                        <Input className='flex-1 h-[80px] px-2 bg-gray-50 rounded-xl text-[28px] text-center box-border' placeholder='￥ 最低' type='digit' value={minBudget} onInput={(e) => setMinBudget(e.detail.value)} />
                         <Text className='text-gray-400'>~</Text>
-                        <Input className='flex-1 p-3 bg-gray-50 rounded-xl text-sm text-center' placeholder='￥ 最高' type='digit' value={maxBudget} onInput={(e) => setMaxBudget(e.detail.value)} />
+                        <Input className='flex-1 h-[80px] px-2 bg-gray-50 rounded-xl text-[28px] text-center box-border' placeholder='￥ 最高' type='digit' value={maxBudget} onInput={(e) => setMaxBudget(e.detail.value)} />
                     </View>
                 </View>
 
-                <View className='space-y-1'>
+                {/* 5. 最佳季节 */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>最佳季节 (可选)</Text>
-                    <Input className='w-full p-3 bg-gray-50 rounded-xl text-sm' placeholder='如：11月至次年2月' value={bestSeason} onInput={(e) => setBestSeason(e.detail.value)} />
+                    <Input className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border' placeholder='如：11月至次年2月' value={bestSeason} onInput={(e) => setBestSeason(e.detail.value)} />
                 </View>
 
-                <View className='space-y-1'>
+                {/* 6. 建议天数 */}
+                <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'>建议游玩天数 (可选)</Text>
-                    <View className='flex items-center bg-gray-50 rounded-xl px-3'>
-                        <Input className='flex-1 p-3 text-sm bg-transparent' placeholder='建议天数' type='number' value={days} onInput={(e) => setDays(e.detail.value)} />
-                        <Text className='text-sm text-gray-500 pr-1'>天</Text>
+                    <View className='flex items-center bg-gray-50 rounded-xl px-3 h-[80px] box-border'>
+                        <Input className='flex-1 text-[28px] bg-transparent h-full' placeholder='建议天数' type='number' value={days} onInput={(e) => setDays(e.detail.value)} />
+                        <Text className='text-sm text-gray-500 pr-1 shrink-0'>天</Text>
                     </View>
                 </View>
 
+                {/* 游玩难度 */}
                 <View className='space-y-2'>
                     <Text className='text-sm font-medium text-gray-700'>游玩难度</Text>
                     <View className='flex space-x-3'>
@@ -175,6 +197,7 @@ export default function BasicInfoPage() {
                     </View>
                 </View>
 
+                {/* 适用群体 */}
                 <View className='space-y-2'>
                     <Text className='text-sm font-medium text-gray-700'>适用群体 (可多选)</Text>
                     <View className='flex flex-wrap gap-2'>
@@ -192,6 +215,7 @@ export default function BasicInfoPage() {
                     </View>
                 </View>
 
+                {/* 原创声明 */}
                 <View className='flex justify-between items-center border-t border-gray-100 pt-3'>
                     <View>
                         <Text className='text-sm font-medium text-gray-700 block'>原创声明</Text>
@@ -203,27 +227,8 @@ export default function BasicInfoPage() {
 
             {/* 底部悬浮控制台 */}
             <View className='fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex space-x-4 z-50 shadow-md'>
-                <Button
-                    disabled={btnLoading}
-                    onClick={() => Taro.navigateBack()}
-                    className='flex-1 py-3 text-sm font-medium bg-white text-gray-500 border border-gray-200 rounded-full flex items-center justify-center m-0'
-                >
-                    返回上步
-                </Button>
-                <Button
-                    disabled={btnLoading}
-                    onClick={() => handleSubmit(false)}
-                    className='flex-1 py-3 text-sm font-medium bg-gray-100 text-gray-700 rounded-full flex items-center justify-center m-0'
-                >
-                    存草稿
-                </Button>
-                <Button
-                    disabled={btnLoading}
-                    onClick={() => handleSubmit(true)}
-                    className='flex-[1.5] py-3 text-sm font-medium bg-green-500 text-white rounded-full flex items-center justify-center m-0 active:opacity-90'
-                >
-                    确认发布
-                </Button>
+                <Button disabled={btnLoading} onClick={() => handleSubmit(false)} className='flex-1 py-3 text-sm font-medium bg-gray-100 text-gray-700 rounded-full flex items-center justify-center m-0'>存草稿</Button>
+                <Button disabled={btnLoading} onClick={() => handleSubmit(true)} className='flex-[1.5] py-3 text-sm font-medium bg-green-500 text-white rounded-full flex items-center justify-center m-0 active:opacity-90'>确认发布</Button>
             </View>
         </View>
     );

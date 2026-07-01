@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Input, Textarea, Button, ScrollView, Picker } from '@tarojs/components';
+import { View, Text, Input, Textarea, Button, ScrollView, Picker, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { uploadMultiImages } from '@/utils/upload';
@@ -212,22 +212,22 @@ export default function ItineraryPage() {
             }
         }
         Taro.setStorageSync('TEMP_ITINERARY_PLANS', dayPlans);
-        Taro.navigateTo({ url: '/pages/basic/index' });
+        Taro.navigateTo({ url: '/pages/guide/basic/index' });
     };
 
     return (
-        <View className='w-full h-screen bg-gray-50 text-gray-800 flex flex-col overflow-hidden relative text-[28px]'>
+        <View className='w-full h-screen bg-gray-50 text-gray-800 flex flex-col overflow-hidden relative text-[28px] box-border'>
             {/* 顶部固定栏 */}
-            <View className='bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40'>
-                <View className='px-4 py-3 flex justify-between items-center'>
+            <View className='bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border'>
+                <View className='px-4 py-3 flex justify-between items-center box-border'>
                     <Text className='font-bold text-gray-900 text-[28px]'>每日行程编辑</Text>
                     <Button onClick={handleAddDay} className='m-0 px-3 py-1 bg-green-500 text-white font-medium rounded-full text-[24px]'>
                         + 再加一天
                     </Button>
                 </View>
-                <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100' scrollWithAnimation scrollIntoView={toTabId}>
+                <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
                     {dayPlans.map((day) => (
-                        <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>
+                        <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border border-gray-200'}`}>
                             {getFormatDayName(day.dayIndex)}
                         </View>
                     ))}
@@ -236,12 +236,12 @@ export default function ItineraryPage() {
 
             {/* 主体滚动卡片区域 */}
             <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll} throttle={false}>
-                <View className='pb-12'>
+                <View className='pb-12 box-border'>
                     {dayPlans.map((day, dIdx) => (
-                        <View key={day.dayIndex} id={`day-node-${day.dayIndex}`} className='day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0'>
+                        <View key={day.dayIndex} id={`day-node-${day.dayIndex}`} className='day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0 box-border'>
 
                             {/* 天级别汇总卡片 */}
-                            <View className='bg-white p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden'>
+                            <View className='bg-white p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden box-border'>
                                 <View className='flex justify-between items-center'>
                                     <Text className='font-black text-gray-900 text-[28px]'>{getFormatDayName(day.dayIndex)}</Text>
                                     {day.dayIndex > 1 && (
@@ -250,7 +250,7 @@ export default function ItineraryPage() {
                                 </View>
 
                                 {/* 天日期选填 */}
-                                <View className='flex justify-between items-center py-1 border-b border-gray-50'>
+                                <View className='flex justify-between items-center py-1 border-b border-gray-50 box-border'>
                                     <Text className='text-gray-700 text-[26px] font-medium'>日期<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                     <Picker mode='date' value={day.date} onChange={(e) => {
                                         const updated = [...dayPlans];
@@ -262,13 +262,13 @@ export default function ItineraryPage() {
                                 </View>
 
                                 {/* 天大标题 */}
-                                <View className='space-y-1.5'>
-                                    <View className='flex items-center'>
+                                <View className='space-y-1.5 box-border'>
+                                    <View className='flex items-center mb-1.5'>
                                         <Text className='text-red-500 font-bold mr-0.5'>*</Text>
                                         <Text className='text-gray-700 text-[26px] font-medium'>当天游玩概要<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
                                     </View>
                                     <Input
-                                        className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px]'
+                                        className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center'
                                         placeholder='如：抵达城市 · 核心地标打卡一日游'
                                         value={day.title}
                                         onInput={(e) => {
@@ -280,17 +280,16 @@ export default function ItineraryPage() {
                                 </View>
                             </View>
 
-                            {/* 🌟 行程项卡片细节（基于 image_7253b2.jpg 完美重构） */}
+                            {/* 行程项卡片细节 */}
                             {day.items.map((item) => {
                                 const imgList = item.images || [];
-                                // 获取当前类型的显示文案
                                 const currentTypeOpt = typeOptions.find(opt => opt.value === item.sectionType) || typeOptions[0];
 
                                 return (
-                                    <View key={item.id} className='bg-white p-4 rounded-2xl shadow-sm space-y-4 relative'>
+                                    <View key={item.id} className='bg-white p-4 rounded-2xl shadow-sm space-y-4 relative box-border'>
 
                                         {/* 卡片头部：删除按钮 */}
-                                        <View className='flex justify-end items-center border-b border-gray-50 pb-1.5'>
+                                        <View className='flex justify-end items-center border-b border-gray-50 box-border'>
                                             <Text
                                                 onClick={() => triggerDeleteItem(day.dayIndex, item.id, item.title)}
                                                 className='text-red-500 font-medium text-[24px] active:opacity-60'
@@ -299,9 +298,9 @@ export default function ItineraryPage() {
                                             </Text>
                                         </View>
 
-                                        {/* 🌟 1. 类型选择模块（必填） */}
-                                        <View className='space-y-1.5'>
-                                            <View className='flex items-center'>
+                                        {/* 1. 类型选择模块 */}
+                                        <View className='space-y-1.5 box-border'>
+                                            <View className='flex items-center mb-1.5'>
                                                 <Text className='text-red-500 font-bold mr-0.5'>*</Text>
                                                 <Text className='text-gray-700 text-[26px] font-medium'>类型<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
                                             </View>
@@ -316,73 +315,77 @@ export default function ItineraryPage() {
                                                     updateItemField(day.dayIndex, item.id, 'sectionType', selectedValue);
                                                 }}
                                             >
-                                                <View className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100'>
+                                                <View className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100 box-border'>
                                                     <Text className='text-gray-800 font-medium'>{currentTypeOpt.label}</Text>
                                                     <Text className='text-gray-400 text-[24px]'>切换 ▾</Text>
                                                 </View>
                                             </Picker>
                                         </View>
 
-                                        {/* 🌟 2. 行程输入模块（必填） */}
-                                        <View className='space-y-1.5'>
-                                            <View className='flex items-center'>
+                                        {/* 2. 行程输入模块 */}
+                                        <View className='space-y-1.5 box-border'>
+                                            <View className='flex items-center mb-1.5'>
                                                 <Text className='text-red-500 font-bold mr-0.5'>*</Text>
                                                 <Text className='text-gray-700 text-[26px] font-medium'>行程<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
                                             </View>
                                             <Input
-                                                className='w-full p-2.5 bg-gray-50 rounded-xl font-medium text-[28px]'
+                                                className='w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center'
                                                 value={item.title}
                                                 placeholder='请输入具体名称（如：雅典卫城）'
                                                 onInput={(e) => updateItemField(day.dayIndex, item.id, 'title', e.detail.value)}
                                             />
                                         </View>
 
-                                        {/* 🌟 3. 备注模块（可选） */}
-                                        <View className='space-y-1.5'>
-                                            <Text className='text-gray-700 text-[26px] font-medium'>备注<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
+                                        {/* 3. 备注模块 */}
+                                        <View className='space-y-1.5 box-border'>
+                                            <Text className='text-gray-700 text-[26px] font-medium mb-1.5 block'>备注<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                             <Textarea
+                                                showConfirmBar={false}
                                                 autoHeight
-                                                className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] min-h-[70px] leading-relaxed'
+                                                disableDefaultPadding  // 去除小程序原生自带的默认内边距，完全由 Tailwind 掌控
+                                                className='w-full min-h-[140px] p-3 bg-gray-50 rounded-xl leading-normal box-border text-gray-800'
+                                                placeholderStyle='color: #9ca3af'
                                                 value={item.description}
                                                 placeholder='写一点关于此景点的游玩攻略、通票购买或注意事项描述...'
                                                 onInput={(e) => updateItemField(day.dayIndex, item.id, 'description', e.detail.value)}
                                             />
                                         </View>
 
-                                        {/* 4. 九宫格美照上传（最多9张） */}
-                                        <View className='space-y-1.5'>
+                                        {/* 4. 九宫格美照上传 */}
+                                        <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>记录美照/凭证<Text className='text-gray-400 font-normal text-[24px]'>（可选，{imgList.length}/9）</Text></Text>
-                                            <View className='flex flex-wrap gap-2'>
+                                            <View className='flex flex-wrap gap-2 box-border'>
                                                 {imgList.map((imgUrl, imgIdx) => (
-                                                    <View key={imgIdx} className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm'>
-                                                        <img src={imgUrl} className='w-full h-full object-cover' onClick={() => Taro.previewImage({ current: imgUrl, urls: imgList })} />
+                                                    <View key={imgIdx} className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'>
+                                                        {/* 修复点：小程序内不能使用原生 img 标签，必须改为 Taro 的 Image 组件 */}
+                                                        <Image src={imgUrl} mode='aspectFill' className='w-full h-full' onClick={() => Taro.previewImage({ current: imgUrl, urls: imgList })} />
                                                         <View onClick={() => handleDeleteImage(day.dayIndex, item.id, imgList, imgIdx)} className='absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-bl-xl flex items-center justify-center text-[16px] font-bold z-10 active:bg-red-600'>×</View>
                                                     </View>
                                                 ))}
                                                 {imgList.length < 9 && (
-                                                    <View onClick={() => handleChooseImage(day.dayIndex, item.id, imgList)} className='w-[100px] h-[100px] border border-dashed border-gray-300 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 text-[40px] active:bg-gray-100'>+</View>
+                                                    <View onClick={() => handleChooseImage(day.dayIndex, item.id, imgList)} className='w-[100px] h-[100px] border border-dashed border-gray-300 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 text-[40px] active:bg-gray-100 flex-shrink-0'>+</View>
                                                 )}
                                             </View>
                                         </View>
 
-                                        {/* 5. 时间模块（可选） */}
-                                        <View className='space-y-1.5'>
+                                        {/* 5. 时间模块 */}
+                                        <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>时间<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-                                            <View className='flex items-center space-x-2'>
+                                            <View className='flex items-center space-x-2 box-border'>
                                                 <Picker mode='time' value={item.startTime || '09:00'} onChange={(e) => updateItemField(day.dayIndex, item.id, 'startTime', e.detail.value)} className='flex-1'>
-                                                    <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100'>⏱️ {item.startTime || '开始时间'}</View>
+                                                    <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.startTime || '开始时间'}</View>
                                                 </Picker>
                                                 <Text className='text-gray-300 font-bold'>~</Text>
                                                 <Picker mode='time' value={item.endTime || '11:30'} onChange={(e) => updateItemField(day.dayIndex, item.id, 'endTime', e.detail.value)} className='flex-1'>
-                                                    <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100'>⏱️ {item.endTime || '结束时间'}</View>
+                                                    <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.endTime || '结束时间'}</View>
                                                 </Picker>
                                             </View>
                                         </View>
 
-                                        {/* 6. 位置模块（可选） */}
-                                        <View className='space-y-1.5'>
+                                        {/* 6. 位置模块 */}
+                                        <View className='space-y-1.5 box-border'>
                                             <Text className='text-gray-700 text-[26px] font-medium'>位置<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-                                            <View onClick={() => handleChooseLocation(day.dayIndex, item.id)} className='flex justify-between items-center p-3 bg-gray-50 rounded-xl min-h-[55px] active:bg-gray-100/80 transition-all'>
+                                            <View onClick={() => handleChooseLocation(day.dayIndex, item.id)} className='flex justify-between items-center p-3 bg-gray-50 rounded-xl min-h-[55px] active:bg-gray-100/80 transition-all box-border'>
                                                 <View className='flex-1 pr-2 truncate'>
                                                     <Text className='text-gray-700 block truncate text-[26px] font-medium'>{item.address || '点击调起地图关联经纬度点...'}</Text>
                                                     {item.latitude && (
@@ -397,10 +400,10 @@ export default function ItineraryPage() {
                             })}
 
                             {/* 节点底座动作盘 */}
-                            <View className='pt-1'>
-                                <Button onClick={() => handleAddCustomItem(day.dayIndex)} className='w-full py-2 bg-white border border-dashed border-green-500 text-green-500 font-bold rounded-xl text-[26px] shadow-sm active:bg-green-50/50 m-0'>
+                            <View className='pt-1 box-border'>
+                                <View onClick={() => handleAddCustomItem(day.dayIndex)} className='w-full text-center py-2 bg-white border border-dashed border-green-500 text-green-500 font-bold rounded-14px text-[26px] shadow-sm active:bg-green-50/50 m-0'>
                                     + 添加行程项
-                                </Button>
+                                </View>
                             </View>
                         </View>
                     ))}
@@ -408,7 +411,7 @@ export default function ItineraryPage() {
             </ScrollView>
 
             {/* 吸底动作栏 */}
-            <View className='bg-white border-t border-gray-100 p-4 pb-safe flex-shrink-0 z-50 shadow-lg'>
+            <View className='bg-white border-t border-gray-100 p-4 pb-safe flex-shrink-0 z-50 shadow-lg box-border'>
                 <Button onClick={handleNextStep} className='w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95'>
                     下一步 (配置全局基本信息)
                 </Button>
