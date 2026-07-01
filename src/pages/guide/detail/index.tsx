@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 
 // 1. 类型映射配置
@@ -141,7 +141,7 @@ export default function TravelGuideDetail() {
                     <Text>{guide.destination}</Text>
                 </View>
 
-                <View className='grid grid-cols-4 gap-2 py-3 border-t border-b border-gray-100 text-center text-xxs text-gray-400 mb-4'>
+                <View className='grid grid-cols-4 gap-2 py-3 border-t border-b border-gray-100 text-center text-xxs text-gray-400 mb-4 text-24px'>
                     <View><Text className='block text-gray-800 mb-1 font-medium'>🍂 最佳季节</Text>{guide.bestSeason}</View>
                     <View><Text className='block text-gray-800 mb-1 font-medium'>⏱️ 推荐天数</Text>{guide.recommendedDays}天</View>
                     <View><Text className='block text-gray-800 mb-1 font-medium'>⛰️ 难度</Text>{guide.difficulty}</View>
@@ -296,7 +296,7 @@ export default function TravelGuideDetail() {
                                             {item.nextTransport && index < currentDay.items.length - 1 && (
                                                 <View className='relative my-2 py-1 flex flex-row items-center pl-2'>
                                                     {/* 交通节点微型指示点精确靠左对齐主轴 */}
-                                                    <View className='absolute -left-[20px] w-1.5 h-1.5 rounded-full bg-[#D1CFC9] z-10' />
+                                                    <View className='absolute -left-[36px] w-1.5 h-1.5 rounded-full bg-[#D1CFC9] z-10' />
                                                     <View className='bg-[#F1F6F2] rounded-full px-3 py-1 flex flex-row items-center space-x-2 border border-white shadow-3xs'>
                                                         <Text className='text-xs'>🚗</Text>
                                                         <Text className='text-xxs text-gray-500 font-medium'>
