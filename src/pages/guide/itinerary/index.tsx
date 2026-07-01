@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Input, Textarea, Button, ScrollView, Picker, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import Modal from '@/components/Modal';
@@ -41,7 +41,7 @@ export default function ItineraryPage() {
                 {
                     id: '1-1',
                     sectionType: 'attraction',
-                    title: '雅典卫城',
+                    title: '',
                     description: '',
                     startTime: '',
                     endTime: '',
@@ -259,7 +259,7 @@ export default function ItineraryPage() {
             </View>
 
             {/* 主体滚动卡片区域 */}
-            <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll} throttle={false}>
+            <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll}>
                 <View className='pb-12 box-border'>
                     {dayPlans.map((day, dIdx) => (
                         <View key={day.dayIndex} id={`day-node-${day.dayIndex}`} className='day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0 box-border'>
@@ -288,8 +288,7 @@ export default function ItineraryPage() {
                                 {/* 天大标题 */}
                                 <View className='space-y-1.5 box-border'>
                                     <View className='flex items-center mb-1.5'>
-                                        <Text className='text-red-500 font-bold mr-0.5'>*</Text>
-                                        <Text className='text-gray-700 text-[26px] font-medium'>当天游玩概要<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
+                                        <Text className='text-gray-700 text-[26px] font-medium'>当天游玩概要<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                     </View>
                                     <Input
                                         className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center'
@@ -355,7 +354,7 @@ export default function ItineraryPage() {
                                             <Input
                                                 className='w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center'
                                                 value={item.title}
-                                                placeholder='请输入具体名称（如：雅典卫城）'
+                                                placeholder='请输入具体名称（如：杭州西湖）'
                                                 onInput={(e) => updateItemField(day.dayIndex, item.id, 'title', e.detail.value)}
                                             />
                                         </View>
@@ -474,7 +473,7 @@ export default function ItineraryPage() {
                                             <Text className='text-gray-700 text-[26px] font-medium'>位置<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
                                             <View onClick={() => handleChooseLocation(day.dayIndex, item.id)} className='flex justify-between items-center p-3 bg-gray-50 rounded-xl min-h-[55px] active:bg-gray-100/80 transition-all box-border'>
                                                 <View className='flex-1 pr-2 truncate'>
-                                                    <Text className='text-gray-700 block truncate text-[26px] font-medium'>{item.address || '点击调起地图关联经纬度点...'}</Text>
+                                                    <Text className='text-gray-700 block truncate text-[26px] font-medium'>{item.address || '点击选择地址'}</Text>
                                                     {item.latitude ? (
                                                         <Text className='text-[20px] text-gray-400 block mt-0.5'>纬度: {item.latitude?.toFixed(4)}, 经度: {item.longitude?.toFixed(4)}</Text>
                                                     ) : null}
