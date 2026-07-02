@@ -12,16 +12,21 @@ const cfg = typeConfigMap.transport;
 export default function TransportForm({ item, updateField }: Props) {
   return (
     <View className='space-y-4 box-border'>
-      {/* 交通方式 + 时间 */}
+      {/* 交通方式 */}
+      <View className='space-y-1.5 box-border'>
+        <Text className='text-gray-700 text-[26px] font-medium'>交通方式<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
+        <View className='flex items-center gap-2 box-border'>
+          <View className='flex-1 flex items-center gap-1.5 px-2.5 py-2 bg-gray-50 rounded-xl box-border'>
+            <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMode || '火车')} onChange={(e) => updateField('transportMode', transportMethods[Number(e.detail.value)])}>
+              <Text className='text-gray-700 text-[26px] font-medium'>{item.transportMode || '火车'}</Text>
+            </Picker>
+          </View>
+        </View>
+      </View>
+      {/* 时间 */}
       <View className='space-y-1.5 box-border'>
         <Text className='text-gray-700 text-[26px] font-medium'>时间<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
         <View className='flex items-center gap-2 box-border'>
-          <View className='flex-1 flex items-center gap-1.5 px-2.5 py-2 bg-gray-50 rounded-xl box-border'>
-            <Text className='text-gray-400 text-[22px]'>🚄</Text>
-            <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMethod || '火车')} onChange={(e) => updateField('transportMethod', transportMethods[Number(e.detail.value)])}>
-              <Text className='text-gray-700 text-[26px] font-medium'>{item.transportMethod || '火车'} ▾</Text>
-            </Picker>
-          </View>
           <View className='flex items-center gap-1 flex-1'>
             <Picker mode='time' value={item.startTime || '09:00'} onChange={(e) => updateField('startTime', e.detail.value)} className='flex-1'>
               <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.startTime || '出发'}</View>

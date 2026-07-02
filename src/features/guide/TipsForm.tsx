@@ -1,4 +1,4 @@
-import { View, Textarea } from '@tarojs/components';
+import { View, Text, Textarea } from '@tarojs/components';
 import { typeConfigMap } from '@/constants/travel';
 
 interface Props {

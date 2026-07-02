@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import Modal from '@/components/Modal';
-import { typeConfigMap, SectionType } from '@/constants/travel';
+import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
 import TypeSelector from '@/features/guide/TypeSelector';
 import TransportForm from '@/features/guide/TransportForm';
 import AttractionForm from '@/features/guide/AttractionForm';
@@ -33,7 +33,7 @@ interface DayItem {
   endLatitude: number | null;
   endLongitude: number | null;
   // 交通方式
-  transportMethod: string;
+  transportMode: string;
 }
 
 interface DayPlan {
@@ -63,7 +63,7 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
   endAddress: '',
   endLatitude: null,
   endLongitude: null,
-  transportMethod: '火车',
+  transportMode: '火车',
 });
 
 export default function ItineraryPage() {
@@ -221,7 +221,7 @@ export default function ItineraryPage() {
         return;
       }
       for (const item of day.items) {
-        if (!item.title) {
+        if (item.sectionType !== 'transport' && !item.title) {
           const cfg = typeConfigMap[item.sectionType];
           Taro.showToast({ title: `${cfg.label}名称不能为空`, icon: 'none' });
           return;
@@ -273,14 +273,26 @@ export default function ItineraryPage() {
               <View className='bg-white p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden box-border'>
                 <View className='flex justify-between items-center'>
                   <Text className='font-bold text-gray-900 text-[28px]'>{getFormatDayName(day.dayIndex)}</Text>
-                  <View className='flex items-center gap-2'>
-                    <Picker mode='date' value={day.date} onChange={(e) => { const updated = [...dayPlans]; updated[dIdx].date = e.detail.value; setDayPlans(updated); }}>
-                      <Text className='text-gray-400 text-[24px]'>{day.date || '选日期'}</Text>
-                    </Picker>
-                    {day.dayIndex > 1 && <Text onClick={() => triggerDeleteDay(dIdx)} className='text-red-500 text-[24px]'>删除</Text>}
+                  {day.dayIndex > 1 && <Text onClick={() => triggerDeleteDay(dIdx)} className='text-red-500 text-[24px]'>删除</Text>}
+                </View>
+                <View className='space-y-1.5'>
+                  <Text className='text-gray-700 text-[26px] font-medium'>标题</Text>
+                  <View>
+                    <Input className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center' placeholder='当天游玩概要（可选）' value={day.title} onInput={(e) => { const updated = [...dayPlans]; updated[dIdx].title = e.detail.value; setDayPlans(updated); }} />
                   </View>
                 </View>
-                <Input className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center' placeholder='当天游玩概要（可选）' value={day.title} onInput={(e) => { const updated = [...dayPlans]; updated[dIdx].title = e.detail.value; setDayPlans(updated); }} />
+                {/* 日期选择 */}
+                <View className='space-y-1.5'>
+                  <Text className='text-gray-700 text-[26px] font-medium'>日期</Text>
+                  <View>
+                    <Picker mode='date' value={day.date} onChange={(e) => { const updated = [...dayPlans]; updated[dIdx].date = e.detail.value; setDayPlans(updated); }}>
+                      <View className='px-3 py-2 bg-gray-50 rounded-xl flex justify-between items-center'>
+                        <Text className={day.date ? 'text-gray-800 text-[26px]' : 'text-gray-400 text-[26px]'}>{day.date || '点击选择日期'}</Text>
+                        <Text className='text-gray-400 text-[24px]'>📅</Text>
+                      </View>
+                    </Picker>
+                  </View>
+                </View>
               </View>
 
               {/* 行程项卡片 */}
@@ -306,11 +318,10 @@ export default function ItineraryPage() {
                       </View>
                       <Picker
                         mode='selector'
-                        range={['交通', '打卡地', '美食', '住宿', '购物', '避坑']}
-                        value={['transport', 'attraction', 'food', 'hotel', 'shopping', 'tips'].indexOf(item.sectionType)}
+                        range={typeOptions}
+                        rangeKey="label"
                         onChange={(e) => {
-                          const types: SectionType[] = ['transport', 'attraction', 'food', 'hotel', 'shopping', 'tips'];
-                          handleTypeSwitch(day.dayIndex, item.id, types[Number(e.detail.value)], item);
+                          handleTypeSwitch(day.dayIndex, item.id, typeOptions[e.detail.value].value, item);
                         }}
                       >
                         <View className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100 box-border'>
@@ -320,20 +331,22 @@ export default function ItineraryPage() {
                       </Picker>
                     </View>
 
-                    {/* 名称输入 */}
-                    <View className='space-y-1.5 box-border'>
-                      <View className='flex items-center mb-1.5'>
-                        <Text className='text-red-500 font-bold mr-0.5'>*</Text>
-                        <Text className='text-gray-700 text-[26px] font-medium'>{cfg.nameLabel}<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
+                    {/* 名称输入（交通类型不需要） */}
+                    {item.sectionType !== 'transport' && (
+                      <View className='space-y-1.5 box-border'>
+                        <View className='flex items-center mb-1.5'>
+                          <Text className='text-red-500 font-bold mr-0.5'>*</Text>
+                          <Text className='text-gray-700 text-[26px] font-medium'>{cfg.nameLabel}<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
+                        </View>
+                        <Input
+                          className='w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center'
+                          value={item.title}
+                          placeholder={cfg.namePlaceholder}
+                          placeholderStyle='color:#9ca3af'
+                          onInput={(e) => updateItemField(day.dayIndex, item.id, 'title', e.detail.value)}
+                        />
                       </View>
-                      <Input
-                        className='w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center'
-                        value={item.title}
-                        placeholder={cfg.namePlaceholder}
-                        placeholderStyle='color:#9ca3af'
-                        onInput={(e) => updateItemField(day.dayIndex, item.id, 'title', e.detail.value)}
-                      />
-                    </View>
+                    )}
 
                     {/* 动态表单 */}
                     {renderForm(item, day.dayIndex)}
@@ -344,7 +357,7 @@ export default function ItineraryPage() {
               {/* 添加按钮 */}
               <View className='pt-1 box-border'>
                 <View onClick={() => handleAddItemClick(day.dayIndex)} className='w-full text-center py-2 bg-white border border-dashed border-green-500 text-green-500 font-bold rounded-14px text-[26px] shadow-sm active:bg-green-50/50 m-0'>
-                + 添加行程项
+                  + 添加行程项
                 </View>
               </View>
             </View>
