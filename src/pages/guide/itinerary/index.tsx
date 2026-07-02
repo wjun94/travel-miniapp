@@ -3,6 +3,7 @@ import { View, Text, Input, Textarea, Button, ScrollView, Picker, Image } from '
 import Taro from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { uploadMultiImages } from '@/utils/upload';
+import { typeOptions, channelOptions } from '@/constants/travel';
 
 // 定义合法的节点类型
 type SectionType = 'transport' | 'hotel' | 'attraction' | 'food' | 'shopping' | 'tips' | 'custom';
@@ -56,19 +57,6 @@ export default function ItineraryPage() {
             ]
         }
     ]);
-
-    // Picker 对应的数据源字典定义
-    const typeOptions = [
-        { label: '🏞️ 景点', value: 'attraction' },
-        { label: '🚄 交通', value: 'transport' },
-        { label: '🏨 住宿', value: 'hotel' },
-        { label: '🍜 美食', value: 'food' },
-        { label: '🛍️ 购物', value: 'shopping' },
-        { label: '⚠️ 避坑', value: 'tips' }
-    ];
-
-    // 购票渠道数据源
-    const channelOptions = ['公众号', '小程序', '官方网站', '第三方平台', '线下 / 现场'];
 
     const [activeTab, setActiveTab] = useState<number>(1);
     const [toViewId, setToViewId] = useState<string>('');
@@ -311,9 +299,9 @@ export default function ItineraryPage() {
                                         <View className='flex justify-end items-center border-b border-gray-50 box-border'>
                                             <Text
                                                 onClick={() => triggerDeleteItem(day.dayIndex, item.id, item.title)}
-                                                className='text-red-500 font-medium text-[24px] active:opacity-60'
+                                                className='text-red-500 font-medium active:opacity-60'
                                             >
-                                                🗑️ 删除
+                                                <Text className="iconfont icon-remove" /> 删除
                                             </Text>
                                         </View>
 
@@ -436,7 +424,12 @@ export default function ItineraryPage() {
 
                                         {/* 5. 九宫格美照上传 */}
                                         <View className='space-y-1.5 box-border'>
-                                            <Text className='text-gray-700 text-[26px] font-medium'>记录美照/凭证<Text className='text-gray-400 font-normal text-[24px]'>（可选，{imgList.length}/9）</Text></Text>
+                                            <Text
+                                                className='text-gray-700 text-[26px] font-medium'
+                                            >
+                                                记录美照/凭证
+                                                <Text className='text-gray-400 font-normal text-[24px]'>（可选，{imgList.length}/9）</Text>
+                                            </Text>
                                             <View className='flex flex-wrap gap-2 box-border'>
                                                 {imgList.map((imgUrl, imgIdx) => (
                                                     <View key={imgIdx} className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'>
@@ -501,7 +494,7 @@ export default function ItineraryPage() {
 
             {/* 统一删除二级弹窗 */}
             <Modal visible={modalVisible} title={modalTitle} onConfirm={handleConfirmDelete} onCancel={() => setModalVisible(false)}>
-                <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed'>{modalContent}</Text>
+                <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>{modalContent}</Text>
             </Modal>
         </View>
     );

@@ -2,6 +2,7 @@ import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useSetState, useRequest } from 'ahooks';
 import { createTravelGuide } from '@/api/guide'
+import { difficultyOptions } from '@/constants/travel';
 
 // 定义表单的状态类型
 interface FormState {
@@ -77,7 +78,7 @@ export default function BasicInfoPage() {
             summary,
             budgetMin: minBudget ? parseFloat(minBudget) : null,
             budgetMax: maxBudget ? parseFloat(maxBudget) : null,
-            bestSeason: bestSeason || '四季皆宜',
+            bestSeason: bestSeason || '',
             recommendedDays: days ? parseInt(days, 10) : null,
             tags: targetGroups.join(','),
             difficulty,
@@ -224,13 +225,7 @@ export default function BasicInfoPage() {
                 <View className='space-y-2'>
                     <Text className='text-sm font-medium text-gray-700'>游玩难度</Text>
                     <View className='flex space-x-3'>
-                        {(
-                            [
-                                { key: 'easy', label: '轻松出行' },
-                                { key: 'medium', label: '强度适中' },
-                                { key: 'hard', label: '硬核挑战' }
-                            ] as const
-                        ).map(item => (
+                        {difficultyOptions.map(item => (
                             <View
                                 key={item.key}
                                 onClick={() => setFormState({ difficulty: item.key })}

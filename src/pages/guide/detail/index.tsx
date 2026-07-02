@@ -1,17 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
-import { getTravelGuideDetail } from '@/api/guide';
+import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
 import { useRequest } from 'ahooks';
-
-// 1. 类型映射配置
-const SECTION_MAP = {
-    attraction: { label: '景点', icon: '景点', dotColor: '#FF851B', ringColor: '#FFEADA', priceColor: 'text-orange-500' },
-    food: { label: '餐饮', icon: '餐饮', dotColor: '#FF6F00', ringColor: '#FFEFE5', priceColor: 'text-orange-500' },
-    transport: { label: '交通', icon: '交通', dotColor: '#10B981', ringColor: '#E6F4EA', priceColor: 'text-emerald-500' },
-    shopping: { label: '购物', icon: '购物', dotColor: '#A855F7', ringColor: '#F3E8FF', priceColor: 'text-purple-500' },
-    custom: { label: '自定义', icon: '📌', dotColor: '#6B7280', ringColor: '#F3F4F6', priceColor: 'text-gray-500' },
-};
+import { SECTION_MAP } from '@/constants/travel';
 
 export default function TravelGuideDetail() {
     const router = useRouter();
@@ -32,7 +24,7 @@ export default function TravelGuideDetail() {
     );
 
     // 3. 兜底解构真实接口返回的数据结构
-    const guide = guideData?.guide || {};
+    const guide = guideData?.guide || {} as TravelGuide;
     const days = guideData?.days || [];
     const currentDay = days[currentDayIdx];
     const tagList = guide.tags ? guide.tags.split(',').filter(Boolean) : [];
@@ -104,23 +96,23 @@ export default function TravelGuideDetail() {
                     </View>
                 )}
 
-                <View className='grid grid-cols-4 gap-2 py-3 border-t border-b border-gray-100 text-center text-xxs text-gray-400 mb-4'>
+                <View className='grid grid-cols-4 gap-2 py-3 border-t border-b border-gray-100 text-center text-gray-400'>
                     <View>
-                        <Text className='block text-gray-800 mb-1 font-medium'>🍂 最佳季节</Text>
+                        <Text className='block text-gray-800 mb-1 text-24px font-medium'>🍂 最佳季节</Text>
                         {guide.bestSeason || '不限'}
                     </View>
-                    <View>
-                        <Text className='block text-gray-800 mb-1 font-medium'>⏱️ 推荐天数</Text>
+                    {guide.recommendedDays ? <View>
+                        <Text className='block text-gray-800 mb-1 text-24px font-medium'>⏱️ 推荐天数</Text>
                         {guide.recommendedDays ? `${guide.recommendedDays}天` : '自定'}
-                    </View>
-                    <View>
-                        <Text className='block text-gray-800 mb-1 font-medium'>⛰️ 难度</Text>
-                        {guide.difficulty || '轻松'}
-                    </View>
-                    <View>
-                        <Text className='block text-gray-800 mb-1 font-medium'>👥 适用人群</Text>
-                        {guide.crowdType || '老少皆宜'}
-                    </View>
+                    </View> : null}
+                    {guide?.difficulty ? <View>
+                        <Text className='block text-gray-800 mb-1 text-24px font-medium'>⛰️ 难度</Text>
+                        {guide.difficulty}
+                    </View> : null}
+                    {guide.crowdType ? <View>
+                        <Text className='block text-gray-800 mb-1 text-24px font-medium'>👥 适用人群</Text>
+                        {guide.crowdType}
+                    </View> : null}
                 </View>
 
                 {guide.summary && (
@@ -129,7 +121,7 @@ export default function TravelGuideDetail() {
                     </Text>
                 )}
 
-                <View className='flex flex-row items-center mb-4 text-xs'>
+                <View className='flex flex-row items-center text-xs mt-4'>
                     <Text className='text-gray-700 font-medium mr-2'>预算范围</Text>
                     <View className='bg-green-50 text-green-600 font-bold px-3 py-1 rounded-full text-xs'>
                         {guide.budgetMin !== null && guide.budgetMax !== null
@@ -139,7 +131,7 @@ export default function TravelGuideDetail() {
                 </View>
 
                 {tagList.length > 0 && (
-                    <View className='flex flex-row flex-wrap gap-2'>
+                    <View className='flex flex-row flex-wrap gap-2 mt-4'>
                         {tagList.map((tag, idx) => (
                             <Text key={idx} className='bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full'>
                                 #{tag}
@@ -223,7 +215,10 @@ export default function TravelGuideDetail() {
                                                         {formatTimeRange(item.startTime, item.endTime)}
                                                     </Text>
                                                     <View className='flex flex-row items-center space-x-1.5'>
-                                                        <Text className='text-xxs text-gray-400 font-medium bg-gray-50 px-1.5 py-0.5 rounded'>
+                                                        <Text
+                                                            className="font-medium px-1.5 py-0.5 rounded"
+                                                            style={{ color: config.color, backgroundColor: config.bg }}
+                                                        >
                                                             {config.label}
                                                         </Text>
                                                         <Text className='text-gray-300 text-xxs'>|</Text>
@@ -271,11 +266,15 @@ export default function TravelGuideDetail() {
                                                 )}
 
                                                 {/* 底部价格 - 仅在非交通节点或有明确票价时合理展示 */}
-                                                {(hasPrice || item.sectionType !== 'transport') && (
+                                                {(hasPrice || item.sectionType !== 'transport') && item.needReservation && (
                                                     <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-50/60'>
-                                                        <Text className={`text-sm font-bold ${config.priceColor}`}>
-                                                            {hasPrice && price > 0 ? `¥ ${price.toFixed(2)}` : '免费/无需门票'}
-                                                        </Text>
+                                                        <View className='flex flex-row items-center'>
+                                                            <Text className="iconfont icon-ticket mr-1 text-38px text-[#F97316]" />
+                                                            <Text className="text-sm font-bold text-gray-400">
+                                                                {hasPrice && price > 0 ? `¥ ${price.toFixed(2)}` : '免费/无需门票'}
+                                                            </Text>
+                                                        </View>
+
                                                     </View>
                                                 )}
                                             </View>

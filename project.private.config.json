@@ -23,9 +23,16 @@
         {
           "name": "攻略详情",
           "pathName": "pages/guide/detail/index",
-          "query": "id=2072298469371940864",
+          "query": "id=2072511352848519168",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "攻略详情",
+          "pathName": "pages/guide/detail/index",
+          "query": "id=2072298469371940864",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "发攻略",
