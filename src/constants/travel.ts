@@ -157,8 +157,22 @@ export const SECTION_MAP = Object.fromEntries(
   ])
 ) as Record<SectionType, { label: string; icon: string; dotColor: string; ringColor: string; color: string; bg: string }>;
 
-/** 交通方式列表 */
-export const transportMethods = ['火车', '汽车', '地铁', '飞机', '轮船', '公交', '步行', '骑车'];
+/** 交通方式列表（值对应后端常量） */
+export const transportMethods = [
+  { value: 'bus', label: '汽车' },
+  { value: 'train', label: '火车' },
+  { value: 'subway', label: '地铁' },
+  { value: 'plane', label: '飞机' },
+  { value: 'ship', label: '轮船' },
+  { value: 'citybus', label: '公交' },
+  { value: 'walk', label: '步行' },
+  { value: 'bike', label: '骑车' },
+];
+
+/** 根据 value 获取交通方式中文显示名 */
+export const getTransportLabel = (value: string): string => {
+  return transportMethods.find(m => m.value === value)?.label || '汽车';
+};
 
 /** 购票渠道下拉选项 */
 export const channelOptions = ['公众号', '小程序', '官方网站', '第三方平台', '线下 / 现场'];

@@ -62,7 +62,7 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
   endAddress: '',
   endLatitude: null,
   endLongitude: null,
-  transportMode: '火车',
+  transportMode: 'bus',
 });
 
 export default function ItineraryPage() {
@@ -216,16 +216,20 @@ export default function ItineraryPage() {
         return;
       }
       for (const item of day.items) {
-        if (item.sectionType !== 'transport' && !item.title) {
+        if (item.sectionType !== 'transport' && item.sectionType !== 'tips' && !item.title) {
           const cfg = typeConfigMap[item.sectionType];
           Taro.showToast({ title: `${cfg.label}名称不能为空`, icon: 'none' });
+          return;
+        }
+        // 避坑类型检查 title（描述）是否为空
+        if (item.sectionType === 'tips' && !item.title) {
+          Taro.showToast({ title: '避坑描述不能为空', icon: 'none' });
           return;
         }
       }
     }
     Taro.setStorageSync('TEMP_ITINERARY_PLANS', dayPlans);
-    console.log(dayPlans)
-    // Taro.navigateTo({ url: '/pages/guide/basic/index' });
+    Taro.navigateTo({ url: '/pages/guide/basic/index' });
   };
 
   /** 根据类型渲染对应表单 */
@@ -327,8 +331,8 @@ export default function ItineraryPage() {
                       </Picker>
                     </View>
 
-                    {/* 名称输入（交通类型不需要） */}
-                    {item.sectionType !== 'transport' && (
+                    {/* 名称输入（交通和避坑类型不需要） */}
+                    {item.sectionType !== 'transport' && item.sectionType !== 'tips' && (
                       <View className='space-y-1.5 box-border'>
                         <View className='flex items-center mb-1.5'>
                           <Text className='text-red-500 font-bold mr-0.5'>*</Text>

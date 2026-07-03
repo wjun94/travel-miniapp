@@ -96,7 +96,21 @@ export default function BasicInfoPage() {
                     endTime: formatToIsoTime(item.endTime, day.date),
                     latitude: item.latitude,
                     longitude: item.longitude,
-                    address: item.address
+                    address: item.address,
+                    // 交通类型专属字段
+                    transportMode: item.transportMode,
+                    startAddress: item.startAddress,
+                    startLatitude: item.startLatitude,
+                    startLongitude: item.startLongitude,
+                    endAddress: item.endAddress,
+                    endLatitude: item.endLatitude,
+                    endLongitude: item.endLongitude,
+                    // 购票相关字段
+                    needReservation: item.needReservation,
+                    ticketChannel: item.ticketChannel,
+                    ticketPrice: item.ticketPrice,
+                    // 图片
+                    images: item.images
                 }))
             }))
         };
