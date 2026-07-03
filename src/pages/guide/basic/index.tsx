@@ -92,8 +92,8 @@ export default function BasicInfoPage() {
                     sectionType: item.sectionType,
                     title: item.title,
                     description: item.description,
-                    startTime: formatToIsoTime(item.startTime, day.date),
-                    endTime: formatToIsoTime(item.endTime, day.date),
+                    startTime: item.startTime || null,
+                    endTime: item.endTime || null,
                     latitude: item.latitude,
                     longitude: item.longitude,
                     address: item.address,
@@ -242,7 +242,7 @@ export default function BasicInfoPage() {
                         {difficultyOptions.map(item => (
                             <View
                                 key={item.key}
-                                onClick={() => setFormState({ difficulty: item.key })}
+                                onClick={() => setFormState({ difficulty: item.key as any })}
                                 className={`flex-1 py-2 text-center text-xs font-medium rounded-xl border m-0 ${formState.difficulty === item.key ? 'bg-green-50 text-green-600 border-green-500' : 'bg-gray-50 text-gray-600 border-transparent'}`}
                             >
                                 {item.label}

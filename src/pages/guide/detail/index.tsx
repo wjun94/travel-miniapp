@@ -3,7 +3,7 @@ import { View, Text, Image, ScrollView } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
 import { useRequest } from 'ahooks';
-import { SECTION_MAP, typeConfigMap } from '@/constants/travel';
+import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
 
 export default function TravelGuideDetail() {
     const router = useRouter();
@@ -185,6 +185,8 @@ export default function TravelGuideDetail() {
 
                                     const price = Number(item.ticketPrice);
                                     const hasPrice = item.ticketPrice !== null && !isNaN(price);
+                                    const isTransport = item.sectionType === 'transport';
+                                    const isTips = item.sectionType === 'tips';
 
                                     return (
                                         <View key={item.id || index} className='relative'>
@@ -200,10 +202,10 @@ export default function TravelGuideDetail() {
                                             </View>
 
                                             {/* 内容卡片 */}
-                                            <View className='bg-white rounded-2xl p-4 shadow-sm space-y-3 box-border'>
+                                            <View className='bg-white rounded-2xl p-4 shadow-sm box-border'>
 
                                                 {/* 卡片头部：时间 + 类型标签 */}
-                                                <View className='flex flex-row items-center justify-between'>
+                                                <View className='flex flex-row items-center justify-between mb-3'>
                                                     <Text className='text-[24px] font-medium text-gray-400 flex items-center'>
                                                         ⏱️ {formatTimeRange(item.startTime, item.endTime)}
                                                     </Text>
@@ -216,27 +218,62 @@ export default function TravelGuideDetail() {
                                                     </View>
                                                 </View>
 
-                                                {/* 标题 + 描述 */}
-                                                <View className='space-y-1'>
-                                                    <Text className='text-[28px] font-bold text-gray-800 block'>
-                                                        {item.title || '未指定地点'}
-                                                    </Text>
-                                                    {item.description && (
-                                                        <Text className='text-[24px] text-gray-400 leading-relaxed block'>
-                                                            {item.description}
-                                                        </Text>
-                                                    )}
-                                                    {item.address && (
-                                                        <View className='flex items-center gap-1 mt-1'>
-                                                            <Text className='text-[20px]'>📍</Text>
-                                                            <Text className='text-[22px] text-gray-400'>{item.address}</Text>
+                                                {/* 交通类型特殊展示 */}
+                                                {isTransport && (
+                                                    <View className='space-y-2'>
+                                                        <View className='flex items-center gap-2 bg-gray-50 rounded-xl p-3'>
+                                                            <Text className='text-[28px]'>🚗</Text>
+                                                            <Text className='text-[26px] font-bold text-gray-800'>{getTransportLabel((item as any).transportMode)}</Text>
                                                         </View>
-                                                    )}
-                                                </View>
+                                                        {((item as any).startAddress || (item as any).endAddress) && (
+                                                            <View className='flex items-center gap-2'>
+                                                                <View className='flex-1 bg-green-50 rounded-lg p-2'>
+                                                                    <Text className='text-[20px] text-gray-400 block'>起点</Text>
+                                                                    <Text className='text-[24px] text-gray-700 font-medium block break-all'>{(item as any).startAddress || '未设置'}</Text>
+                                                                </View>
+                                                                <Text className='text-gray-400 text-[24px]'>→</Text>
+                                                                <View className='flex-1 bg-blue-50 rounded-lg p-2'>
+                                                                    <Text className='text-[20px] text-gray-400 block'>终点</Text>
+                                                                    <Text className='text-[24px] text-gray-700 font-medium block break-all'>{(item as any).endAddress || '未设置'}</Text>
+                                                                </View>
+                                                            </View>
+                                                        )}
+                                                        {item.description && (
+                                                            <Text className='text-[24px] text-gray-400 leading-relaxed block mt-2'>{item.description}</Text>
+                                                        )}
+                                                    </View>
+                                                )}
+
+                                                {/* 避坑类型特殊展示 */}
+                                                {isTips && item.title && (
+                                                    <View className='bg-yellow-50 rounded-xl p-3 border border-yellow-100'>
+                                                        <Text className='text-[26px] text-gray-700 leading-relaxed'>{item.title}</Text>
+                                                    </View>
+                                                )}
+
+                                                {/* 普通类型：标题 + 描述 */}
+                                                {!isTransport && !isTips && (
+                                                    <View className='space-y-1'>
+                                                        <Text className='text-[28px] font-bold text-gray-800 block'>
+                                                            {item.title || '未指定地点'}
+                                                        </Text>
+                                                        {item.description && (
+                                                            <Text className='text-[24px] text-gray-400 leading-relaxed block'>
+                                                                {item.description}
+                                                            </Text>
+                                                        )}
+                                                        {item.address && (
+                                                            <View className='flex items-center gap-1 mt-1'>
+                                                                <Text className='text-[20px]'>📍</Text>
+                                                                <Text className='text-[22px] text-gray-400 break-all'>{item.address}</Text>
+                                                            </View>
+                                                        )}
+                                                    </View>
+                                                )}
 
                                                 {/* 图片九宫格 */}
                                                 {hasImages && (
-                                                    <View className='w-full'>
+                                                    <View className='w-full mt-3'>
                                                         {imgList.length === 1 ? (
                                                             <View className='w-full h-[320px] rounded-xl overflow-hidden bg-gray-50'>
                                                                 <Image src={imgList[0]} mode='aspectFill' className='w-full h-full' />
@@ -254,8 +291,8 @@ export default function TravelGuideDetail() {
                                                 )}
 
                                                 {/* 购票信息 */}
-                                                {(hasPrice || item.sectionType !== 'transport') && item.needReservation && (
-                                                    <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100'>
+                                                {!isTransport && (hasPrice || item.needReservation) && (
+                                                    <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100 mt-3'>
                                                         <View className='flex flex-row items-center gap-1.5'>
                                                             <Text className='text-[28px]'>🎫</Text>
                                                             <Text className='text-[24px] font-medium text-gray-500'>
@@ -265,21 +302,6 @@ export default function TravelGuideDetail() {
                                                     </View>
                                                 )}
                                             </View>
-
-                                            {/* 交通衔接 */}
-                                            {(item as any).nextTransport && index < currentDay.items.length - 1 && (
-                                                <View className='relative my-2 py-1 flex flex-row items-center pl-2'>
-                                                    <View className='absolute -left-[36px] w-1.5 h-1.5 rounded-full bg-gray-300 z-10' />
-                                                    <View className='bg-green-50 rounded-full px-3 py-1.5 flex flex-row items-center space-x-2 border border-white shadow-sm'>
-                                                        <Text className='text-[22px]'>🚗</Text>
-                                                        <Text className='text-[22px] text-gray-500 font-medium'>
-                                                            预计车程 <Text className='text-emerald-600 font-bold'>{(item as any).nextTransport.duration}</Text>
-                                                        </Text>
-                                                        <Text className='text-gray-300 text-[20px]'>|</Text>
-                                                        <Text className='text-[22px] text-gray-400'>{(item as any).nextTransport.distance}</Text>
-                                                    </View>
-                                                </View>
-                                            )}
                                         </View>
                                     );
                                 })}
