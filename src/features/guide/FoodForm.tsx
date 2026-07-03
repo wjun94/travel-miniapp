@@ -5,7 +5,7 @@ import ImageUpload from './ImageUpload';
 
 interface Props {
   item: any;
-  updateField: (field: string, value: any) => void;
+  updateField: (field: string | Record<string, any>, value?: any) => void;
 }
 
 const cfg = typeConfigMap.food;
@@ -28,7 +28,7 @@ export default function FoodForm({ item, updateField }: Props) {
       </View>
 
       {/* 地点 */}
-      <LocationPicker label='地点' address={item.address || ''} latitude={item.latitude} longitude={item.longitude} onPick={(res) => { updateField('address', res.address); updateField('latitude', res.latitude); updateField('longitude', res.longitude); }} />
+      <LocationPicker label='地点' address={item.address || ''} latitude={item.latitude} longitude={item.longitude} onPick={(res) => { updateField({ address: res.address, latitude: res.latitude, longitude: res.longitude }); }} />
 
       {/* 备注 */}
       <View className='space-y-1.5 box-border'>

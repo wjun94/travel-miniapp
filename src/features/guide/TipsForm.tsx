@@ -3,7 +3,7 @@ import { typeConfigMap } from '@/constants/travel';
 
 interface Props {
   item: any;
-  updateField: (field: string, value: any) => void;
+  updateField: (field: string | Record<string, any>, value?: any) => void;
 }
 
 const cfg = typeConfigMap.tips;

@@ -6,7 +6,7 @@ import ImageUpload from './ImageUpload';
 
 interface Props {
   item: any;
-  updateField: (field: string, value: any) => void;
+  updateField: (field: string | Record<string, any>, value?: any) => void;
 }
 
 const cfg = typeConfigMap.attraction;
@@ -29,7 +29,7 @@ export default function AttractionForm({ item, updateField }: Props) {
       </View>
 
       {/* 地点 */}
-      <LocationPicker label='地点' address={item.address || ''} latitude={item.latitude} longitude={item.longitude} onPick={(res) => { updateField('address', res.address); updateField('latitude', res.latitude); updateField('longitude', res.longitude); }} />
+      <LocationPicker label='地点' address={item.address || ''} latitude={item.latitude} longitude={item.longitude} onPick={(res) => { updateField({ address: res.address, latitude: res.latitude, longitude: res.longitude }); }} />
 
       {/* 购票信息 */}
       <TicketPanel needReservation={item.needReservation} ticketChannel={item.ticketChannel} ticketPrice={item.ticketPrice} onToggle={(v) => updateField('needReservation', v)} onChannelChange={(v) => updateField('ticketChannel', v)} onPriceChange={(v) => updateField('ticketPrice', v)} />

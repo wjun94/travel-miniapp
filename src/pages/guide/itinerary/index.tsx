@@ -3,7 +3,6 @@ import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/component
 import Taro from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
-import TypeSelector from '@/features/guide/TypeSelector';
 import TransportForm from '@/features/guide/TransportForm';
 import AttractionForm from '@/features/guide/AttractionForm';
 import FoodForm from '@/features/guide/FoodForm';
@@ -80,10 +79,6 @@ export default function ItineraryPage() {
   const [modalTitle, setModalTitle] = useState('');
   const [modalContent, setModalContent] = useState('');
   const [pendingDelete, setPendingDelete] = useState<{ type: 'day' | 'item'; dayIndex: number; itemId?: string } | null>(null);
-
-  // 类型选择弹窗
-  const [typeSelectorVisible, setTypeSelectorVisible] = useState(false);
-  const [pendingAddDayIndex, setPendingAddDayIndex] = useState<number>(0);
 
   // 类型切换确认
   const [switchConfirmVisible, setSwitchConfirmVisible] = useState(false);
@@ -174,25 +169,25 @@ export default function ItineraryPage() {
     setPendingDelete(null);
   };
 
-  // 点击添加按钮 → 弹出类型选择
+  // 点击添加按钮 → 直接添加默认类型（打卡地）
   const handleAddItemClick = (dayIndex: number) => {
-    setPendingAddDayIndex(dayIndex);
-    setTypeSelectorVisible(true);
-  };
-
-  // 选择类型后创建对应 item
-  const handleTypeSelected = (type: SectionType) => {
-    setTypeSelectorVisible(false);
     setDayPlans(dayPlans.map(day => {
-      if (day.dayIndex === pendingAddDayIndex) {
-        return { ...day, items: [...day.items, createEmptyItem(day.dayIndex, type)] };
+      if (day.dayIndex === dayIndex) {
+        return { ...day, items: [...day.items, createEmptyItem(day.dayIndex, 'attraction')] };
       }
       return day;
     }));
   };
 
-  const updateItemField = (dayIndex: number, itemId: string, field: string, value: any) => {
-    setDayPlans(dayPlans.map(day => day.dayIndex === dayIndex ? { ...day, items: day.items.map(item => item.id === itemId ? { ...item, [field]: value } : item) } : day));
+  const updateItemField = (dayIndex: number, itemId: string, field: string | Record<string, any>, value?: any) => {
+    setDayPlans(dayPlans.map(day => day.dayIndex === dayIndex ? {
+      ...day,
+      items: day.items.map(item => {
+        if (item.id !== itemId) return item;
+        if (typeof field === 'string') return { ...item, [field]: value };
+        return { ...item, ...field };
+      })
+    } : day));
   };
 
   // 类型切换：检查是否需要确认
@@ -229,7 +224,8 @@ export default function ItineraryPage() {
       }
     }
     Taro.setStorageSync('TEMP_ITINERARY_PLANS', dayPlans);
-    Taro.navigateTo({ url: '/pages/guide/basic/index' });
+    console.log(dayPlans)
+    // Taro.navigateTo({ url: '/pages/guide/basic/index' });
   };
 
   /** 根据类型渲染对应表单 */
@@ -286,7 +282,7 @@ export default function ItineraryPage() {
                   <Text className='text-gray-700 text-[26px] font-medium'>日期</Text>
                   <View>
                     <Picker mode='date' value={day.date} onChange={(e) => { const updated = [...dayPlans]; updated[dIdx].date = e.detail.value; setDayPlans(updated); }}>
-                      <View className='px-3 py-2 bg-gray-50 rounded-xl flex justify-between items-center'>
+                      <View className='p-3 bg-gray-50 rounded-xl flex justify-between items-center'>
                         <Text className={day.date ? 'text-gray-800 text-[26px]' : 'text-gray-400 text-[26px]'}>{day.date || '点击选择日期'}</Text>
                         <Text className='text-gray-400 text-[24px]'>📅</Text>
                       </View>
@@ -374,9 +370,6 @@ export default function ItineraryPage() {
       <Modal visible={modalVisible} title={modalTitle} onConfirm={handleConfirmDelete} onCancel={() => setModalVisible(false)}>
         <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>{modalContent}</Text>
       </Modal>
-
-      {/* 类型选择弹窗 */}
-      <TypeSelector visible={typeSelectorVisible} onSelect={handleTypeSelected} onCancel={() => setTypeSelectorVisible(false)} />
 
       {/* 类型切换确认弹窗 */}
       <Modal visible={switchConfirmVisible} title='切换类型' onConfirm={handleConfirmSwitch} onCancel={() => { setSwitchConfirmVisible(false); setPendingSwitch(null); }}>

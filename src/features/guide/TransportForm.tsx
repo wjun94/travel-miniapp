@@ -4,7 +4,7 @@ import LocationPicker from './LocationPicker';
 
 interface Props {
   item: any;
-  updateField: (field: string, value: any) => void;
+  updateField: (field: string | Record<string, any>, value?: any) => void;
 }
 
 const cfg = typeConfigMap.transport;
@@ -13,46 +13,39 @@ export default function TransportForm({ item, updateField }: Props) {
   return (
     <View className='space-y-4 box-border'>
       {/* 交通方式 */}
-      <View className='space-y-1.5 box-border'>
+      <View className='box-border'>
         <Text className='text-gray-700 text-[26px] font-medium'>交通方式<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-        <View className='flex items-center gap-2 box-border'>
-          <View className='flex-1 flex items-center gap-1.5 px-2.5 py-2 bg-gray-50 rounded-xl box-border'>
-            <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMode || '火车')} onChange={(e) => updateField('transportMode', transportMethods[Number(e.detail.value)])}>
-              <Text className='text-gray-700 text-[26px] font-medium'>{item.transportMode || '火车'}</Text>
-            </Picker>
-          </View>
+        <View className='flex items-center gap-1.5 px-2.5 py-2 bg-gray-50 rounded-xl mt-1.5 box-border'>
+          <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMode || '火车')} onChange={(e) => updateField('transportMode', transportMethods[Number(e.detail.value)])}>
+            <Text className='text-gray-700 text-[26px] font-medium'>{item.transportMode || '火车'}</Text>
+          </Picker>
         </View>
       </View>
       {/* 时间 */}
-      <View className='space-y-1.5 box-border'>
+      <View className='box-border'>
         <Text className='text-gray-700 text-[26px] font-medium'>时间<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-        <View className='flex items-center gap-2 box-border'>
-          <View className='flex items-center gap-1 flex-1'>
-            <Picker mode='time' value={item.startTime || '09:00'} onChange={(e) => updateField('startTime', e.detail.value)} className='flex-1'>
-              <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.startTime || '出发'}</View>
-            </Picker>
-            <Text className='text-gray-300 font-bold'>→</Text>
-            <Picker mode='time' value={item.endTime || '12:00'} onChange={(e) => updateField('endTime', e.detail.value)} className='flex-1'>
-              <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.endTime || '到达'}</View>
-            </Picker>
-          </View>
+        <View className='flex items-center gap-1 flex-1 mt-1.5'>
+          <Picker mode='time' value={item.startTime || '09:00'} onChange={(e) => updateField('startTime', e.detail.value)} className='flex-1'>
+            <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.startTime || '出发'}</View>
+          </Picker>
+          <Text className='text-gray-300 font-bold'>→</Text>
+          <Picker mode='time' value={item.endTime || '12:00'} onChange={(e) => updateField('endTime', e.detail.value)} className='flex-1'>
+            <View className='p-2.5 bg-gray-50 rounded-xl text-center text-[26px] text-gray-600 border border-gray-100 active:bg-gray-100 box-border'>⏱️ {item.endTime || '到达'}</View>
+          </Picker>
         </View>
       </View>
 
-      {/* 起终点 */}
-      <View className='space-y-1.5 box-border'>
-        <Text className='text-gray-700 text-[26px] font-medium'>起终点<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-        <View className='grid grid-cols-2 gap-2 box-border'>
-          <LocationPicker label='起点' address={item.startAddress || ''} latitude={item.startLatitude} longitude={item.startLongitude} onPick={(res) => { updateField('startAddress', res.address); updateField('startLatitude', res.latitude); updateField('startLongitude', res.longitude); }} />
-          <LocationPicker label='终点' address={item.endAddress || ''} latitude={item.endLatitude} longitude={item.endLongitude} onPick={(res) => { updateField('endAddress', res.address); updateField('endLatitude', res.latitude); updateField('endLongitude', res.longitude); }} />
-        </View>
+      {/* 起终点位置 */}
+      <View className='grid grid-cols-2 gap-2 box-border'>
+        <LocationPicker title='起点' label='起点' address={item.startAddress || ''} latitude={item.startLatitude} longitude={item.startLongitude} onPick={(res) => { updateField({ startAddress: res.address, startLatitude: res.latitude, startLongitude: res.longitude }); }} />
+        <LocationPicker title='终点' label='终点' address={item.endAddress || ''} latitude={item.endLatitude} longitude={item.endLongitude} onPick={(res) => { updateField({ endAddress: res.address, endLatitude: res.latitude, endLongitude: res.longitude }); }} />
       </View>
 
       {/* 描述 */}
-      <View className='space-y-1.5 box-border'>
+      <View className='box-border'>
         <Text className='text-gray-700 text-[26px] font-medium'>备注<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
         <Input
-          className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center'
+          className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center mt-1.5'
           value={item.description}
           placeholder={cfg.descPlaceholder}
           placeholderStyle='color:#9ca3af'
