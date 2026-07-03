@@ -15,11 +15,12 @@ export default function TransportForm({ item, updateField }: Props) {
       {/* 交通方式 */}
       <View className='box-border'>
         <Text className='text-gray-700 text-[26px] font-medium'>交通方式<Text className='text-gray-400 font-normal text-[24px]'>（可选）</Text></Text>
-        <View className='flex items-center gap-1.5 px-2.5 py-2 bg-gray-50 rounded-xl mt-1.5 box-border'>
-          <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMode || '火车')} onChange={(e) => updateField('transportMode', transportMethods[Number(e.detail.value)])}>
+        <Picker mode='selector' range={transportMethods} value={transportMethods.indexOf(item.transportMode || '火车')} onChange={(e) => updateField('transportMode', transportMethods[Number(e.detail.value)])}>
+          <View className='flex justify-between items-center px-2.5 py-2 bg-gray-50 rounded-xl mt-1.5 box-border'>
             <Text className='text-gray-700 text-[26px] font-medium'>{item.transportMode || '火车'}</Text>
-          </Picker>
-        </View>
+            <Text className='text-gray-400 text-[24px]'>▾</Text>
+          </View>
+        </Picker>
       </View>
       {/* 时间 */}
       <View className='box-border'>
