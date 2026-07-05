@@ -1,6 +1,8 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { NavBar } from '@/components'
 import Taro from '@tarojs/taro'
+import { getWeather } from '@/api/common'
+import { useRequest } from 'ahooks'
 
 export default function PublishPage() {
   // 模拟数据 (建议在实际项目中从 API 获取)
@@ -62,6 +64,13 @@ export default function PublishPage() {
     { name: '三亚', image: 'https://images.unsplash.com/photo-1540202404-b711e458319c?w=300&q=80' },
     { name: '西藏', image: 'https://images.unsplash.com/photo-1525049386811-933e144a169b?w=300&q=80' },
   ]
+
+  const { data } = useRequest(getWeather, {
+    defaultParams: [{ city: '丽江' }]
+  })
+
+  console.log(data)
+
   return (
     <View className="min-h-screen px-4 font-sans">
 
