@@ -5,9 +5,9 @@ import request from './request';
  * @param city 城市
  * @returns 获取城市天气
  */
-export const getWeather = (data: { city: string }) =>
+export const getQweather = (data: { city: string }) =>
     request<any>({
-        url: '/weather',
+        url: '/weather/qweather',
         method: 'GET',
         data
     });
