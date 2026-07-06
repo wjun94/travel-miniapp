@@ -57,6 +57,10 @@ export default function ChatView() {
         console.log('WebSocket 连接已打开！');
         isConnect.current = true;
         startHeartbeat(); // 开启心跳
+        // 1. 必须先加入当前行程的房间
+        task.send({
+          data: JSON.stringify({ action: "join_trip", tripId: userInfo?.id }),
+        });
       });
 
       // 监听收到服务器消息
@@ -70,7 +74,14 @@ export default function ChatView() {
         try {
           // 假设后端返回的是 JSON 字符串
           const data = JSON.parse(res.data);
-          appendMessage('left', data.content || res.data);
+          // 2. 监听后台广播的分支
+          if (data.action === "send_message") {
+            // 收到群内其他人发的消息
+            appendMessage('left', data.content, data.senderId);
+          } else if (data.action === "edit_trip") {
+            // 收到其他人协同编辑行程的通知，这里做画布/UI更新
+            console.log('行程被别人改啦:', data);
+          }
         } catch (e) {
           // 如果是一般字符串文本
           appendMessage('left', res.data);
@@ -123,21 +134,15 @@ export default function ChatView() {
   };
 
   // 辅助函数：追加消息到视图
-  const appendMessage = (type: 'left' | 'right', content: string) => {
-    const newMsg = {
+  const appendMessage = (type: 'left' | 'right', content: string, senderId?: string) => {
+    setMessages(prev => [...prev, {
       id: Date.now() + Math.random(),
       type,
       content,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    // 使用函数式更新确保拿到最新的消息列表
-    setMessages(prev => [...prev, newMsg]);
-
-    // 滚动到底部
-    setTimeout(() => {
-      setScrollTop(prev => prev + 1);
-    }, 100);
+      senderId,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }]);
+    setTimeout(() => { setScrollTop(prev => prev + 1); }, 100);
   };
 
   // 4. 发送消息按钮点击
