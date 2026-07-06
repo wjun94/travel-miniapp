@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Input, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useAuthStore } from '@/store/authStore';
 
 // 初始模拟数据
 const INITIAL_MESSAGES = [
@@ -11,6 +12,7 @@ const INITIAL_MESSAGES = [
 ];
 
 export default function ChatView() {
+  const { userInfo } = useAuthStore(state => state);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState('');
   const [scrollTop, setScrollTop] = useState(9999);
@@ -148,11 +150,15 @@ export default function ChatView() {
     }
 
     // 构建发送给后端的数据结构（这里直接发送文本，也可以转为 JSON 字符串）
-    const sendData = inputValue;
+    const payload = {
+      action: "send_message",
+      tripId: userInfo?.id,
+      content: inputValue
+    };
 
     // 通过 WebSocket 发送数据
     socketTask.current.send({
-      data: sendData,
+      data: JSON.stringify(payload),
       success: () => {
         // 发送成功后，本地先渲染自己发的消息
         appendMessage('right', inputValue);
