@@ -1,4 +1,5 @@
-import { View, Image, Text } from '@tarojs/components';
+import { View, Text } from '@tarojs/components';
+import { Image } from '@/components'
 import Taro from '@tarojs/taro';
 import { uploadMultiImages } from '@/utils/upload';
 
@@ -30,7 +31,10 @@ export default function ImageUpload({ images, onChoose, onDelete }: Props) {
       </Text>
       <View className='flex flex-wrap gap-2 box-border'>
         {images.map((imgUrl, imgIdx) => (
-          <View key={imgIdx} className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'>
+          <View
+            key={imgIdx}
+            className='w-[100px] h-[100px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'
+          >
             <Image src={imgUrl} mode='aspectFill' className='w-full h-full' onClick={() => Taro.previewImage({ current: imgUrl, urls: images })} />
             <View onClick={() => onDelete(imgIdx)} className='absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-bl-xl flex items-center justify-center text-[16px] font-bold z-10 active:bg-red-600'>×</View>
           </View>
