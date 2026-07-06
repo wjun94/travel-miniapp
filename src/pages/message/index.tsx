@@ -1,5 +1,6 @@
 import { View, Text, Image } from '@tarojs/components'
 import { NavBar } from '@/components'
+import { navigateTo } from '@tarojs/taro'
 
 export default function MessagePage() {
   // 1. 顶部金刚区数据
@@ -95,7 +96,11 @@ export default function MessagePage() {
       {/* 2. 消息列表区 */}
       <View className="flex flex-col">
         {messageList.map((msg) => (
-          <View key={msg.id} className="flex flex-row items-center py-3.5 border-b border-gray-50/60 last:border-0">
+          <View
+            key={msg.id}
+            className="flex flex-row items-center py-3.5 border-b border-gray-50/60 last:border-0"
+            onClick={() => navigateTo({ url: `/pages/chat/index?id=${msg.id}` })}
+          >
 
             {/* 左侧头像区 */}
             <View className="relative w-12 h-12 flex-shrink-0">
@@ -144,6 +149,6 @@ export default function MessagePage() {
         ))}
       </View>
 
-    </View>
+    </View >
   )
 }

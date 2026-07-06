@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/publish/index',
     'pages/message/index',
     'pages/mine/index',
+    'pages/chat/index',
     'pages/trip/detail/index',
     'pages/partner/detail',
     'pages/accounting/list',
