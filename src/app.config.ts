@@ -38,8 +38,8 @@ export default defineAppConfig({
       {
         pagePath: 'pages/publish/index',
         text: '发布',
-        iconPath: imgUrl + 'home.png',
-        selectedIconPath: imgUrl + 'home1.png',
+        iconPath: imgUrl + 'publish.png',
+        selectedIconPath: imgUrl + 'publish1.png',
       },
       {
         pagePath: 'pages/message/index',

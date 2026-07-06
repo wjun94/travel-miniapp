@@ -21,6 +21,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "我的",
+          "pathName": "pages/mine/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "发攻略",
           "pathName": "pages/guide/itinerary/index",
           "query": "",

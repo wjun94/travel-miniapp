@@ -12,10 +12,9 @@ export default function ProfilePage() {
 
   // 2. 更多服务数据
   const services = [
-    { id: 1, title: '收藏夹', icon: '⭐️' },
-    { id: 2, title: '浏览历史', icon: '🕒' },
-    { id: 3, title: '离线地图', icon: '🗺️' },
-    { id: 4, title: '帮助反馈', icon: '💬' },
+    { id: 1, title: '我的收藏', icon: 'icon-weishoucang' },
+    { id: 2, title: '浏览历史', icon: 'icon-history' },
+    { id: 4, title: '联系客服', icon: 'icon-contact' },
   ]
 
   return (
@@ -87,14 +86,14 @@ export default function ProfilePage() {
       </View>
 
       {/* 5. 更多服务模块 */}
-      <View className="mb-6 px-1">
+      <View className="p-5 mb-5 bg-white rounded-3xl">
         <Text className="text-base font-black text-gray-800 tracking-wide block mb-4">更多服务</Text>
         <View className="grid grid-cols-4 gap-2 text-center">
           {services.map((service) => (
             <View key={service.id} className="flex flex-col items-center active:opacity-70">
               {/* 底部图标可以直接使用轻量图标或文字符号 */}
-              <View className="w-10 h-10 flex items-center justify-center mb-2">
-                <Text className="text-2xl filter drop-shadow-2xs">{service.icon}</Text>
+              <View className="w-10 h-10 flex items-center justify-center">
+                <Text className={`text-60px iconfont ${service.icon}`} />
               </View>
               <Text className="text-xs font-medium text-gray-600 tracking-wide">{service.title}</Text>
             </View>

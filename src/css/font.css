@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 5201413 */
-  src: url('//at.alicdn.com/t/c/font_5201413_v2veijqvixg.woff2?t=1782976695460') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5201413_v2veijqvixg.woff?t=1782976695460') format('woff'),
-       url('//at.alicdn.com/t/c/font_5201413_v2veijqvixg.ttf?t=1782976695460') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_5201413_dlq2ier1fus.woff2?t=1783324809441') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5201413_dlq2ier1fus.woff?t=1783324809441') format('woff'),
+       url('//at.alicdn.com/t/c/font_5201413_dlq2ier1fus.ttf?t=1783324809441') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-weishoucang:before {
+  content: "\e6a8";
+}
+
+.icon-shoucang:before {
+  content: "\e6a9";
+}
+
+.icon-contact:before {
+  content: "\e6a6";
+}
+
+.icon-history:before {
+  content: "\e6a7";
 }
 
 .icon-ticket:before {

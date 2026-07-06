@@ -111,9 +111,9 @@ export default function HomePage() {
             <Image src={item.authorAvatar} className="w-4 h-4 rounded-full bg-gray-100 flex-shrink-0" />
             <Text className="text-[22rpx] text-gray-500 ml-1 truncate flex-1">{item.authorName}</Text>
           </View>
-          <View className="flex flex-row items-center flex-shrink-0">
-            <Text className="text-xs text-red-400 mr-0.5 leading-none">♥</Text>
-            <Text className="text-[22rpx] text-gray-400 font-medium">{item.likeCount}</Text>
+          <View className="flex flex-row items-center flex-shrink-0 text-gray-500">
+            <Text className={`iconfont leading-none mr-8px ${item.isLiked ? 'icon-follow-fill text-red-400' : 'icon-follow'}`} />
+            <Text className="leading-1">{item.likeCount}</Text>
           </View>
         </View>
       </View>

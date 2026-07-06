@@ -294,8 +294,8 @@ export default function TravelGuideDetail() {
                                                 {!isTransport && (hasPrice || item.needReservation) && (
                                                     <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100 mt-3'>
                                                         <View className='flex flex-row items-center gap-1.5'>
-                                                            <Text className='text-[28px]'>🎫</Text>
-                                                            <Text className='text-[24px] font-medium text-gray-500'>
+                                                            <Text className="iconfont icon-ticket text-yellow-600" />
+                                                            <Text className='text-[24px] text-gray-500'>
                                                                 {hasPrice && price > 0 ? `¥ ${price.toFixed(2)}` : '免费/无需门票'}
                                                             </Text>
                                                         </View>

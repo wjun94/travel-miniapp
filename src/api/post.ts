@@ -37,6 +37,7 @@ export interface Guide {
   authorName: string
   authorAvatar: string
   likeCount: number
+  isLiked: boolean
   createdAt: string
 }
 
