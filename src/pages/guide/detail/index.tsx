@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Image, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView } from '@tarojs/components';
+import { Image } from '@/components'
 import { useRouter } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
 import { useRequest } from 'ahooks';
@@ -276,13 +277,13 @@ export default function TravelGuideDetail() {
                                                     <View className='w-full mt-3'>
                                                         {imgList.length === 1 ? (
                                                             <View className='w-full h-[320px] rounded-xl overflow-hidden bg-gray-50'>
-                                                                <Image src={imgList[0]} mode='aspectFill' className='w-full h-full' />
+                                                                <Image preview src={imgList[0]} mode='aspectFill' className='w-full h-full' />
                                                             </View>
                                                         ) : (
                                                             <View className={`grid ${imgList.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1.5 w-full`}>
                                                                 {imgList.map((imgUrl, i) => (
                                                                     <View key={i} className='relative w-full h-0 pb-[100%] rounded-xl overflow-hidden bg-gray-50'>
-                                                                        <Image src={imgUrl} mode='aspectFill' className='absolute top-0 left-0 w-full h-full' />
+                                                                        <Image urls={imgList} preview src={imgUrl} mode='aspectFill' className='absolute top-0 left-0 w-full h-full' />
                                                                     </View>
                                                                 ))}
                                                             </View>
