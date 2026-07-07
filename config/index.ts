@@ -19,7 +19,7 @@ Object.keys(env.parsed).forEach(item => {
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
   const baseConfig: UserConfigExport<'webpack5'> = {
-    projectName: 'photo-print-miniapp',
+    projectName: 'travel-miniapp',
     date: '2026-5-13',
     designWidth: 750,
     deviceRatio: {

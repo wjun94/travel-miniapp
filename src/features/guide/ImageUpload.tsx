@@ -10,6 +10,7 @@ interface Props {
 }
 
 export default function ImageUpload({ images, onChoose, onDelete }: Props) {
+  console.log(images)
   const handleChoose = async () => {
     const maxCanSelect = 9 - images.length;
     if (maxCanSelect <= 0) return;
@@ -17,6 +18,7 @@ export default function ImageUpload({ images, onChoose, onDelete }: Props) {
       const res = await Taro.chooseImage({ count: maxCanSelect, sizeType: ['compressed'], sourceType: ['album', 'camera'] });
       Taro.showLoading({ title: '图片上传中...', mask: true });
       const uploadedUrls = await uploadMultiImages(res.tempFilePaths);
+      console.log(uploadedUrls)
       Taro.hideLoading();
       onChoose([...images, ...uploadedUrls]);
     } catch (_) {
