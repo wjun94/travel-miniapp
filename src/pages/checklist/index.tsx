@@ -20,7 +20,7 @@ export default function ChecklistPage() {
             <View className="font-bold mb-2">{list.name}</View>
             {list.items?.map(item => (
               <View key={item.id} className="flex items-center py-1">
-                <Checkbox checked={!!item.checked} onChange={() => handleToggle(item)} />
+                <Checkbox checked={!!item.checked} value={item.id} onChange={() => handleToggle(item)} />
                 <View className="ml-2">{item.text}</View>
               </View>
             ))}

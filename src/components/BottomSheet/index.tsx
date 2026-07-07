@@ -16,7 +16,7 @@ interface BottomSheetProps {
   /** 自定义内容区样式类 */
   contentClassName?: string
   /** 子组件 */
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export default function BottomSheet(props: BottomSheetProps) {

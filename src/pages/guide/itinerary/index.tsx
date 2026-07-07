@@ -234,7 +234,7 @@ export default function ItineraryPage() {
 
   /** 根据类型渲染对应表单 */
   const renderForm = (item: DayItem, dayIndex: number) => {
-    const uf = (field: string, value: any) => updateItemField(dayIndex, item.id, field, value);
+    const uf = (field: string | Record<string, any>, value?: any) => updateItemField(dayIndex, item.id, field, value);
     switch (item.sectionType) {
       case 'transport': return <TransportForm item={item} updateField={uf} />;
       case 'attraction': return <AttractionForm item={item} updateField={uf} />;

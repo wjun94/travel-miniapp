@@ -2,7 +2,7 @@ import { View, Button } from '@tarojs/components';
 import { useState } from 'react';
 import { useRouter } from '@tarojs/taro';
 import ScrollLoadList from '@/components/ScrollLoadList';
-import { getAccounts, Accounting } from '@/api/accounting';
+import { getAccounts } from '@/api/accounting';
 import { BottomSheet } from '@/components';
 
 export default function AccountingList() {
@@ -11,7 +11,7 @@ export default function AccountingList() {
 
   return (
     <View className="h-full">
-      <ScrollLoadList<Accounting>
+      <ScrollLoadList
         request={() => getAccounts(Number(tripId)).then(res => ({ list: res, total: res.length }))}
         renderItem={(item) => (
           <View className="flex justify-between p-4 bg-white border-b">
