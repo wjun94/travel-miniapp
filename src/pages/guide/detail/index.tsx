@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components';
 import { Image } from '@/components'
 import { useRouter } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
@@ -22,7 +22,6 @@ export default function TravelGuideDetail() {
 
     const guide = guideData?.guide || {} as TravelGuide;
     const days = guideData?.days || [];
-    const currentDay = days[currentDayIdx];
     const tagList = guide.tags ? guide.tags.split(',').filter(Boolean) : [];
 
     const getImgArray = (images) => {
@@ -36,6 +35,11 @@ export default function TravelGuideDetail() {
         if (!start && !end) return '全天/待定';
         if (start && end) return `${start} - ${end}`;
         return start || end;
+    };
+
+    // 监听滑块联动 Tab
+    const handleSwiperChange = (e) => {
+        setCurrentDayIdx(e.detail.current);
     };
 
     if (loading) {
@@ -101,7 +105,7 @@ export default function TravelGuideDetail() {
                     </View>}
                     {guide?.difficulty && <View>
                         <Text className='block text-gray-500 mb-1 text-[22px]'>⛰️ 难度</Text>
-                        <Text className='text-gray-800 font-medium text-[24px]'>{guide.difficulty}</Text>
+                        <Text className='text-[24px] text-gray-800 font-medium'>{guide.difficulty}</Text>
                     </View>}
                     {guide.crowdType && <View>
                         <Text className='block text-gray-500 mb-1 text-[22px]'>👥 适用人群</Text>
@@ -142,9 +146,9 @@ export default function TravelGuideDetail() {
                 <View className='mt-4 bg-white mx-4 rounded-2xl p-4 shadow-sm'>
                     <View className='flex flex-row justify-between items-center mb-3'>
                         <Text className='text-[28px] font-bold text-gray-900'>行程概览</Text>
-                        {currentDay?.title && (
+                        {days[currentDayIdx]?.title && (
                             <Text className='text-[22px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg'>
-                                {currentDay.title}
+                                {days[currentDayIdx].title}
                             </Text>
                         )}
                     </View>
@@ -169,154 +173,155 @@ export default function TravelGuideDetail() {
                 </View>
             )}
 
-            {/* 时间轴区域 */}
-            <View className='mt-4 px-4'>
-                <View className='relative w-full pl-8 box-border'>
-                    {currentDay?.items && currentDay.items.length > 0 ? (
-                        <>
-                            {/* 主轴线 (精确对齐左侧20px) */}
-                            <View className='absolute left-[20px] top-6 bottom-6 w-[2px] bg-gray-200' />
+            {/* 可左右滑动的 Swiper 容器区域 (高度保持一致) */}
+            {days.length > 0 && (
+                <Swiper
+                    current={currentDayIdx}
+                    onChange={handleSwiperChange}
+                    className='w-full h-[1200px] mt-4' // 这里设置了固定的等高区，可以根据内容多少自行微调高度
+                >
+                    {days.map((dayItem, dIdx) => (
+                        <SwiperItem key={dayItem.id || dIdx} className='w-full h-full'>
+                            {/* 内置独立滚动条，使每一页都可以独立上下滑动且高度一致 */}
+                            <ScrollView scrollY className='w-full h-full px-4 box-border'>
+                                <View className='relative w-full pl-8 box-border pb-6'>
+                                    {dayItem?.items && dayItem.items.length > 0 ? (
+                                        <>
+                                            {/* 主轴线 (样式锚点完全不动) */}
+                                            <View className='absolute left-[20px] top-6 bottom-6 w-[2px] bg-gray-200' />
 
-                            <View className='space-y-4'>
-                                {currentDay.items.map((item, index) => {
-                                    const config = SECTION_MAP[item.sectionType] || SECTION_MAP.attraction;
-                                    const typeCfg = typeConfigMap[item.sectionType] || typeConfigMap.attraction;
-                                    const imgList = getImgArray(item.images);
-                                    const hasImages = imgList.length > 0;
+                                            <View className='space-y-4'>
+                                                {dayItem.items.map((item, index) => {
+                                                    const config = SECTION_MAP[item.sectionType] || SECTION_MAP.attraction;
+                                                    const typeCfg = typeConfigMap[item.sectionType] || typeConfigMap.attraction;
+                                                    const imgList = getImgArray(item.images);
+                                                    const hasImages = imgList.length > 0;
 
-                                    const price = Number(item.ticketPrice);
-                                    const hasPrice = item.ticketPrice !== null && !isNaN(price);
-                                    const isTransport = item.sectionType === 'transport';
-                                    const isTips = item.sectionType === 'tips';
+                                                    const price = Number(item.ticketPrice);
+                                                    const hasPrice = item.ticketPrice !== null && !isNaN(price);
+                                                    const isTransport = item.sectionType === 'transport';
+                                                    const isTips = item.sectionType === 'tips';
 
-                                    // 1. 如果是交通类型，渲染成轻量胶囊轴
-                                    if (isTransport) {
-                                        return (
-                                            <View key={item.id || index} className='relative my-2 py-1 flex flex-row items-center pl-2'>
-                                                {/* 交通节点微型指示点精确靠左对齐主轴 */}
-                                                <View className='absolute -left-[52px] w-2 h-2 rounded-full bg-[#D1CFC9] z-10 border border-white' />
-
-                                                <View className='bg-[#F1F6F2] rounded-full px-3 py-1 flex flex-row items-center space-x-2 border border-white shadow-sm'>
-                                                    <Text className='text-[24px]'>🚗</Text>
-                                                    <Text className='text-[22px] text-gray-500 font-medium'>
-                                                        {getTransportLabel((item as any).transportMode)}
-                                                        {item.description ? ` · ${item.description}` : ''}
-                                                    </Text>
-                                                    {((item as any).startAddress || (item as any).endAddress) && (
-                                                        <>
-                                                            <Text className='text-gray-300 text-[20px]'>|</Text>
-                                                            <Text className='text-[20px] text-gray-400 max-w-[200px] truncate'>
-                                                                {((item as any).startAddress || '起点')} → {((item as any).endAddress || '终点')}
-                                                            </Text>
-                                                        </>
-                                                    )}
-                                                </View>
-                                            </View>
-                                        );
-                                    }
-
-                                    // 2. 普通内容卡片（景点、酒店、美食、避坑等）
-                                    return (
-                                        <View key={item.id || index} className='relative'>
-                                            {/* 普通卡片大圆环锚点（精确居中对齐左侧20px的主轴） */}
-                                            <View
-                                                className='absolute -left-[60px] top-[22px] -translate-x-1/2 flex items-center justify-center w-5 h-5 rounded-full z-10 shadow-sm'
-                                                style={{ backgroundColor: config.ringColor }}
-                                            >
-                                                <View
-                                                    className='w-2 h-2 rounded-full'
-                                                    style={{ backgroundColor: config.dotColor }}
-                                                />
-                                            </View>
-
-                                            {/* 内容卡片 */}
-                                            <View className='bg-white rounded-2xl p-4 shadow-sm box-border ml-2'>
-
-                                                {/* 卡片头部：时间 + 类型标签 */}
-                                                <View className='flex flex-row items-center justify-between mb-3'>
-                                                    <Text className='text-[24px] font-medium text-gray-400 flex items-center'>
-                                                        ⏱️ {formatTimeRange(item.startTime, item.endTime)}
-                                                    </Text>
-                                                    <View
-                                                        className='px-2 py-0.5 rounded flex items-center gap-1'
-                                                        style={{ color: config.color, backgroundColor: config.bg }}
-                                                    >
-                                                        <Text className='text-[24px]'>{typeCfg.emoji}</Text>
-                                                        <Text className='text-[24px] font-medium'>{config.label}</Text>
-                                                    </View>
-                                                </View>
-
-                                                {/* 避坑类型特殊展示 */}
-                                                {isTips && item.title && (
-                                                    <View className='bg-yellow-50 rounded-xl p-3 border border-yellow-100'>
-                                                        <Text className='text-[26px] text-gray-700 leading-relaxed font-medium'>{item.title}</Text>
-                                                    </View>
-                                                )}
-
-                                                {/* 普通文本排版 */}
-                                                {!isTips && (
-                                                    <View className='space-y-1'>
-                                                        <Text className='text-[28px] font-bold text-gray-800 block'>
-                                                            {item.title || '未指定地点'}
-                                                        </Text>
-                                                        {item.description && (
-                                                            <Text className='text-[24px] text-gray-500 leading-relaxed block mt-1'>
-                                                                {item.description}
-                                                            </Text>
-                                                        )}
-                                                        {item.address && (
-                                                            <View className='flex flex-row items-center gap-1 mt-2 bg-gray-50 px-2 py-1 rounded-lg w-fit'>
-                                                                <Text className='text-[20px]'>📍</Text>
-                                                                <Text className='text-[22px] text-gray-400 break-all'>{item.address}</Text>
+                                                    if (isTransport) {
+                                                        return (
+                                                            <View key={item.id || index} className='relative my-2 py-1 flex flex-row items-center pl-2'>
+                                                                <View className='absolute -left-[52px] w-2 h-2 rounded-full bg-[#D1CFC9] z-10 border border-white' />
+                                                                <View className='bg-[#F1F6F2] rounded-full px-3 py-1 flex flex-row items-center space-x-2 border border-white shadow-sm'>
+                                                                    <Text className='text-[24px]'>🚗</Text>
+                                                                    <Text className='text-[22px] text-gray-500 font-medium'>
+                                                                        {getTransportLabel((item as any).transportMode)}
+                                                                        {item.description ? ` · ${item.description}` : ''}
+                                                                    </Text>
+                                                                    {((item as any).startAddress || (item as any).endAddress) && (
+                                                                        <>
+                                                                            <Text className='text-gray-300 text-[20px]'>|</Text>
+                                                                            <Text className='text-[20px] text-gray-400 max-w-[200px] truncate'>
+                                                                                {((item as any).startAddress || '起点')} → {((item as any).endAddress || '终点')}
+                                                                            </Text>
+                                                                        </>
+                                                                    )}
+                                                                </View>
                                                             </View>
-                                                        )}
-                                                    </View>
-                                                )}
+                                                        );
+                                                    }
 
-                                                {/* 图片九宫格（宽高严格相等正方形） */}
-                                                {hasImages && (
-                                                    <View className='w-full mt-3'>
-                                                        {imgList.length === 1 ? (
-                                                            <View className='w-full h-[320px] rounded-xl overflow-hidden bg-gray-50'>
-                                                                <Image preview src={imgList[0]} mode='aspectFill' className='w-full h-full' />
+                                                    return (
+                                                        <View key={item.id || index} className='relative'>
+                                                            <View
+                                                                className='absolute -left-[60px] top-[22px] -translate-x-1/2 flex items-center justify-center w-5 h-5 rounded-full z-10 shadow-sm'
+                                                                style={{ backgroundColor: config.ringColor }}
+                                                            >
+                                                                <View
+                                                                    className='w-2 h-2 rounded-full'
+                                                                    style={{ backgroundColor: config.dotColor }}
+                                                                />
                                                             </View>
-                                                        ) : (
-                                                            <View className={`grid ${imgList.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1.5 w-full`}>
-                                                                {imgList.map((imgUrl, i) => (
-                                                                    <View key={i} className='relative w-full h-0 pb-[100%] rounded-xl overflow-hidden bg-gray-50'>
-                                                                        <Image urls={imgList} preview src={imgUrl} mode='aspectFill' className='absolute top-0 left-0 w-full h-full' />
+
+                                                            <View className='bg-white rounded-2xl p-4 shadow-sm box-border ml-2'>
+                                                                <View className='flex flex-row items-center justify-between mb-3'>
+                                                                    <Text className='text-[24px] font-medium text-gray-400 flex items-center'>
+                                                                        ⏱️ {formatTimeRange(item.startTime, item.endTime)}
+                                                                    </Text>
+                                                                    <View
+                                                                        className='px-2 py-0.5 rounded flex items-center gap-1'
+                                                                        style={{ color: config.color, backgroundColor: config.bg }}
+                                                                    >
+                                                                        <Text className='text-[24px]'>{typeCfg.emoji}</Text>
+                                                                        <Text className='text-[24px] font-medium'>{config.label}</Text>
                                                                     </View>
-                                                                ))}
-                                                            </View>
-                                                        )}
-                                                    </View>
-                                                )}
+                                                                </View>
 
-                                                {/* 购票费用信息 */}
-                                                {!isTransport && (hasPrice || item.needReservation) && (
-                                                    <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100 mt-3'>
-                                                        <View className='flex flex-row items-center gap-1.5'>
-                                                            <Text className="iconfont icon-ticket text-yellow-600" />
-                                                            <Text className='text-[24px] text-emerald-600 font-medium'>
-                                                                {hasPrice && price > 0 ? `门票预估: ¥${price.toFixed(2)}` : '免门票 / 无需预约'}
-                                                            </Text>
+                                                                {isTips && item.title && (
+                                                                    <View className='bg-yellow-50 rounded-xl p-3 border border-yellow-100'>
+                                                                        <Text className='text-[26px] text-gray-700 leading-relaxed font-medium'>{item.title}</Text>
+                                                                    </View>
+                                                                )}
+
+                                                                {!isTips && (
+                                                                    <View className='space-y-1'>
+                                                                        <Text className='text-[28px] font-bold text-gray-800 block'>
+                                                                            {item.title || '未指定地点'}
+                                                                        </Text>
+                                                                        {item.description && (
+                                                                            <Text className='text-[24px] text-gray-500 leading-relaxed block mt-1'>
+                                                                                {item.description}
+                                                                            </Text>
+                                                                        )}
+                                                                        {item.address && (
+                                                                            <View className='flex flex-row items-center gap-1 mt-2 bg-gray-50 px-2 py-1 rounded-lg w-fit'>
+                                                                                <Text className='text-[20px]'>📍</Text>
+                                                                                <Text className='text-[22px] text-gray-400 break-all'>{item.address}</Text>
+                                                                            </View>
+                                                                        )}
+                                                                    </View>
+                                                                )}
+
+                                                                {hasImages && (
+                                                                    <View className='w-full mt-3'>
+                                                                        {imgList.length === 1 ? (
+                                                                            <View className='w-full h-[320px] rounded-xl overflow-hidden bg-gray-50'>
+                                                                                <Image preview src={imgList[0]} mode='aspectFill' className='w-full h-full' />
+                                                                            </View>
+                                                                        ) : (
+                                                                            <View className={`grid ${imgList.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1.5 w-full`}>
+                                                                                {imgList.map((imgUrl, i) => (
+                                                                                    <View key={i} className='relative w-full h-0 pb-[100%] rounded-xl overflow-hidden bg-gray-50'>
+                                                                                        <Image urls={imgList} preview src={imgUrl} mode='aspectFill' className='absolute top-0 left-0 w-full h-full' />
+                                                                                    </View>
+                                                                                ))}
+                                                                            </View>
+                                                                        )}
+                                                                    </View>
+                                                                )}
+
+                                                                {!isTransport && (hasPrice || item.needReservation) && (
+                                                                    <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100 mt-3'>
+                                                                        <View className='flex flex-row items-center gap-1.5'>
+                                                                            <Text className="iconfont icon-ticket text-yellow-600" />
+                                                                            <Text className='text-[24px] text-emerald-600 font-medium'>
+                                                                                {hasPrice && price > 0 ? `门票预估: ¥${price.toFixed(2)}` : '免门票 / 无需预约'}
+                                                                            </Text>
+                                                                        </View>
+                                                                    </View>
+                                                                )}
+                                                            </View>
                                                         </View>
-                                                    </View>
-                                                )}
+                                                    );
+                                                })}
                                             </View>
+                                        </>
+                                    ) : (
+                                        <View className='py-16 text-center text-[24px] text-gray-400 flex flex-col items-center justify-center space-y-2 bg-white rounded-2xl shadow-sm'>
+                                            <Text className='text-[40px]'>☕</Text>
+                                            <Text>今天没有排程，随心所欲到处逛逛吧~</Text>
                                         </View>
-                                    );
-                                })}
-                            </View>
-                        </>
-                    ) : (
-                        <View className='py-16 text-center text-[24px] text-gray-400 flex flex-col items-center justify-center space-y-2 bg-white rounded-2xl shadow-sm'>
-                            <Text className='text-[40px]'>☕</Text>
-                            <Text>今天没有排程，随心所欲到处逛逛吧~</Text>
-                        </View>
-                    )}
-                </View>
-            </View>
+                                    )}
+                                </View>
+                            </ScrollView>
+                        </SwiperItem>
+                    ))}
+                </Swiper>
+            )}
         </ScrollView>
     );
 }
