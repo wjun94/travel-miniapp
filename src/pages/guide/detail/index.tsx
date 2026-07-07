@@ -169,13 +169,13 @@ export default function TravelGuideDetail() {
                 </View>
             )}
 
-            {/* 时间轴 */}
+            {/* 时间轴区域 */}
             <View className='mt-4 px-4'>
-                <View className='relative w-full pl-5 box-border'>
+                <View className='relative w-full pl-8 box-border'>
                     {currentDay?.items && currentDay.items.length > 0 ? (
                         <>
-                            {/* 主轴线 */}
-                            <View className='absolute left-[9px] top-6 bottom-6 w-[2px] bg-gray-200' />
+                            {/* 主轴线 (精确对齐左侧20px) */}
+                            <View className='absolute left-[20px] top-6 bottom-6 w-[2px] bg-gray-200' />
 
                             <View className='space-y-4'>
                                 {currentDay.items.map((item, index) => {
@@ -189,11 +189,38 @@ export default function TravelGuideDetail() {
                                     const isTransport = item.sectionType === 'transport';
                                     const isTips = item.sectionType === 'tips';
 
+                                    // 1. 如果是交通类型，渲染成轻量胶囊轴
+                                    if (isTransport) {
+                                        return (
+                                            <View key={item.id || index} className='relative my-2 py-1 flex flex-row items-center pl-2'>
+                                                {/* 交通节点微型指示点精确靠左对齐主轴 */}
+                                                <View className='absolute -left-[52px] w-2 h-2 rounded-full bg-[#D1CFC9] z-10 border border-white' />
+
+                                                <View className='bg-[#F1F6F2] rounded-full px-3 py-1 flex flex-row items-center space-x-2 border border-white shadow-sm'>
+                                                    <Text className='text-[24px]'>🚗</Text>
+                                                    <Text className='text-[22px] text-gray-500 font-medium'>
+                                                        {getTransportLabel((item as any).transportMode)}
+                                                        {item.description ? ` · ${item.description}` : ''}
+                                                    </Text>
+                                                    {((item as any).startAddress || (item as any).endAddress) && (
+                                                        <>
+                                                            <Text className='text-gray-300 text-[20px]'>|</Text>
+                                                            <Text className='text-[20px] text-gray-400 max-w-[200px] truncate'>
+                                                                {((item as any).startAddress || '起点')} → {((item as any).endAddress || '终点')}
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        );
+                                    }
+
+                                    // 2. 普通内容卡片（景点、酒店、美食、避坑等）
                                     return (
                                         <View key={item.id || index} className='relative'>
-                                            {/* 环形锚点 */}
+                                            {/* 普通卡片大圆环锚点（精确居中对齐左侧20px的主轴） */}
                                             <View
-                                                className='absolute -left-[50px] top-[18px] flex items-center justify-center w-5 h-5 rounded-full z-10'
+                                                className='absolute -left-[60px] top-[22px] -translate-x-1/2 flex items-center justify-center w-5 h-5 rounded-full z-10 shadow-sm'
                                                 style={{ backgroundColor: config.ringColor }}
                                             >
                                                 <View
@@ -203,7 +230,7 @@ export default function TravelGuideDetail() {
                                             </View>
 
                                             {/* 内容卡片 */}
-                                            <View className='bg-white rounded-2xl p-4 shadow-sm box-border'>
+                                            <View className='bg-white rounded-2xl p-4 shadow-sm box-border ml-2'>
 
                                                 {/* 卡片头部：时间 + 类型标签 */}
                                                 <View className='flex flex-row items-center justify-between mb-3'>
@@ -219,52 +246,26 @@ export default function TravelGuideDetail() {
                                                     </View>
                                                 </View>
 
-                                                {/* 交通类型特殊展示 */}
-                                                {isTransport && (
-                                                    <View className='space-y-2'>
-                                                        <View className='flex items-center gap-2 bg-gray-50 rounded-xl p-3'>
-                                                            <Text className='text-[28px]'>🚗</Text>
-                                                            <Text className='text-[26px] font-bold text-gray-800'>{getTransportLabel((item as any).transportMode)}</Text>
-                                                        </View>
-                                                        {((item as any).startAddress || (item as any).endAddress) && (
-                                                            <View className='flex items-center gap-2'>
-                                                                <View className='flex-1 bg-green-50 rounded-lg p-2'>
-                                                                    <Text className='text-[20px] text-gray-400 block'>起点</Text>
-                                                                    <Text className='text-[24px] text-gray-700 font-medium block break-all'>{(item as any).startAddress || '未设置'}</Text>
-                                                                </View>
-                                                                <Text className='text-gray-400 text-[24px]'>→</Text>
-                                                                <View className='flex-1 bg-blue-50 rounded-lg p-2'>
-                                                                    <Text className='text-[20px] text-gray-400 block'>终点</Text>
-                                                                    <Text className='text-[24px] text-gray-700 font-medium block break-all'>{(item as any).endAddress || '未设置'}</Text>
-                                                                </View>
-                                                            </View>
-                                                        )}
-                                                        {item.description && (
-                                                            <Text className='text-[24px] text-gray-400 leading-relaxed block mt-2'>{item.description}</Text>
-                                                        )}
-                                                    </View>
-                                                )}
-
                                                 {/* 避坑类型特殊展示 */}
                                                 {isTips && item.title && (
                                                     <View className='bg-yellow-50 rounded-xl p-3 border border-yellow-100'>
-                                                        <Text className='text-[26px] text-gray-700 leading-relaxed'>{item.title}</Text>
+                                                        <Text className='text-[26px] text-gray-700 leading-relaxed font-medium'>{item.title}</Text>
                                                     </View>
                                                 )}
 
-                                                {/* 普通类型：标题 + 描述 */}
-                                                {!isTransport && !isTips && (
+                                                {/* 普通文本排版 */}
+                                                {!isTips && (
                                                     <View className='space-y-1'>
                                                         <Text className='text-[28px] font-bold text-gray-800 block'>
                                                             {item.title || '未指定地点'}
                                                         </Text>
                                                         {item.description && (
-                                                            <Text className='text-[24px] text-gray-400 leading-relaxed block'>
+                                                            <Text className='text-[24px] text-gray-500 leading-relaxed block mt-1'>
                                                                 {item.description}
                                                             </Text>
                                                         )}
                                                         {item.address && (
-                                                            <View className='flex items-center gap-1 mt-1'>
+                                                            <View className='flex flex-row items-center gap-1 mt-2 bg-gray-50 px-2 py-1 rounded-lg w-fit'>
                                                                 <Text className='text-[20px]'>📍</Text>
                                                                 <Text className='text-[22px] text-gray-400 break-all'>{item.address}</Text>
                                                             </View>
@@ -272,7 +273,7 @@ export default function TravelGuideDetail() {
                                                     </View>
                                                 )}
 
-                                                {/* 图片九宫格 */}
+                                                {/* 图片九宫格（宽高严格相等正方形） */}
                                                 {hasImages && (
                                                     <View className='w-full mt-3'>
                                                         {imgList.length === 1 ? (
@@ -291,13 +292,13 @@ export default function TravelGuideDetail() {
                                                     </View>
                                                 )}
 
-                                                {/* 购票信息 */}
+                                                {/* 购票费用信息 */}
                                                 {!isTransport && (hasPrice || item.needReservation) && (
                                                     <View className='flex flex-row items-center justify-between pt-2 border-t border-gray-100 mt-3'>
                                                         <View className='flex flex-row items-center gap-1.5'>
                                                             <Text className="iconfont icon-ticket text-yellow-600" />
-                                                            <Text className='text-[24px] text-gray-500'>
-                                                                {hasPrice && price > 0 ? `¥ ${price.toFixed(2)}` : '免费/无需门票'}
+                                                            <Text className='text-[24px] text-emerald-600 font-medium'>
+                                                                {hasPrice && price > 0 ? `门票预估: ¥${price.toFixed(2)}` : '免门票 / 无需预约'}
                                                             </Text>
                                                         </View>
                                                     </View>
