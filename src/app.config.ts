@@ -12,6 +12,7 @@ export default defineAppConfig({
     'pages/partner/detail',
     'pages/accounting/list',
     'pages/checklist/list/index',
+    'pages/checklist/edit/index',
     'pages/footprint/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',
