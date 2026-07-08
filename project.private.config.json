@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "我的",
+          "pathName": "pages/mine/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "pages/chat/index",
           "pathName": "pages/chat/index",
           "query": "id=1",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "我的",

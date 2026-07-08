@@ -1,9 +1,10 @@
 import { View } from '@tarojs/components'
-import { getHeaderHeight } from '@/utils'
+import { getHeaderHeight, getImageCdnUrl } from '@/utils'
 
 interface NavBarProps {
   /** 背景色，默认 #FCFBF7 */
   backgroundColor?: string
+  bgImg?: string
   /** 自定义 class */
   className?: string
   /** 导航栏标题（可选） */
@@ -15,7 +16,7 @@ interface NavBarProps {
 }
 
 /** 自定义导航栏：占据状态栏 + 胶囊按钮区域高度，防止内容被遮挡 */
-export default function NavBar({ backgroundColor = '#FCFBF7', className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
+export default function NavBar({ backgroundColor = '#FCFBF7', bgImg, className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
   const headerHeight = getHeaderHeight()
 
   return (
@@ -23,9 +24,12 @@ export default function NavBar({ backgroundColor = '#FCFBF7', className = '', ti
       className={`sticky top-0 z-30 flex flex-row items-end box-border ${className}`}
       style={{
         height: headerHeight,
+        backgroundImage: bgImg ? `url(${getImageCdnUrl(bgImg)})` : undefined,
         backgroundColor,
         paddingBottom: 8,
         paddingLeft: showBack ? 12 : 0,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       {showBack && (
