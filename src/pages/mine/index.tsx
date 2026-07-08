@@ -1,13 +1,21 @@
 import { View, Text } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
+import { navigateTo } from '@tarojs/taro'
 
 export default function ProfilePage() {
   // 1. 自由行工具箱数据
   const tools = [
     { id: 1, title: '记账本', icon: 'icon-notepad' },
     { id: 2, title: '备忘录', icon: 'icon-memos' },
-    { id: 3, title: '清单', icon: 'icon-checklists' },
+    {
+      id: 3,
+      title: '清单',
+      icon: 'icon-checklists',
+      onFn: () => {
+        navigateTo({ url: '/pages/checklist/index' })
+      }
+    },
     { id: 4, title: '汇率换算', icon: 'icon-rates' },
   ]
 
@@ -82,7 +90,11 @@ export default function ProfilePage() {
           <Text className="text-base font-black text-[#0c0e0c] tracking-wide block mb-4">自由行工具箱</Text>
           <View className="grid grid-cols-4 gap-2 text-center">
             {tools.map((tool) => (
-              <View key={tool.id} className="flex flex-col items-center active:opacity-70">
+              <View
+                key={tool.id}
+                className="flex flex-col items-center active:opacity-70"
+                onClick={tool?.onFn}
+              >
                 {/* 工具箱子图标圈 */}
                 <View className="w-11 h-11 rounded-2xl bg-[#d4dcae] flex items-center justify-center mb-2 shadow-2xs">
                   <Text className={`text-46px text-[#312e29] iconfont opacity-85 ${tool.icon}`} />
