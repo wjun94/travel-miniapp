@@ -131,6 +131,7 @@ export default function HomePage() {
         rowGap={12}
         masonry
         pageSize={10}
+        emptyText="暂无攻略"
         scrollViewProps={{
           className: 'px-4 pb-10 box-border',
           style: { height: '100vh' } // 显式声明高度确保内部滚动顺畅

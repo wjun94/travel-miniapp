@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
-import { ScrollView, View, Text, Image } from '@tarojs/components'
+import { ScrollView, View, Text } from '@tarojs/components'
 import type { ScrollViewProps } from '@tarojs/components'
+import { Image } from '@/components'
 
 export interface RequestResult<T> {
   list: T[]
@@ -200,7 +201,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     if (renderEmpty) return renderEmpty()
     return (
       <View className="flex flex-col justify-center items-center text-gray-400 py-20">
-        <Text className='iconfont icon-none text-68px' />
+        <Image cdn src="list-none2.png" className="w-376px h-217px mt-4 opacity-60" />
         <Text className="text-28px mt-20px">{emptyText}</Text>
       </View>
     )
@@ -253,7 +254,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
       scrollY
       className={`h-full ${className}`}
       style={style}
-      refresherEnabled={true}
+      refresherEnabled
       refresherTriggered={refreshing}
       onRefresherRefresh={handleRefresh}
       onScrollToLower={handleLoadMore}
