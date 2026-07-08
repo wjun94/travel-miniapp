@@ -11,7 +11,7 @@ export default defineAppConfig({
     'pages/trip/detail/index',
     'pages/partner/detail',
     'pages/accounting/list',
-    'pages/checklist/index',
+    'pages/checklist/list/index',
     'pages/footprint/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',

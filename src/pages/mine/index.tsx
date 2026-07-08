@@ -10,10 +10,10 @@ export default function ProfilePage() {
     { id: 2, title: '备忘录', icon: 'icon-memos' },
     {
       id: 3,
-      title: '清单',
+      title: '备忘清单',
       icon: 'icon-checklists',
       onFn: () => {
-        navigateTo({ url: '/pages/checklist/index' })
+        navigateTo({ url: '/pages/checklist/list/index' })
       }
     },
     { id: 4, title: '汇率换算', icon: 'icon-rates' },

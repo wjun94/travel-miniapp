@@ -21,8 +21,8 @@
     "miniprogram": {
       "list": [
         {
-          "name": "清单列表",
-          "pathName": "pages/checklist/index",
+          "name": "备忘清单",
+          "pathName": "pages/checklist/list/index",
           "query": "",
           "scene": null,
           "launchMode": "default"

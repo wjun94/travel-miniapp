@@ -4,8 +4,8 @@ import request from './request';
  * 备忘清单项
  */
 export interface ChecklistItem {
-  id: number;
-  checklistId: number;
+  id: string;
+  checklistId: string;
   text: string;
   checked: number; // 0未勾选 1已勾选
 }
@@ -14,11 +14,11 @@ export interface ChecklistItem {
  * 备忘清单
  */
 export interface Checklist {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   name: string;
   isTemplate: number;
-  tripId?: number;
+  tripId?: string;
   items: ChecklistItem[];
   createdAt: string;
 }
@@ -56,4 +56,15 @@ export const updateChecklistItem = (itemId: number, checked: number) =>
     url: `/checklist/${itemId}/item`,
     method: 'PUT',
     data: { checked },
+  });
+
+/**
+ * 删除备忘清单
+ * @param id 清单ID
+ * @returns void
+ */
+export const deleteChecklist = (id: string) =>
+  request({
+    url: `/checklist/${id}`,
+    method: 'DELETE',
   });

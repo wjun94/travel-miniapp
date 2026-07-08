@@ -1,7 +1,7 @@
 import { View, Button } from '@tarojs/components';
 import { useState } from 'react';
 import { useRouter } from '@tarojs/taro';
-import ScrollLoadList from '@/components/ScrollLoadList';
+import { ScrollLoadList } from '@/components';
 import { getAccounts } from '@/api/accounting';
 import { BottomSheet } from '@/components';
 
