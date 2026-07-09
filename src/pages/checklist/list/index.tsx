@@ -1,12 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useUpdate } from 'ahooks';
 import { getChecklists, deleteChecklist, updateChecklistItem, type Checklist } from '@/api/checklist';
-import { ScrollLoadList } from '@/components';
+import { ScrollLoadList, Checkbox, Modal } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
 
 export default function ChecklistPage() {
   const listRef = useRef<ScrollLoadListRef>(null);
+  const update = useUpdate();
+  const [deleteTarget, setDeleteTarget] = useState<Checklist | null>(null);
 
   const refreshList = () => {
     listRef.current?.refresh();
@@ -19,25 +22,24 @@ export default function ChecklistPage() {
     });
   };
 
-  // 触发删除模态框
-  const handleDelete = (item: Checklist) => {
-    Taro.showModal({
-      title: '删除清单',
-      content: `确定删除「${item.name}」吗？删除后不可恢复。`,
-      confirmColor: '#10B981', // 完美同步鼠尾草绿
-      success: async (res) => {
-        if (res.confirm) {
-          await deleteChecklist(item.id);
-          refreshList();
-        }
-      },
-    });
+  // 执行删除
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    await deleteChecklist(deleteTarget.id);
+    setDeleteTarget(null);
+    refreshList();
   };
 
-  // 切换勾选状态
+  // 触发删除模态框
+  const handleDelete = (item: Checklist) => {
+    setDeleteTarget(item);
+  };
+
+  // 切换勾选状态 — 本地更新，不刷新列表接口
   const handleToggle = async (checklistItem: any) => {
-    await updateChecklistItem(checklistItem.id, checklistItem.checked ? 0 : 1);
-    refreshList();
+    await updateChecklistItem(checklistItem.id, checklistItem.checked);
+    checklistItem.checked = checklistItem.checked ? 0 : 1;
+    update();
   };
 
   // Bento Box / 大圆角卡片渲染
@@ -47,30 +49,30 @@ export default function ChecklistPage() {
     const isCompleted = totalItems > 0 && checkedItems === totalItems;
 
     return (
-      <View className="bg-white rounded-3xl shadow-sm border border-stone-100/80 overflow-hidden mb-4 box-border transition-all duration-200 active:scale-[0.985] active:shadow-none">
+      <View className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(44,40,32,0.03)] border border-stone-100 overflow-hidden mb-4 box-border transition-all duration-300 ease-out active:scale-[0.99] active:shadow-none">
         {/* 卡片头部区域 */}
-        <View className="flex flex-row items-center justify-between px-5 pt-5 pb-2.5">
+        <View className="flex flex-row items-center justify-between px-5 pt-5 pb-2">
           <View className="flex-1 flex flex-row items-center min-w-0 mr-3">
-            <Text className={`text-base font-bold tracking-wide truncate transition-colors ${isCompleted ? 'text-stone-400' : 'text-stone-800'}`}>
+            <Text className={`text-[16px] font-bold tracking-wide truncate transition-colors duration-200 ${isCompleted ? 'text-stone-400' : 'text-stone-800'}`}>
               {checklist.name}
             </Text>
             {checklist.items && (
-              <Text className={`text-xs ml-2.5 px-2.5 py-0.5 rounded-full flex-shrink-0 font-medium transition-colors ${
-                isCompleted ? 'bg-stone-100 text-stone-400' : 'bg-[#10B981]/10 text-[#10B981]'
-              }`}>
+              <Text className={`text-[11px] ml-2.5 px-2 py-0.5 rounded-full flex-shrink-0 font-semibold transition-colors duration-200 tracking-wider ${isCompleted ? 'bg-stone-100 text-stone-400' : 'bg-[#10B981]/10 text-[#10B981]'
+                }`}>
                 {checkedItems}/{totalItems}
               </Text>
             )}
           </View>
           {/* 更加精致温和的删除按钮 */}
           <View
-            className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center active:bg-red-50 active:text-red-500 transition-colors flex-shrink-0 text-stone-400"
+            className="text-red-500 flex items-center justify-center active:bg-red-50 active:text-red-500 transition-all duration-200 flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(checklist);
             }}
           >
-            <Text className="text-xs font-sans">✕</Text>
+            <Text className='iconfont icon-remove text-32px mr-6px' />
+            <Text>删除</Text>
           </View>
         </View>
 
@@ -82,33 +84,21 @@ export default function ChecklistPage() {
               return (
                 <View
                   key={item.id}
-                  className="flex flex-row items-center py-2.5 rounded-2xl -mx-1 px-1 active:bg-stone-50/60 transition-colors"
+                  className="flex flex-row items-center py-2.5 rounded-xl -mx-1.5 px-1.5 active:bg-stone-50/80 transition-colors duration-150"
                   onClick={() => handleToggle(item)}
                 >
-                  {/* 沉浸式圆圈复选框 - 升级为鼠尾草绿 */}
-                  <View
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                      checked 
-                        ? 'bg-[#10B981] border-[#10B981] scale-100 shadow-sm shadow-[#10B981]/20' 
-                        : 'border-stone-200 bg-stone-50/30'
-                    }`}
-                  >
-                    {checked && <Text className="text-white text-[10px] font-black leading-none">✓</Text>}
-                  </View>
-                  <Text
-                    className={`ml-3.5 text-sm flex-1 tracking-wide transition-all duration-200 ${
-                      checked ? 'text-stone-300 line-through' : 'text-stone-600 font-medium'
-                    }`}
-                  >
-                    {item.text}
-                  </Text>
+                  <Checkbox
+                    checked={checked}
+                    label={item.text}
+                    labelClassName={`ml-3 flex-1 tracking-wide transition-all duration-200 ${checked ? 'text-stone-300 line-through font-normal' : 'text-stone-700 font-medium'}`}
+                  />
                 </View>
               );
             })}
           </View>
         ) : (
-          <View className="px-5 pb-5 pt-2">
-            <Text className="text-stone-300 text-xs italic tracking-wide block bg-stone-50/40 rounded-xl py-3 text-center">
+          <View className="px-5 pb-5 pt-1">
+            <Text className="text-stone-300 text-[11px] italic tracking-wide block bg-stone-50/40 rounded-xl py-3 text-center border border-dashed border-stone-100">
               暂无备忘事项 🏕️
             </Text>
           </View>
@@ -130,15 +120,7 @@ export default function ChecklistPage() {
       {/* 瀑布式列表流 */}
       <ScrollLoadList
         ref={listRef}
-        request={async (_page, _pageSize) => {
-          const res = await getChecklists();
-          // 优雅兼容标准返回格式格式和原始数组格式
-          const list = (res as any)?.data || res;
-          return { 
-            list: Array.isArray(list) ? list : [], 
-            total: list?.length || 0 
-          };
-        }}
+        request={getChecklists}
         renderItem={renderCard}
         renderHeader={renderHeader}
         emptyText="暂无清单，点击下方开始创建 🌿"
@@ -147,12 +129,27 @@ export default function ChecklistPage() {
 
       {/* 底部悬浮行动按钮 (FAB) - 升级为大圆角自然质感 */}
       <View
-        className="fixed bottom-8 right-6 z-50 flex flex-row items-center bg-[#10B981] pl-4 pr-5 py-3 rounded-full shadow-lg shadow-[#10B981]/20 active:scale-95 active:bg-[#0d9668] transition-all duration-150"
+        className="fixed bottom-8 right-6 z-50 flex flex-row items-center bg-[#10B981] pl-4 pr-5 py-3 rounded-full shadow-[0_8px_24px_rgba(16,185,129,0.3)] active:scale-95 active:bg-[#0d9668] transition-all duration-200 ease-out"
         onClick={navToCreate}
       >
-        <Text className="text-white text-lg font-light mr-1.5 leading-none">＋</Text>
-        <Text className="text-white text-sm font-medium tracking-wider">新建清单</Text>
+        <Text className="text-white text-lg font-light mr-1.5 leading-none transform translate-y-[-1px]">＋</Text>
+        <Text className="text-white text-sm font-semibold tracking-wider">新建清单</Text>
       </View>
+
+      {/* 删除确认弹窗 */}
+      <Modal
+        visible={!!deleteTarget}
+        title='删除清单'
+        confirmText='删除'
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      >
+        <View className='py-2 text-center'>
+          <Text className='text-gray-600 text-sm leading-relaxed'>
+            确定删除「{deleteTarget?.name}」吗？删除后不可恢复。
+          </Text>
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -104,7 +104,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
                 ${showCancel ? 'w-210px' : 'w-[85%]'} 
                 text-center py-2 rounded-full text-white text-center transition-colors cursor-pointer min-w-[80px]
                 // 根据 loading 状态切换背景色和手指样式
-                ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 active:bg-blue-600'}
+                ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#10B981] active:bg-blue-600'}
               `}
               onClick={handleConfirm}
             >

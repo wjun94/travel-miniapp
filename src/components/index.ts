@@ -5,4 +5,5 @@ export { default as Modal } from './Modal'
 export { HtmlRender } from './HtmlRender'
 export { default as BottomSheet } from './BottomSheet'
 export { default as NavBar } from './NavBar'
+export { default as Checkbox } from './Checkbox'
 

@@ -187,7 +187,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
         </View>
       )
     }
-    if (!hasMore && data.length > 0) {
+    if (!hasMore && data.length > 9) {
       return (
         <View className="flex justify-center items-center py-4">
           <Text className="text-gray-400 text-sm">{noMoreText}</Text>

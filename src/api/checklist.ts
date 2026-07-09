@@ -65,10 +65,11 @@ export interface ApiResponse<T> {
  * 获取用户的所有备忘清单
  * @returns 清单列表
  */
-export const getChecklists = () =>
+export const getChecklists = (data) =>
   request<Checklist[]>({
     url: '/checklist',
     method: 'GET',
+    data
   });
 
 /**
