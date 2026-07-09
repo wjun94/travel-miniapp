@@ -5,51 +5,29 @@ import request from './request';
 // ==========================================
 
 /**
- * 历史记录项
+ * 历史记录项 (根据 GET /browse/history 响应体结构完善)
  */
 export interface HistoryRecord {
     id: string;
     coverImage: string;
     userId: string;
-    /** 操作类型：view（浏览）| edit（编辑）| create（创建）| delete（删除） */
-    action: string;
-    /** 关联业务类型：guide（攻略）| trip（行程）| checklist（清单）等 */
-    bizType: string;
-    /** 关联业务ID */
-    bizId: string;
-    /** 关联业务标题/名称 */
-    bizName: string;
+    /** 对应图片中的 targetType，如 guide, trip 等 */
+    targetType: string;
+    /** 对应图片中的 targetId */
+    targetId: string;
+    /** 对应图片中的 title */
+    title: string;
     createdAt: string;
 }
 
 /**
- * 获取历史记录列表的查询参数
- */
-export interface HistoryListParams {
-    pageNo?: number;
-    pageSize?: number;
-    bizType?: string;
-    action?: string;
-}
-
-/**
- * 分页响应
- */
-export interface PageResult<T> {
-    list: T[];
-    total: number;
-    pageNo: number;
-    pageSize: number;
-}
-
-/**
- * 创建历史记录请求体
+ * 创建历史记录请求体 (根据 POST /browse/history 接口 body 完善)
  */
 export interface CreateHistoryRequest {
-    action: string;
-    bizType: string;
-    bizId: string;
-    bizName: string;
+    coverImage: string;
+    targetId: string;
+    targetType: string;
+    title: string;
 }
 
 // ==========================================
@@ -57,21 +35,19 @@ export interface CreateHistoryRequest {
 // ==========================================
 
 /**
- * 获取历史记录列表
- * @param params 查询参数（分页+筛选）
- * @returns 分页后的历史记录列表
+ * 获取历史记录历史 (对应 GET /browse/history)
+ * @param params 查询参数（page, pageSize）
  */
-export const getHistoryList = (params?: HistoryListParams) =>
-    request<PageResult<HistoryRecord>>({
+export const getHistoryList = (params) =>
+    request<{ list: HistoryRecord[]; total: number }>({
         url: '/browse/history',
         method: 'GET',
         data: params,
     });
 
 /**
- * 创建历史记录
- * @param data 历史记录信息
- * @returns 创建成功的记录
+ * 添加浏览记录 (对应 POST /browse/history)
+ * @param data 浏览记录信息
  */
 export const createHistoryRecord = (data: CreateHistoryRequest) =>
     request<HistoryRecord>({
@@ -81,7 +57,7 @@ export const createHistoryRecord = (data: CreateHistoryRequest) =>
     });
 
 /**
- * 删除单条历史记录
+ * 删除单条浏览记录 (对应 DELETE /browse/history/{id})
  * @param id 记录ID
  */
 export const deleteHistoryRecord = (id: string) =>
@@ -91,7 +67,7 @@ export const deleteHistoryRecord = (id: string) =>
     });
 
 /**
- * 清空当前用户的所有历史记录
+ * 清空浏览记录 (对应 DELETE /browse/history/clear)
  */
 export const clearAllHistory = () =>
     request({

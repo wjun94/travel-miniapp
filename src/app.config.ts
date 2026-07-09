@@ -14,6 +14,7 @@ export default defineAppConfig({
     'pages/checklist/list/index',
     'pages/checklist/edit/index',
     'pages/footprint/index',
+    'pages/history/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',
     'pages/guide/itinerary/index',

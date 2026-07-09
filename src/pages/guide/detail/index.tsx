@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components';
 import { Image } from '@/components'
 import { useRouter } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
+import { createHistoryRecord } from '@/api/history'
 import { useRequest } from 'ahooks';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
 
@@ -16,7 +17,18 @@ export default function TravelGuideDetail() {
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
-            onSuccess: () => setCurrentDayIdx(0)
+            onSuccess: (data) => {
+                setCurrentDayIdx(0);
+                // 进入详情时记录浏览历史
+                if (data?.guide) {
+                    createHistoryRecord({
+                        targetId: id || '',
+                        targetType: 'guide',
+                        title: data.guide.title || '',
+                        coverImage: data.guide.coverImage || '',
+                    }).catch(() => {});
+                }
+            }
         }
     );
 

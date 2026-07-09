@@ -22,7 +22,14 @@ export default function ProfilePage() {
   // 2. 更多服务数据
   const services = [
     { id: 1, title: '我的收藏', icon: 'icon-weishoucang' },
-    { id: 2, title: '浏览历史', icon: 'icon-history' },
+    {
+      id: 2,
+      title: '浏览历史',
+      icon: 'icon-history',
+      onFn: () => {
+        navigateTo({ url: '/pages/history/index' })
+      }
+    },
     { id: 4, title: '联系客服', icon: 'icon-contact' },
   ]
 
@@ -110,7 +117,11 @@ export default function ProfilePage() {
           <Text className="text-base font-black text-gray-800 tracking-wide block mb-4">更多服务</Text>
           <View className="grid grid-cols-4 gap-2 text-center">
             {services.map((service) => (
-              <View key={service.id} className="flex flex-col items-center active:opacity-70">
+              <View
+                key={service.id}
+                className="flex flex-col items-center active:opacity-70"
+                onClick={service.onFn}
+              >
                 {/* 底部图标可以直接使用轻量图标或文字符号 */}
                 <View className="w-10 h-10 flex items-center justify-center">
                   <Text className={`text-60px iconfont ${service.icon}`} />

@@ -5,16 +5,8 @@ import { getHistoryList, clearAllHistory, deleteHistoryRecord, type HistoryRecor
 import { ScrollLoadList, Modal, Image } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
 
-// 操作类型展示映射
-const actionLabel: Record<string, string> = {
-  view: '浏览',
-  edit: '编辑',
-  create: '创建',
-  delete: '删除',
-};
-
-// 业务类型展示映射
-const bizTypeLabel: Record<string, string> = {
+// 目标类型展示映射
+const targetTypeLabel: Record<string, string> = {
   guide: '攻略',
   trip: '行程',
   checklist: '清单',
@@ -24,12 +16,6 @@ export default function BrowseHistoryPage() {
   const listRef = useRef<ScrollLoadListRef>(null);
   const [deleteTarget, setDeleteTarget] = useState<HistoryRecord | null>(null);
   const [showClearModal, setShowClearModal] = useState(false);
-
-  // 适配 ScrollLoadList 的 request 签名：(page, pageSize) => { list, total }
-  const requestHistory = async (_page: number, _pageSize: number) => {
-    const res = await getHistoryList({ pageNo: _page, pageSize: _pageSize });
-    return { list: res.list, total: res.total };
-  };
 
   // 删除单条
   const handleDeleteConfirm = async () => {
@@ -92,20 +78,18 @@ export default function BrowseHistoryPage() {
 
       {/* 内容展示区 */}
       <View className="flex-1 min-w-0">
-        <Text className="text-stone-800 font-bold text-[28px] block truncate">
-          {item.bizName}
+        <Text className="text-stone-800 font-bold block truncate mb-4">
+          {item.title}
         </Text>
-        <View className="flex flex-row items-center gap-2 mt-1">
-          <Text className="text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md font-medium text-[20px]">
-            {actionLabel[item.action] || item.action}
+        <View className="flex flex-row items-center gap-2">
+          <Text className="text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md font-medium text-[22px] shrink-0">
+            {targetTypeLabel[item.targetType] || item.targetType}
           </Text>
-          <Text className="text-stone-400 text-[20px]">
-            {bizTypeLabel[item.bizType] || item.bizType}
+          <Text className="text-stone-300 text-[24px]">|</Text>
+          <Text className="text-stone-400 text-[22px] truncate">
+            {formatTime(item.createdAt)}
           </Text>
         </View>
-        <Text className="text-stone-300 text-[24px] block mt-1">
-          看过：{formatTime(item.createdAt)}
-        </Text>
       </View>
 
       {/* 删除按钮 */}
@@ -113,7 +97,7 @@ export default function BrowseHistoryPage() {
         className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center shrink-0 active:bg-red-100"
         onClick={() => setDeleteTarget(item)}
       >
-        <Text className="iconfont icon-remove text-[24px] text-stone-400" />
+        <Text className="iconfont icon-remove text-[24px] text-stone-500" />
       </View>
     </View>
   );
@@ -138,7 +122,7 @@ export default function BrowseHistoryPage() {
     <View className="min-h-screen bg-[#FAFAF9] font-sans box-border">
       <ScrollLoadList
         ref={listRef}
-        request={requestHistory}
+        request={getHistoryList}
         renderItem={renderCard}
         renderHeader={renderHeader}
         emptyText="还没有留下任何探索足迹 🏕️"
@@ -155,7 +139,7 @@ export default function BrowseHistoryPage() {
       >
         <View className="py-2 text-center">
           <Text className="text-gray-600 text-[28px] leading-relaxed">
-            确定删除「{deleteTarget?.bizName}」吗？
+            确定删除「{deleteTarget?.title}」吗？
           </Text>
         </View>
       </Modal>
