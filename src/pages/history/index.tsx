@@ -61,9 +61,25 @@ export default function BrowseHistoryPage() {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   };
 
+  // 根据 targetType 跳转到对应详情页
+  const navToDetail = (item: HistoryRecord) => {
+    const routeMap: Record<string, string> = {
+      guide: '/pages/guide/detail/index',
+      trip: '/pages/trip/detail/index',
+      checklist: '/pages/checklist/list/index',
+    };
+    const path = routeMap[item.targetType];
+    if (path) {
+      Taro.navigateTo({ url: `${path}?id=${item.targetId}` });
+    }
+  };
+
   // Bento Box 风格卡片
   const renderCard = (item: HistoryRecord) => (
-    <View className="bg-white rounded-3xl p-3 border border-stone-100 shadow-sm flex items-center space-x-3 mb-4 box-border">
+    <View
+      className="bg-white rounded-3xl p-3 border border-stone-100 shadow-sm flex items-center space-x-3 mb-4 box-border active:opacity-80 transition-opacity"
+      onClick={() => navToDetail(item)}
+    >
       {/* 封面图 */}
       {item.coverImage ? (
         <Image
@@ -95,7 +111,10 @@ export default function BrowseHistoryPage() {
       {/* 删除按钮 */}
       <View
         className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center shrink-0 active:bg-red-100"
-        onClick={() => setDeleteTarget(item)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDeleteTarget(item);
+        }}
       >
         <Text className="iconfont icon-remove text-[24px] text-stone-500" />
       </View>
