@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Input, ScrollView, Image } from '@tarojs/components';
+import { useState, useEffect } from 'react';
+import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import {
     createChecklist,
     getChecklistCategories,
-    getChecklists,
     Checklist,
-    ChecklistItem
+    ChecklistItem,
+    updateChecklist,
+    getChecklistDetail
 } from '@/api/checklist';
 
 export default function ChecklistFormPage() {
     const router = useRouter();
-    const { id } = router.params; 
+    const { id } = router.params;
     const isEdit = !!id;
 
     // 页面基础状态
     const [name, setName] = useState('');
     const [tripId, setTripId] = useState('');
     const [items, setItems] = useState<ChecklistItem[]>([]);
-    
+
     // 输入框受控状态
     const [customItemText, setCustomItemText] = useState('');
 
@@ -37,18 +38,15 @@ export default function ChecklistFormPage() {
             }
         });
 
-        // 2. 如果是编辑模式，回显数据
+        // 2. 如果是编辑模式，通过详情接口回显数据
         if (isEdit) {
             Taro.setNavigationBarTitle({ title: '修改备忘清单' });
-            getChecklists().then((res: any) => {
-                const list = res?.data || res;
-                if (Array.isArray(list)) {
-                    const current = list.find((item: any) => item.id === id);
-                    if (current) {
-                        setName(current.name);
-                        setTripId(current.tripId || '');
-                        setItems(current.items || []);
-                    }
+            getChecklistDetail(id!).then((res: any) => {
+                const detail = res?.data || res;
+                if (detail) {
+                    setName(detail.name);
+                    setTripId(detail.tripId || '');
+                    setItems(detail.items || []);
                 }
             });
         } else {
@@ -60,7 +58,7 @@ export default function ChecklistFormPage() {
     const handleAddItem = (text: string) => {
         const trimmed = text.trim();
         if (!trimmed) return;
-        
+
         if (items.some(i => i.text === trimmed)) {
             Taro.showToast({ title: '清单中已存在该物品', icon: 'none' });
             return;
@@ -108,7 +106,7 @@ export default function ChecklistFormPage() {
             };
 
             if (isEdit) {
-                // 如果后续有独立更新接口在此扩展
+                await updateChecklist(id!, { name, items });
             } else {
                 await createChecklist(payload);
             }
@@ -124,41 +122,26 @@ export default function ChecklistFormPage() {
 
     return (
         <View className="min-h-screen bg-[#FAFAF9] pb-24 px-4 pt-4 text-slate-800 font-sans box-border">
-            {/* 顶部沉浸式意境卡片 */}
-            <View className="relative w-full h-40 rounded-3xl overflow-hidden shadow-sm mb-4">
-                <Image
-                    src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80"
-                    mode="aspectFill"
-                    className="w-full h-full"
-                />
-                <View className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-5">
-                    <Text className="text-white text-xs tracking-widest uppercase mb-1 opacity-80">Nature Exploration</Text>
-                    <Text className="text-white text-xl font-medium tracking-wide">
-                        {isEdit ? '调整你的远行装备' : '开启下一段治愈旅程'}
-                    </Text>
-                </View>
-            </View>
-
             {/* 基础信息卡片 */}
             <View className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100 mb-4 space-y-4">
                 <View>
-                    <Text className="text-xs font-semibold text-stone-400 tracking-wider block mb-2">清单名称</Text>
+                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">清单名称</Text>
                     <Input
                         type="text"
                         placeholder="如：海岛防晒必备、川西徒步装备"
                         value={name}
                         onInput={(e) => setName(e.detail.value)}
-                        className="w-full h-11 bg-stone-50 rounded-2xl px-4 text-base placeholder-stone-300 border-none box-border"
+                        className="w-full h-11 bg-stone-50 rounded-2xl px-4 placeholder-stone-300 border-none box-border text-[28px]"
                     />
                 </View>
                 <View>
-                    <Text className="text-xs font-semibold text-stone-400 tracking-wider block mb-2">关联行程 ID (选填)</Text>
+                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">关联行程 ID (选填)</Text>
                     <Input
                         type="text"
                         placeholder="绑定对应的旅行行程"
                         value={tripId}
                         onInput={(e) => setTripId(e.detail.value)}
-                        className="w-full h-11 bg-stone-50 rounded-2xl px-4 text-base placeholder-stone-300 border-none box-border"
+                        className="w-full h-11 bg-stone-50 rounded-2xl px-4 placeholder-stone-300 border-none box-border text-[28px]"
                     />
                 </View>
             </View>
@@ -166,13 +149,13 @@ export default function ChecklistFormPage() {
             {/* 已加清单项区块 */}
             <View className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100 mb-4">
                 <View className="flex justify-between items-center mb-3">
-                    <Text className="text-sm font-bold text-stone-700">当前清单明细</Text>
-                    <Text className="text-xs bg-[#10B981]/10 text-[#10B981] px-2.5 py-1 rounded-full font-medium">
+                    <Text className="font-bold text-stone-700 text-[28px]">当前清单明细</Text>
+                    <Text className="bg-[#10B981]/10 text-[#10B981] px-2.5 py-1 rounded-full font-medium text-[24px]">
                         已加 {items.length} 项
                     </Text>
                 </View>
 
-                {/* 快捷输入组（解决溢出、增加确定按钮） */}
+                {/* 快捷输入组 */}
                 <View className="flex items-center space-x-2 mb-4 w-full box-border">
                     <View className="flex-1 min-w-0">
                         <Input
@@ -182,35 +165,30 @@ export default function ChecklistFormPage() {
                             value={customItemText}
                             onInput={(e) => setCustomItemText(e.detail.value)}
                             onConfirm={() => handleAddItem(customItemText)}
-                            className="w-full h-10 bg-stone-50 rounded-xl px-3 text-sm placeholder-stone-400 border-none box-border"
+                            className="w-full h-10 bg-stone-50 rounded-xl px-3 placeholder-stone-400 border-none box-border text-[28px]"
                         />
                     </View>
-                    <View 
+                    <View
                         onClick={() => handleAddItem(customItemText)}
                         className="h-10 px-4 bg-[#10B981] active:bg-[#0d9668] rounded-xl flex items-center justify-center shrink-0 transition-colors"
                     >
-                        <Text className="text-white text-xs font-medium">确定</Text>
+                        <Text className="text-white font-medium text-[24px]">确定</Text>
                     </View>
                 </View>
 
                 {items.length === 0 ? (
                     <View className="py-8 text-center">
-                        <Text className="text-xs text-stone-300 block">清单空空如也，从下方推荐里挑一些吧 🏕️</Text>
+                        <Text className="text-stone-300 block text-[24px]">清单空空如也，从下方推荐里挑一些吧 🏕️</Text>
                     </View>
                 ) : (
                     <View className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
                         {items.map((item) => (
                             <View
                                 key={item.id}
-                                className="flex items-center space-x-1 bg-stone-50 border border-stone-200/60 pl-3 pr-2 py-1.5 rounded-xl transition-all"
+                                className="flex items-center space-x-1 bg-stone-50 border border-stone-200/60 pl-3 pr-2 py-1.5 rounded-xl transition-all max-w-full box-border overflow-hidden"
                             >
-                                <Text className="text-sm text-stone-600">{item.text}</Text>
-                                <View
-                                    onClick={() => handleRemoveItem(item.text)}
-                                    className="w-4 h-4 rounded-full bg-stone-200 flex items-center justify-center text-[10px] text-white font-bold ml-1 active:bg-red-400"
-                                >
-                                    ✕
-                                </View>
+                                <Text className="text-stone-600 truncate max-w-[160px] text-[28px]">{item.text}</Text>
+                                <Text className='iconfont icon-close text-stone-400 active:text-red-400' onClick={() => handleRemoveItem(item.text)} />
                             </View>
                         ))}
                     </View>
@@ -219,11 +197,11 @@ export default function ChecklistFormPage() {
 
             {/* 预置灵感库 */}
             <View className="bg-white rounded-3xl p-5 shadow-sm border border-stone-100">
-                <Text className="text-sm font-bold text-stone-700 block mb-3">行李打包灵感库</Text>
+                <Text className="font-bold text-stone-700 block mb-3 text-[28px]">行李打包灵感库</Text>
 
-                {/* 横向分类滑动 - 带 scrollIntoView 自动平滑锚点定位 */}
-                <ScrollView 
-                    scrollX 
+                {/* 横向分类滑动 */}
+                <ScrollView
+                    scrollX
                     scrollWithAnimation
                     scrollIntoView={`tab_${activeCategoryIdx}`}
                     className="whitespace-nowrap w-full mb-4"
@@ -233,12 +211,11 @@ export default function ChecklistFormPage() {
                             key={cat.id || idx}
                             id={`tab_${idx}`}
                             onClick={() => setActiveCategoryIdx(idx)}
-                            className={`inline-block text-xs px-4 py-2 rounded-xl mr-2 transition-all font-medium box-border ${
-                                activeCategoryIdx === idx
-                                    ? 'bg-[#10B981] text-white shadow-sm shadow-[#10B981]/30 transform scale-105'
-                                    : 'bg-stone-50 text-stone-500'
-                            }`}
-                            style={{ display: 'inline-block' }}
+                            className={`inline-block px-4 py-2 rounded-xl mr-2 transition-all font-medium box-border text-[24px] ${activeCategoryIdx === idx
+                                ? 'bg-[#10B981] text-white shadow-sm shadow-[#10B981]/30 transform scale-105'
+                                : 'bg-stone-50 text-stone-500'
+                                }`}
+                            style={{ display: 'inline-block' }} // ScrollView子元素横向排列保留此内联布局属性
                         >
                             {cat.name}
                         </View>
@@ -255,22 +232,26 @@ export default function ChecklistFormPage() {
                                     <View
                                         key={item.id}
                                         onClick={() => handleToggleFromCategory(item.text)}
-                                        className={`text-xs px-3 py-2 rounded-xl border transition-all flex items-center space-x-0.5 active:scale-95 ${
-                                            isAdded
-                                                ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981] font-medium'
-                                                : 'bg-white text-stone-600 border-stone-200 hover:border-[#10B981]'
-                                        }`}
+                                        className={`rounded-10px border transition-all flex items-center box-border overflow-hidden max-w-full ${isAdded
+                                            ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981] font-medium pl-3 pr-6 py-2 relative'
+                                            : 'bg-white text-stone-600 border-stone-200 hover:border-[#10B981] px-3 py-2 space-x-1'
+                                            }`}
                                     >
-                                        <Text>{item.text}</Text>
-                                        <Text className="ml-0.5 text-[10px] font-bold">
-                                            {isAdded ? '✓' : '＋'}
-                                        </Text>
+                                        {/* 文字最大宽度限制加溢出点点点 */}
+                                        <Text className="truncate max-w-[140px] text-[24px]">{item.text}</Text>
+
+                                        {/* 勾选/未勾选图标：使用纯 Tailwind 精准定位在安全边界内 */}
+                                        {isAdded ? (
+                                            <Text className="iconfont icon-selected absolute -right-1px -bottom-1px text-[#10B981] shrink-0 text-[40px]" />
+                                        ) : (
+                                            <Text className="iconfont icon-plus text-stone-400 font-bold shrink-0 text-[20px]" />
+                                        )}
                                     </View>
                                 );
                             })}
                         </View>
                     ) : (
-                        <Text className="text-xs text-stone-400 block text-center py-6">该分类下暂无推荐</Text>
+                        <Text className="text-stone-400 block text-center py-6 text-[24px]">该分类下暂无推荐</Text>
                     )}
                 </View>
             </View>
@@ -281,7 +262,7 @@ export default function ChecklistFormPage() {
                     onClick={handleSave}
                     className="w-full h-12 bg-[#10B981] active:bg-[#0d9668] shadow-lg shadow-[#10B981]/20 rounded-2xl flex items-center justify-center transition-all"
                 >
-                    <Text className="text-white font-medium text-base tracking-wider">
+                    <Text className="text-white font-medium tracking-wider text-[28px]">
                         {isEdit ? '确认保存修改' : '生成备忘清单'}
                     </Text>
                 </View>

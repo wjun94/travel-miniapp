@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 5201413 */
-  src: url('//at.alicdn.com/t/c/font_5201413_paekhdp9s8.woff2?t=1783566119687') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5201413_paekhdp9s8.woff?t=1783566119687') format('woff'),
-       url('//at.alicdn.com/t/c/font_5201413_paekhdp9s8.ttf?t=1783566119687') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_5201413_kx1qqhirmi.woff2?t=1783583633407') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5201413_kx1qqhirmi.woff?t=1783583633407') format('woff'),
+       url('//at.alicdn.com/t/c/font_5201413_kx1qqhirmi.ttf?t=1783583633407') format('truetype');
 }
 
 .iconfont {
@@ -13,8 +13,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-remove:before {
+  content: "\e6a4";
+}
+
+.icon-edit:before {
+  content: "\e6af";
+}
+
+.icon-selected:before {
+  content: "\e6ae";
+}
+
 .icon-close:before {
-  content: "\e6ad";
+  content: "\e6c1";
 }
 
 .icon-plus:before {
@@ -47,10 +59,6 @@
 
 .icon-ticket:before {
   content: "\e6a5";
-}
-
-.icon-remove:before {
-  content: "\e6a4";
 }
 
 .icon-bus:before {

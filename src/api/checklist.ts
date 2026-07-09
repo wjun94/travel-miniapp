@@ -49,12 +49,29 @@ export interface ChecklistCategory {
 }
 
 /**
- * 统一的后端返回包裹格式（包含 code, data, msg）
+ * 更新备忘清单的请求体 (对应图1: PUT /checklist/{id})
  */
-export interface ApiResponse<T> {
-  code: number;
-  data: T;
-  msg: string;
+export interface UpdateChecklistRequest {
+  name: string;
+  items: Array<{
+    id: string;
+    checklistId: string;
+    text: string;
+    checked: number; // 0未勾选 1已勾选
+  }>;
+}
+
+/**
+ * 获取清单详情的响应数据内部的 data 结构 (对应图2: GET /checklist/{id})
+ */
+export interface ChecklistDetail {
+  id: string;
+  userId: string;
+  tripId: string;
+  name: string;
+  isTemplate: number; // 0 或 1
+  createdAt: string;
+  items: ChecklistItem[];
 }
 
 // ==========================================
@@ -100,7 +117,7 @@ export const getChecklistCategories = () =>
  * @param checked 是否勾选 (0未勾选，1已勾选)
  */
 export const updateChecklistItem = (itemId: string, checked: number) =>
-  request<ApiResponse<string>>({
+  request<string>({
     url: `/checklist/${itemId}/item`,
     method: 'PUT',
     data: { checked },
@@ -115,4 +132,27 @@ export const deleteChecklist = (id: string) =>
   request({
     url: `/checklist/${id}`,
     method: 'DELETE',
+  });
+
+/**
+* 更新备忘清单 (对应图1: PUT /checklist/{id})
+* @param id 清单ID (路径参数)
+* @param data 包含名称和条目的更新数据 (请求体)
+*/
+export const updateChecklist = (id: string, data: UpdateChecklistRequest) =>
+  request<any>({
+    url: `/checklist/${id}`,
+    method: 'PUT',
+    data,
+  });
+
+/**
+ * 获取清单详情 (对应图2: GET /checklist/{id})
+ * @param id 清单ID (路径参数)
+ * @returns 清单详细信息
+ */
+export const getChecklistDetail = (id: string) =>
+  request<ChecklistDetail>({
+    url: `/checklist/${id}`,
+    method: 'GET',
   });
