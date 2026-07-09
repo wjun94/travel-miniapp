@@ -17,6 +17,7 @@ export default defineAppConfig({
     'pages/history/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',
+    'pages/guide/preview/index',
     'pages/guide/itinerary/index',
   ],
   // 底部 TabBar 配置
