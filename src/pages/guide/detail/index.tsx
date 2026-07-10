@@ -174,7 +174,7 @@ export default function TravelGuideDetail() {
                 {days.length > 0 && (
                     <View className='mt-4 bg-white mx-4 rounded-3xl p-4 shadow-sm'>
                         <View className='flex flex-row justify-between items-center mb-3'>
-                            <Text className='text-[28px] font-extrabold text-stone-800 tracking-wide'>行程清单</Text>
+                            <Text className='text-[28px] font-extrabold text-stone-800 tracking-wide'>行程概览</Text>
                             {days[currentDayIdx]?.title && (
                                 <Text className='text-[22px] font-bold text-[#F97316] bg-orange-50 px-2.5 py-1 rounded-xl max-w-[300px] truncate'>
                                     {days[currentDayIdx].title}
