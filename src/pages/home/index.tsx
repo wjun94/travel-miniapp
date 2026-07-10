@@ -131,9 +131,21 @@ export default function HomePage() {
         <Text className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 white-space-normal mb-1">
           {item.title}
         </Text>
-        <Text className="text-xs text-gray-400 truncate mb-2">
-          {item.summary}
-        </Text>
+
+        {(item.tripDays || item.sectionCount) && (
+          <View className="flex flex-row items-center gap-2 mb-1">
+            {item.tripDays && (
+              <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
+                <Text className="text-[20rpx] text-emerald-600 font-medium">📅 {item.tripDays}天</Text>
+              </View>
+            )}
+            {item.sectionCount && (
+              <View className="bg-stone-50 px-2 py-0.5 rounded-full">
+                <Text className="text-[20rpx] text-stone-500 font-medium">📍 {item.sectionCount}个行程</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         <View className="flex flex-row items-center justify-between mt-auto">
           <View className="flex flex-row items-center flex-1 min-w-0 mr-2">

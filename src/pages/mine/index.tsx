@@ -7,11 +7,11 @@ export default function ProfilePage() {
   // 1. 自由行工具箱数据
   const tools = [
     { id: 1, title: '记账本', icon: 'icon-notepad' },
-    { id: 2, title: '备忘录', icon: 'icon-memos' },
+    // { id: 2, title: '备忘录', icon: 'icon-checklists' },
     {
       id: 3,
       title: '备忘清单',
-      icon: 'icon-checklists',
+      icon: 'icon-memos',
       onFn: () => {
         navigateTo({ url: '/pages/checklist/list/index' })
       }

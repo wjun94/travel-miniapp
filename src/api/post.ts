@@ -38,6 +38,8 @@ export interface Guide {
   authorAvatar: string
   likeCount: number
   isLiked: boolean
+  tripDays?: number
+  sectionCount?: number
   createdAt: string
 }
 
