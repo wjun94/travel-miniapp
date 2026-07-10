@@ -1,10 +1,36 @@
+import { useState } from 'react'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
-import { NavBar } from '@/components'
+import { NavBar, Modal } from '@/components'
 import Taro from '@tarojs/taro'
 import { getQweather } from '@/api/common'
 import { useRequest } from 'ahooks'
 
 export default function PublishPage() {
+  const [draftModalVisible, setDraftModalVisible] = useState(false);
+
+  // 点击"图文攻略"：检查是否有缓存草稿
+  const handleCreateGuide = () => {
+    const cached = Taro.getStorageSync('TEMP_ITINERARY_PLANS');
+    if (cached) {
+      setDraftModalVisible(true);
+    } else {
+      Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+    }
+  };
+
+  // 继续编辑（沿用缓存）
+  const handleContinueDraft = () => {
+    setDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+  };
+
+  // 重新开始（清除缓存）
+  const handleStartFresh = () => {
+    Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
+    setDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+  };
+
   // 模拟数据 (建议在实际项目中从 API 获取)
   const features = [
     {
@@ -15,9 +41,7 @@ export default function PublishPage() {
       bg: 'bg-orange-50',
       color: 'bg-orange-200',
       textColor: 'text-orange-500',
-      fn: () => {
-        Taro.navigateTo({ url: `/pages/guide/itinerary/index` })
-      }
+      fn: handleCreateGuide
     },
     {
       id: 2,
@@ -143,6 +167,21 @@ export default function PublishPage() {
         </ScrollView>
       </View>
 
+      {/* 草稿继续编辑弹窗 */}
+      <Modal
+        visible={draftModalVisible}
+        title="发现未完成的攻略草稿"
+        confirmText="继续编辑"
+        cancelText="重新开始"
+        onConfirm={handleContinueDraft}
+        onCancel={handleStartFresh}
+      >
+        <View className="py-2 text-center">
+          <Text className="text-gray-600 text-[28px] leading-relaxed">
+            检测到您之前有正在编辑的攻略草稿，是否继续编辑？
+          </Text>
+        </View>
+      </Modal>
     </View>
   )
 }

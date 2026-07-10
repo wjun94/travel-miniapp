@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidHide } from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
 import TransportForm from '@/features/guide/TransportForm';
@@ -66,9 +66,35 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
 });
 
 export default function ItineraryPage() {
-  const [dayPlans, setDayPlans] = useState<DayPlan[]>([
-    { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
-  ]);
+  const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
+    const saved = Taro.getStorageSync('TEMP_ITINERARY_PLANS');
+    if (saved) return saved;
+    return [
+      { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
+    ];
+  });
+
+  // 追踪是否有实际改动，无改动则不写 Storage
+  const modifiedRef = useRef(false);
+  const setDayPlans: typeof setDayPlansState = (value) => {
+    modifiedRef.current = true;
+    setDayPlansState(value);
+  };
+
+  // 用 ref 始终持有最新 dayPlans，供关闭/隐藏时保存
+  const dayPlansRef = useRef(dayPlans);
+  dayPlansRef.current = dayPlans;
+
+  // 页面关闭/隐藏时自动保存（仅当有改动时）
+  const saveIfModified = () => {
+    if (modifiedRef.current) {
+      Taro.setStorageSync('TEMP_ITINERARY_PLANS', dayPlansRef.current);
+    }
+  };
+  useDidHide(saveIfModified);
+  useEffect(() => {
+    return saveIfModified;
+  }, []);
 
   const [activeTab, setActiveTab] = useState<number>(1);
   const [toViewId, setToViewId] = useState<string>('');
