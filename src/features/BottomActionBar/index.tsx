@@ -1,31 +1,37 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { View, Text, Input, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { createComment } from '@/api/comment';
+import { addFavorite, deleteFavorite } from '@/api/favorite'
+import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
+import { useUpdate } from 'ahooks'
 
 interface BottomActionBarProps {
     isLiked: boolean;
     isCollected: boolean;
     likeCount: number;
     commentCount: number;
+    favoriteCount: number
     onLikeToggle: () => void;
     onCollectToggle: () => void;
     onCommentIconClick?: () => void;
     guideId: string;
-    refresh?: () => void;
+    onCommentSuccess?: () => void;
 }
 
-export default function BottomActionBar({
+export default memo(function BottomActionBar({
     isLiked,
     isCollected,
     likeCount,
     commentCount,
+    favoriteCount,
     onLikeToggle,
     onCollectToggle,
     onCommentIconClick,
     guideId,
-    refresh
+    onCommentSuccess
 }: BottomActionBarProps) {
+    const update = useUpdate();
     const [showInput, setShowInput] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -42,11 +48,39 @@ export default function BottomActionBar({
             Taro.showToast({ title: '评论成功', icon: 'none' });
             setShowInput(false);
             setCommentText('');
-            refresh?.();
+            onCommentSuccess?.();
         } catch {
             Taro.showToast({ title: '发布失败', icon: 'none' });
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleLike = async () => {
+        try {
+            if (!isLiked) {
+                await likeTravelGuide(guideId);
+            } else {
+                await unlikeTravelGuide(guideId);
+            }
+            update();
+            onLikeToggle();
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
+        }
+    };
+
+    const handleCollect = async () => {
+        try {
+            if (!isCollected) {
+                await addFavorite({ targetId: guideId, targetType: 'guide' });
+            } else {
+                await deleteFavorite(guideId, 'guide');
+            }
+            update();
+            onCollectToggle();
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
         }
     };
 
@@ -67,15 +101,15 @@ export default function BottomActionBar({
                 <View className='flex flex-row items-center space-x-4'>
                     {/* 点赞：激活状态使用 #F97316 */}
                     <View
-                        onClick={onLikeToggle}
+                        onClick={handleLike}
                         className='flex flex-col items-center justify-center min-w-[55px] h-[80px] active:scale-90 transition-transform'
                     >
                         <Text
                             className={`iconfont ${isLiked ? 'icon-follow-fill text-[36px]' : 'icon-follow text-[36px]'}`}
-                            style={{ color: isLiked ? '#F97316' : '#57534e' }}
+                            style={{ color: isLiked ? '#f87171' : '#57534e' }}
                         />
                         <Text className='text-[18px] mt-0.5 font-medium' style={{ color: isLiked ? '#F97316' : '#78716c' }}>
-                            {likeCount}
+                            {likeCount || '点赞'}
                         </Text>
                     </View>
 
@@ -90,7 +124,7 @@ export default function BottomActionBar({
 
                     {/* 收藏：激活状态使用 #F97316 */}
                     <View
-                        onClick={onCollectToggle}
+                        onClick={handleCollect}
                         className='flex flex-col items-center justify-center min-w-[55px] h-[80px] active:scale-90 transition-transform'
                     >
                         <Text
@@ -98,7 +132,7 @@ export default function BottomActionBar({
                             style={{ color: isCollected ? '#F97316' : '#57534e' }}
                         />
                         <Text className='text-[18px] mt-0.5 font-medium' style={{ color: isCollected ? '#F97316' : '#78716c' }}>
-                            {isCollected ? '已存' : '收藏'}
+                            {isCollected ? favoriteCount : '收藏'}
                         </Text>
                     </View>
 
@@ -114,37 +148,37 @@ export default function BottomActionBar({
             </View>
 
             {/* 底部弹出评论输入面板 */}
-            {showInput && (
-                <View className='fixed inset-0 z-999'>
-                    {/* 遮罩 */}
-                    <View
-                        className='absolute inset-0 bg-black/40'
-                        onClick={() => { setShowInput(false); setCommentText(''); }}
-                    />
-                    {/* 输入面板 */}
-                    <View className='absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-4 pb-safe shadow-lg'>
-                        <View className='flex flex-row items-center space-x-3'>
-                            <Input
-                                type='text'
-                                placeholder='分享你的出游心得或提问...'
-                                value={commentText}
-                                onInput={(e) => setCommentText(e.detail.value)}
-                                className='flex-1 h-11 bg-stone-50 rounded-xl px-4 text-[26px] placeholder-stone-400 border-none'
-                                focus
-                                autoFocus
-                                confirmType="send"
-                                onConfirm={handleSubmitComment}
-                            />
-                            <View
-                                onClick={handleSubmitComment}
-                                className={`h-11 px-6 rounded-xl flex items-center justify-center transition-colors ${submitting || !commentText.trim() ? 'bg-stone-200' : 'bg-[#F97316]'}`}
-                            >
-                                <Text className='text-white text-[24px] font-bold'>发布</Text>
-                            </View>
+            <View className={`fixed inset-0 z-999 ${showInput ? 'block' : 'hidden'}`}>
+                {/* 遮罩 */}
+                <View
+                    className='absolute inset-0 bg-black/40'
+                    onClick={() => {
+                        setShowInput(false);
+                        setCommentText('');
+                    }}
+                />
+                {/* 输入面板 */}
+                <View className='absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-4 pb-safe shadow-lg'>
+                    <View className='flex flex-row items-center space-x-3'>
+                        <Input
+                            type='text'
+                            placeholder='分享你的出游心得或提问...'
+                            value={commentText}
+                            onInput={(e) => setCommentText(e.detail.value)}
+                            className='flex-1 h-11 bg-stone-50 rounded-xl px-4 text-[26px] placeholder-stone-400 border-none'
+                            focus
+                            confirmType="send"
+                            onConfirm={handleSubmitComment}
+                        />
+                        <View
+                            onClick={handleSubmitComment}
+                            className={`h-11 px-6 rounded-xl flex items-center justify-center transition-colors ${submitting || !commentText.trim() ? 'bg-stone-200' : 'bg-[#F97316]'}`}
+                        >
+                            <Text className='text-white text-[24px] font-bold'>发布</Text>
                         </View>
                     </View>
                 </View>
-            )}
+            </View>
         </>
     );
-}
+});

@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { View, Text, Image, Input, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { getHeaderHeight } from '@/utils'
 import { NavBar, ScrollLoadList } from '@/components'
 import { getGuides } from '@/api/post'
 import type { Guide } from '@/api/post'
+import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
+import { useUpdate } from 'ahooks'
 
 // 1. 将静态数组移到组件外部，避免不必要的 renderHeader 依赖重绘
 const TABS = ['推荐', '热门', '最新', '国内', '国外', '小众']
@@ -12,6 +14,29 @@ const TABS = ['推荐', '热门', '最新', '国内', '国外', '小众']
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0)
   const headerHeight = getHeaderHeight()
+  const update = useUpdate()
+  const likeStateMap = useRef<Record<string, { isLiked: boolean; likeCount: number }>>({})
+  const handleLikeRef = useRef<(e: any, item: Guide) => void>(async (e, item) => {
+    e.stopPropagation()
+    try {
+      const current = likeStateMap.current[item.id]
+      const isCurrentlyLiked = current?.isLiked ?? item.isLiked
+      const currentLikeCount = current?.likeCount ?? item.likeCount
+
+      if (!isCurrentlyLiked) {
+        await likeTravelGuide(item.id)
+      } else {
+        await unlikeTravelGuide(item.id)
+      }
+      likeStateMap.current[item.id] = {
+        isLiked: !isCurrentlyLiked,
+        likeCount: currentLikeCount + (isCurrentlyLiked ? -1 : 1)
+      }
+      update()
+    } catch {
+      Taro.showToast({ title: '操作失败', icon: 'none' })
+    }
+  })
 
   // 优化 2: 抽取头部渲染，修复异常的 text-[34px] 为响应式字号
   const renderHeader = useCallback(() => (
@@ -89,7 +114,11 @@ export default function HomePage() {
   ), [headerHeight, currentTab])
 
   // 优化 3: 修复卡片内部文字大小，保证瀑布流不会因大字号撑变形
-  const renderCard = useCallback((item: Guide) => (
+  const renderCard = useCallback((item: Guide) => {
+    const localLike = likeStateMap.current[item.id]
+    const isLiked = localLike?.isLiked ?? item.isLiked
+    const likeCount = localLike?.likeCount ?? item.likeCount
+    return (
     <View
       className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
       onClick={() => Taro.navigateTo({ url: `/pages/guide/detail/index?id=${item.id}` })}
@@ -111,14 +140,17 @@ export default function HomePage() {
             <Image src={item.authorAvatar} className="w-4 h-4 rounded-full bg-gray-100 flex-shrink-0" />
             <Text className="text-[22rpx] text-gray-500 ml-1 truncate flex-1">{item.authorName}</Text>
           </View>
-          <View className="flex flex-row items-center flex-shrink-0 text-gray-500">
-            <Text className={`iconfont leading-none mr-8px ${item.isLiked ? 'icon-follow-fill text-red-400' : 'icon-follow'}`} />
-            <Text className="leading-1">{item.likeCount}</Text>
+          <View
+            className="flex flex-row items-center flex-shrink-0 text-gray-500 active:scale-90 transition-transform"
+            onClick={(e) => handleLikeRef.current(e, item)}
+          >
+            <Text className={`iconfont leading-none mr-8px ${isLiked ? 'icon-follow-fill text-red-400' : 'icon-follow'}`} />
+            <Text className="leading-1">{likeCount || '点赞'}</Text>
           </View>
         </View>
       </View>
     </View>
-  ), [])
+  )}, [])
 
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">

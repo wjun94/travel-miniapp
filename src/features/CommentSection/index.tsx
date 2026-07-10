@@ -6,14 +6,15 @@ import { getComments, type CommentItem } from '@/api/comment';
 interface CommentSectionProps {
     targetId: string;
     targetType: string;
+    refreshKey?: number;
     onLikeComment?: (id: string) => void;
     onReplyComment?: (comment: CommentItem) => void;
 }
 
-export default function CommentSection({ targetId, targetType, onLikeComment, onReplyComment }: CommentSectionProps) {
+export default function CommentSection({ targetId, targetType, refreshKey, onLikeComment, onReplyComment }: CommentSectionProps) {
     const { data: commentRes, loading } = useRequest(
         () => getComments({ target_type: targetType, target_id: targetId, page: 1, pageSize: 20 }),
-        { ready: !!targetId, refreshDeps: [targetId, targetType] }
+        { ready: !!targetId, refreshDeps: [targetId, targetType, refreshKey] }
     );
 
     const comments: CommentItem[] = commentRes?.list || [];

@@ -57,6 +57,10 @@ export interface TravelGuide {
 export interface TravelGuideDetailData {
   days: TripDay[];
   guide: TravelGuide;
+  isLiked?: boolean;
+  isFavorited?: boolean;
+  favoriteCount?: number;
+  commentCount?: number;
 }
 
 // 后端统一返回格式
@@ -106,5 +110,27 @@ export const getTravelGuideDetail = (id: string) => {
   return request<TravelGuideDetailData>({
     url: `/guide/${id}`,
     method: 'GET',
+  });
+};
+
+/**
+ * 点赞攻略
+ * @param id 攻略ID
+ */
+export const likeTravelGuide = (id: string) => {
+  return request<string>({
+    url: `/guide/${id}/like`,
+    method: 'POST',
+  });
+};
+
+/**
+ * 取消点赞攻略
+ * @param id 攻略ID
+ */
+export const unlikeTravelGuide = (id: string) => {
+  return request<string>({
+    url: `/guide/${id}/like`,
+    method: 'DELETE',
   });
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { Image } from '@/components';
 import Taro, { useRouter } from '@tarojs/taro';
@@ -14,14 +14,15 @@ export default function TravelGuideDetail() {
 
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
     const [scrollTargetId, setScrollTargetId] = useState('');
+    const [commentRefreshKey, setCommentRefreshKey] = useState(0);
 
-    // 互动状态流
+    // 互动状态流（从 API 响应初始化）
     const [isLiked, setIsLiked] = useState(false);
     const [isCollected, setIsCollected] = useState(false);
-    const [likeCount, setLikeCount] = useState(128);
+    const [likeCount, setLikeCount] = useState(0);
 
     // 1. 获取攻略详情
-    const { data: guideData, refresh, loading, error } = useRequest(
+    const { data: guideData, loading, error } = useRequest(
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
@@ -39,9 +40,17 @@ export default function TravelGuideDetail() {
         }
     );
 
+    // 从 API 响应初始化互动状态
+    useEffect(() => {
+        if (guideData) {
+            setIsLiked(guideData.isLiked ?? false);
+            setIsCollected(guideData.isFavorited ?? false);
+            setLikeCount(guideData.guide?.likeCount ?? 0);
+        }
+    }, [guideData]);
+
     const guide = guideData?.guide || {} as TravelGuide;
     const days = guideData?.days || [];
-    const tagList = guide.tags ? guide.tags.split(',').filter(Boolean) : [];
 
     // 处理工具方法
     const getImgArray = (images) => {
@@ -318,6 +327,7 @@ export default function TravelGuideDetail() {
                     <CommentSection
                         targetId={id || ''}
                         targetType="guide"
+                        refreshKey={commentRefreshKey}
                     />
                 </View>
             </ScrollView>
@@ -327,7 +337,7 @@ export default function TravelGuideDetail() {
                 onClick={() => Taro.navigateTo({ url: `../preview/index?id=${id}` })}
                 className='absolute bottom-[140px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
             >
-                <Text className='iconfont icon-view mb-1 text-32px'/>
+                <Text className='iconfont icon-view mb-1 text-32px' />
                 <Text className='text-[20px] font-black'>切视图</Text>
             </View>
 
@@ -336,7 +346,8 @@ export default function TravelGuideDetail() {
                 isLiked={isLiked}
                 isCollected={isCollected}
                 likeCount={likeCount}
-                commentCount={0}
+                favoriteCount={guideData?.favoriteCount ?? 0}
+                commentCount={guideData?.commentCount ?? 0}
                 onLikeToggle={() => {
                     setIsLiked(!isLiked);
                     setLikeCount(p => isLiked ? p - 1 : p + 1);
@@ -344,7 +355,7 @@ export default function TravelGuideDetail() {
                 onCollectToggle={() => setIsCollected(!isCollected)}
                 onCommentIconClick={handleScrollToComments}
                 guideId={id || ''}
-                refresh={refresh}
+                onCommentSuccess={() => setCommentRefreshKey(v => v + 1)}
             />
         </View>
     );

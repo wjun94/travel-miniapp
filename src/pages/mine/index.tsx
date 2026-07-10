@@ -21,7 +21,14 @@ export default function ProfilePage() {
 
   // 2. 更多服务数据
   const services = [
-    { id: 1, title: '我的收藏', icon: 'icon-weishoucang' },
+    {
+      id: 1,
+      title: '我的收藏',
+      icon: 'icon-weishoucang',
+      onFn: () => {
+        navigateTo({ url: '/pages/favorite/index' })
+      }
+    },
     {
       id: 2,
       title: '浏览历史',
