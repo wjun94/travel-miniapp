@@ -85,7 +85,7 @@ export default function ProfilePage() {
         </View>
 
         {/* 3. 数据统计交互行 */}
-        <View className="grid grid-cols-4 text-center my-6 px-1">
+        <View className="grid grid-cols-4 text-center my-4 px-1">
           {[
             { value: '23', label: '攻略' },
             { value: '18', label: '行程' },
