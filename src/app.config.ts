@@ -9,7 +9,7 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/chat/index',
     'pages/trip/detail/index',
-    'pages/partner/detail',
+    'pages/partner/detail/index',
     'pages/accounting/list',
     'pages/checklist/list/index',
     'pages/checklist/edit/index',

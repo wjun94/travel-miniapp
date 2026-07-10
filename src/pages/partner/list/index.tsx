@@ -10,7 +10,7 @@ export default function PartnerList() {
       renderItem={(item) => (
         <View
           className="m-4 p-4 bg-white rounded-lg shadow"
-          onClick={() => Taro.navigateTo({ url: `/pages/partner/detail?id=${item.id}` })}
+          onClick={() => Taro.navigateTo({ url: `/pages/partner/detail/index?id=${item.id}` })}
         >
           <View className="text-base font-semibold">{item.destination}</View>
           <View className="text-sm text-gray-500">

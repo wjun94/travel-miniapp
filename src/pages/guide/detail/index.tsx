@@ -359,10 +359,10 @@ export default function TravelGuideDetail() {
             {/* 右下角悬浮视图查看按钮 */}
             <View
                 onClick={handleSwitchView}
-                className='absolute bottom-[130px] right-4 w-[110px] h-[110px] bg-green-500 rounded-full flex flex-col items-center justify-center shadow-lg active:scale-95 active:bg-green-600 transition-all z-50'
+                className='absolute bottom-[130px] right-4 w-[110px] h-[110px] bg-[#fef3c7]  text-[#d97706] rounded-full flex flex-col items-center justify-center shadow-lg active:scale-95 active:bg-green-600 transition-all z-50'
             >
-                <Text className='text-[32px]'>🗺️</Text>
-                <Text className='text-[18px] text-white font-bold mt-0.5'>切视图</Text>
+                <Text className='iconfont icon-view text-[32px] mb-6px' />
+                <Text className='text-[22px] font-bold mt-0.5'>切视图</Text>
             </View>
 
             {/* 底部悬浮互动工具栏 */}
