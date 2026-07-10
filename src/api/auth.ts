@@ -47,3 +47,26 @@ export const updateProfile = (data: { nickname?: string; avatarUrl?: string }) =
     method: 'PUT',
     data,
   });
+
+/**
+* 个人主页信息返回类型
+*/
+export interface UserProfile {
+  id: string;
+  avatarUrl: string;
+  nickname: string;
+  followCount: number;  // 关注数
+  followerCount: number;  // 粉丝数
+  guideCount: number;  // 已发布的攻略数
+  tripCount: number;  // 行程数
+}
+
+/**
+ * 获取我的个人主页数据
+ * @returns 个人主页详细数据
+ */
+export const getProfile = () =>
+  request<UserProfile>({
+    url: '/profile',
+    method: 'GET',
+  });

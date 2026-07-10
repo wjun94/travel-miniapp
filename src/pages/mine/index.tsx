@@ -2,8 +2,13 @@ import { View, Text } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
 import { navigateTo } from '@tarojs/taro'
+import { getProfile } from '@/api/auth'
+import { useRequest } from 'ahooks'
 
 export default function ProfilePage() {
+  // 每次进入页面都刷新个人资料
+  const { data: profile } = useRequest(getProfile)
+
   // 1. 自由行工具箱数据
   const tools = [
     { id: 1, title: '记账本', icon: 'icon-notepad' },
@@ -54,17 +59,16 @@ export default function ProfilePage() {
         {/* 2. 用户个人信息区域 */}
         <View className="flex flex-row items-center px-1 mb-6">
           {/* 头像 */}
-          <View className="w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm bg-gray-200">
-            <Image
-              src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=150&q=80"
-              mode="aspectFill"
-              className="w-full h-full"
-            />
-          </View>
+          <Image
+            src={profile?.avatarUrl!}
+            mode="aspectFill"
+            isAvatar
+            className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm"
+          />
 
           {/* 名字与标签 */}
           <View className="flex flex-col ml-4 flex-1">
-            <Text className="text-xl font-black text-gray-800 tracking-wide">旅行者小七</Text>
+            <Text className="text-xl font-black text-gray-800 tracking-wide">{profile?.nickname || '旅行者小七'}</Text>
             {/* 标签 */}
             <View className="flex flex-row items-center mt-1.5 bg-[#FFEFE6] rounded-full overflow-hidden w-[max-content]">
               {/* Lv 标签 */}
@@ -87,10 +91,10 @@ export default function ProfilePage() {
         {/* 3. 数据统计交互行 */}
         <View className="grid grid-cols-4 text-center my-4 px-1">
           {[
-            { value: '23', label: '攻略' },
-            { value: '18', label: '行程' },
-            { value: '326', label: '粉丝' },
-            { value: '89', label: '关注' }
+            { value: profile?.guideCount ?? '0', label: '攻略' },
+            { value: profile?.tripCount ?? '0', label: '行程' },
+            { value: profile?.followerCount ?? '0', label: '粉丝' },
+            { value: profile?.followCount ?? '0', label: '关注' }
           ].map((stat, i) => (
             <View key={i} className="flex flex-col active:opacity-70">
               <Text className="text-lg font-black text-gray-800 tracking-tight">{stat.value}</Text>
