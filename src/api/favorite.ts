@@ -17,11 +17,11 @@ export interface FavoriteItem {
  * @param id 收藏目标ID
  * @param target_type 收藏类型 (guide/trip)
  */
-export const deleteFavorite = (id: string, target_type: string) => {
+export const deleteFavorite = (id: string, targetType: string) => {
     return request<string>({
-        url: `/favorite/${id}`,
-        method: 'DELETE',
-        data: { target_type },
+        url: `/favorite/remove`,
+        method: 'POST',
+        data: { targetType, id },
     });
 };
 

@@ -68,7 +68,7 @@ export default function ProfilePage() {
 
           {/* 名字与标签 */}
           <View className="flex flex-col ml-4 flex-1">
-            <Text className="text-xl font-black text-gray-800 tracking-wide">{profile?.nickname || '旅行者小七'}</Text>
+            <Text className="text-xl font-black text-gray-800 tracking-wide">{profile?.nickname || '驴友'}</Text>
             {/* 标签 */}
             <View className="flex flex-row items-center mt-1.5 bg-[#FFEFE6] rounded-full overflow-hidden w-[max-content]">
               {/* Lv 标签 */}

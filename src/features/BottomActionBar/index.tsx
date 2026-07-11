@@ -132,7 +132,7 @@ export default memo(function BottomActionBar({
                             style={{ color: isCollected ? '#F97316' : '#57534e' }}
                         />
                         <Text className='text-[18px] mt-0.5 font-medium' style={{ color: isCollected ? '#F97316' : '#78716c' }}>
-                            {isCollected ? favoriteCount : '收藏'}
+                            {favoriteCount || '收藏'}
                         </Text>
                     </View>
 

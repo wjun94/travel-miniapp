@@ -40,7 +40,7 @@ export default function CommentSection({ targetId, targetType, refreshKey, onLik
                         <View key={item.id} className='flex flex-row space-x-3 pb-4 border-b border-stone-50 last:border-0 last:pb-0'>
                             {/* 头像 */}
                             <View className='w-[72px] h-[72px] rounded-full overflow-hidden bg-stone-100 flex-shrink-0'>
-                                <Image src={item.avatarUrl || 'https://via.placeholder.com/100'} mode='aspectFill' className='w-full h-full' />
+                                <Image isAvatar src={item.avatarUrl} mode='aspectFill' className='w-full h-full' />
                             </View>
 
                             {/* 评论主体 */}

@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro';
 import { getHistoryList, clearAllHistory, deleteHistoryRecord, type HistoryRecord } from '@/api/history';
 import { ScrollLoadList, Modal, Image } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
+import {formatCommentTime } from '@/utils'
 
 // 目标类型展示映射
 const targetTypeLabel: Record<string, string> = {
@@ -40,25 +41,6 @@ export default function BrowseHistoryPage() {
     }
     setShowClearModal(false);
     listRef.current?.refresh();
-  };
-
-  // 格式化时间
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return `今天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    }
-    if (diffDays === 1) {
-      return `昨天 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    }
-    if (diffDays < 7) {
-      return `${diffDays}天前`;
-    }
-    return `${date.getMonth() + 1}/${date.getDate()}`;
   };
 
   // 根据 targetType 跳转到对应详情页
@@ -103,7 +85,7 @@ export default function BrowseHistoryPage() {
           </Text>
           <Text className="text-stone-300 text-[24px]">|</Text>
           <Text className="text-stone-400 text-[22px] truncate">
-            {formatTime(item.createdAt)}
+            {formatCommentTime(item.createdAt)}
           </Text>
         </View>
       </View>

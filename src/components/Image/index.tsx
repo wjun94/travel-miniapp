@@ -46,7 +46,7 @@ export default ({
   };
 
   return (
-    isAvatar && src === "" ? <View
+    isAvatar && !src ? <View
       className={`bg-orange-500 flex items-center justify-center text-sm text-white font-semibold flex-shrink-0 ${props.className}`}>
       {userInfo?.nickname?.slice(0, 2) || '驴友'}
     </View> : <Image

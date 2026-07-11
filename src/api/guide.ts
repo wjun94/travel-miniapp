@@ -61,6 +61,7 @@ export interface TravelGuideDetailData {
   isFavorited?: boolean;
   favoriteCount?: number;
   commentCount?: number;
+  likeCount?: number
 }
 
 // 后端统一返回格式

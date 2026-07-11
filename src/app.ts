@@ -4,9 +4,17 @@ import {
 } from '@tarojs/taro';
 import { useAuthStore } from '@/store';
 import { silentLogin } from '@/utils/auth';
+import dayjs from 'dayjs';
+// 引入相对时间插件（核心）
+import relativeTime from 'dayjs/plugin/relativeTime';
+// 中文语言包
+import 'dayjs/locale/zh-cn';
 
 import 'windi.css';
 import './app.less';
+
+dayjs.extend(relativeTime);
+dayjs.locale('zh-cn');
 
 function App({ children }: PropsWithChildren<any>) {
 

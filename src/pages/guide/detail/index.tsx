@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { Image } from '@/components';
 import Taro, { useRouter } from '@tarojs/taro';
@@ -16,13 +16,8 @@ export default function TravelGuideDetail() {
     const [scrollTargetId, setScrollTargetId] = useState('');
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
 
-    // 互动状态流（从 API 响应初始化）
-    const [isLiked, setIsLiked] = useState(false);
-    const [isCollected, setIsCollected] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
-
     // 1. 获取攻略详情
-    const { data: guideData, loading, error } = useRequest(
+    const { data: guideData, mutate, loading, error } = useRequest(
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
@@ -39,15 +34,6 @@ export default function TravelGuideDetail() {
             }
         }
     );
-
-    // 从 API 响应初始化互动状态
-    useEffect(() => {
-        if (guideData) {
-            setIsLiked(guideData.isLiked ?? false);
-            setIsCollected(guideData.isFavorited ?? false);
-            setLikeCount(guideData.guide?.likeCount ?? 0);
-        }
-    }, [guideData]);
 
     const guide = guideData?.guide || {} as TravelGuide;
     const days = guideData?.days || [];
@@ -343,19 +329,36 @@ export default function TravelGuideDetail() {
 
             {/* 🎨 挂载解耦出来的底部悬浮多功能工具组件 */}
             <BottomActionBar
-                isLiked={isLiked}
-                isCollected={isCollected}
-                likeCount={likeCount}
-                favoriteCount={guideData?.favoriteCount ?? 0}
+                isLiked={guideData?.isLiked!}
+                isCollected={guideData?.isFavorited!}
+                likeCount={guideData?.likeCount ?? 0}
+                favoriteCount={guideData.favoriteCount ?? 0}
                 commentCount={guideData?.commentCount ?? 0}
                 onLikeToggle={() => {
-                    setIsLiked(!isLiked);
-                    setLikeCount(p => isLiked ? p - 1 : p + 1);
+                    mutate((prev: any) => {
+                        const next = !prev?.isLiked;
+                        prev.likeCount = next ? prev.likeCount + 1 : prev.likeCount - 1;
+                        prev.isLiked = next
+                        return prev
+                    });
                 }}
-                onCollectToggle={() => setIsCollected(!isCollected)}
+                onCollectToggle={() => {
+                    mutate((prev: any) => {
+                        const next = !prev?.isFavorited;
+                        prev.isFavorited = next;
+                        prev.favoriteCount = next ? prev.favoriteCount + 1 : prev.favoriteCount - 1;
+                        return prev;
+                    });
+                }}
                 onCommentIconClick={handleScrollToComments}
                 guideId={id || ''}
-                onCommentSuccess={() => setCommentRefreshKey(v => v + 1)}
+                onCommentSuccess={() => {
+                    setCommentRefreshKey(v => v + 1)
+                    mutate((prev: any) => {
+                        prev.commentCount += 1
+                        return prev
+                    });
+                }}
             />
         </View>
     );
