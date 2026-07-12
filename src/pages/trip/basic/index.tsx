@@ -1,22 +1,16 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useSetState, useRequest } from 'ahooks';
-import { createTrip, Trip, TripDetailData } from '@/api/trip'
-import { difficultyOptions } from '@/constants/travel';
+import { createTrip } from '@/api/trip'
 
 // 定义表单的状态类型
 interface FormState {
     title: string;
     destination: string;
     summary: string;
-    minBudget: string;
-    maxBudget: string;
-    bestSeason: string;
-    days: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    targetGroups: string[];
-    isOriginal: boolean;
     coverImage: string;
+    totalBudget: string;
+    isPublic: boolean;
 }
 
 export default function BasicInfoPage() {
@@ -25,37 +19,18 @@ export default function BasicInfoPage() {
         title: '',
         destination: '',
         summary: '',
-        minBudget: '',
-        maxBudget: '',
-        bestSeason: '',
-        days: '',
-        difficulty: 'easy',
-        targetGroups: [],
-        isOriginal: true,
         coverImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800',
+        totalBudget: '',
+        isPublic: false,
     });
-
-    const groups = ['家庭', '情侣', '背包客', '独行者', '好友'];
 
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTrip, {
         manual: true,
     });
-    // 处理适用群体的多选/反选逻辑
-    const toggleGroup = (group: string) => {
-        const { targetGroups } = formState;
-        if (targetGroups.includes(group)) {
-            setFormState({ targetGroups: targetGroups.filter(g => g !== group) });
-        } else if (targetGroups.length < 5) {
-            setFormState({ targetGroups: [...targetGroups, group] });
-        }
-    };
 
     // 最终组装数据并请求后端接口
     const handleSubmit = async (isPublish: boolean) => {
-        const {
-            title, destination, summary, minBudget, maxBudget, bestSeason,
-            days, targetGroups, difficulty, isOriginal, coverImage
-        } = formState;
+        const { title, destination, summary, coverImage, totalBudget } = formState;
 
         if (!title || !destination) {
             Taro.showToast({ title: '请完善基本必填信息', icon: 'error' });
@@ -70,15 +45,10 @@ export default function BasicInfoPage() {
                 coverImage,
                 destination,
                 summary,
-                budgetMin: minBudget ? parseFloat(minBudget) : undefined,
-                budgetMax: maxBudget ? parseFloat(maxBudget) : undefined,
-                bestSeason: bestSeason || '',
-                recommendedDays: days ? parseInt(days, 10) : undefined,
-                tags: targetGroups.join(','),
-                difficulty,
-                crowdType: targetGroups.join(','),
-                isOriginal: isOriginal ? 1 : 0,
-                status: isPublish ? 1 : 0,
+                isOriginal: 1,
+                totalBudget: totalBudget ? parseFloat(totalBudget) : undefined,
+                isPublic: formState.isPublic ? 1 : 0,
+                status: isPublish ? 2 : 1,
             },
             days: cachedItinerary.map((day: any) => ({
                 date: day.date ? `${day.date}T00:00:00Z` : null,
@@ -110,7 +80,7 @@ export default function BasicInfoPage() {
             }))
         };
 
-        await createRunAsync(payload as TripDetailData);
+        await createRunAsync(payload as any);
 
         Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
         setTimeout(() => {
@@ -138,7 +108,7 @@ export default function BasicInfoPage() {
                     <View>
                         <Input
                             className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
-                            placeholder='请输入攻略标题'
+                            placeholder='请输入行程标题'
                             value={formState.title}
                             onInput={(e) => setFormState({ title: e.detail.value })}
                         />
@@ -179,88 +149,34 @@ export default function BasicInfoPage() {
                     </View>
                 </View>
 
-                {/* 4. 预算输入框 */}
+                {/* 4. 总预算 */}
                 <View className='space-y-1.5'>
-                    <Text className='text-sm font-medium text-gray-700'>预算范围 (可选)</Text>
-                    <View className='flex items-center space-x-2'>
+                    <Text className='text-sm font-medium text-gray-700'>总预算 (可选)</Text>
+                    <View className='relative'>
+                        <Text className='absolute left-3 top-26px -translate-y-1/2 text-gray-400 text-[28px] z-10'>¥</Text>
                         <Input
-                            className='flex-1 h-[80px] px-2 bg-gray-50 rounded-xl text-[28px] text-center box-border'
-                            placeholder='￥ 最低'
+                            className='w-full h-[80px] pl-9 pr-3 bg-gray-50 rounded-xl text-[28px] box-border'
+                            placeholder='0.00'
                             type='digit'
-                            value={formState.minBudget}
-                            onInput={(e) => setFormState({ minBudget: e.detail.value })}
-                        />
-                        <Text className='text-gray-400'>~</Text>
-                        <Input
-                            className='flex-1 h-[80px] px-2 bg-gray-50 rounded-xl text-[28px] text-center box-border'
-                            placeholder='￥ 最高'
-                            type='digit'
-                            value={formState.maxBudget}
-                            onInput={(e) => setFormState({ maxBudget: e.detail.value })}
+                            value={formState.totalBudget}
+                            onInput={(e) => setFormState({ totalBudget: e.detail.value })}
                         />
                     </View>
                 </View>
 
-                {/* 5. 最佳季节 */}
+                {/* 5. 公开/私密切换 */}
                 <View className='space-y-1.5'>
-                    <Text className='text-sm font-medium text-gray-700'>最佳季节 (可选)</Text>
-                    <View>
-                        <Input
-                            className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
-                            placeholder='如：11月至次年2月'
-                            value={formState.bestSeason}
-                            onInput={(e) => setFormState({ bestSeason: e.detail.value })}
-                        />
-                    </View>
-                </View>
-
-                {/* 6. 建议天数 */}
-                <View className='space-y-1.5'>
-                    <Text className='text-sm font-medium text-gray-700'>建议游玩天数 (可选)</Text>
-                    <View className='flex items-center bg-gray-50 rounded-xl px-3 h-[80px] box-border'>
-                        <Input
-                            className='flex-1 text-[28px] bg-transparent h-full'
-                            placeholder='建议天数'
-                            type='number'
-                            value={formState.days}
-                            onInput={(e) => setFormState({ days: e.detail.value })}
-                        />
-                        <Text className='text-sm text-gray-500 pr-1 shrink-0'>天</Text>
-                    </View>
-                </View>
-
-                {/* 游玩难度 */}
-                <View className='space-y-2'>
-                    <Text className='text-sm font-medium text-gray-700'>游玩难度</Text>
-                    <View className='flex space-x-3'>
-                        {difficultyOptions.map(item => (
+                    <Text className='text-sm font-medium text-gray-700'>可见范围</Text>
+                    <View className='flex space-x-4'>
+                        {[{ key: false, label: '私密' }, { key: true, label: '公开' }].map(item => (
                             <View
-                                key={item.key}
-                                onClick={() => setFormState({ difficulty: item.key as any })}
-                                className={`flex-1 py-2 text-center text-xs font-medium rounded-xl border m-0 ${formState.difficulty === item.key ? 'bg-green-50 text-green-600 border-green-500' : 'bg-gray-50 text-gray-600 border-transparent'}`}
+                                key={String(item.key)}
+                                onClick={() => setFormState({ isPublic: item.key })}
+                                className={`flex-1 py-2.5 text-center text-sm font-medium rounded-xl border m-0 ${formState.isPublic === item.key ? 'bg-green-50 text-green-600 border-green-500' : 'bg-gray-50 text-gray-500 border-transparent'}`}
                             >
                                 {item.label}
                             </View>
                         ))}
-                    </View>
-                </View>
-
-                {/* 适用群体 */}
-                <View className='space-y-2'>
-                    <Text className='text-sm font-medium text-gray-700'>适用群体 (可多选)</Text>
-                    <View className='flex flex-wrap gap-2'>
-                        {groups.map(group => {
-                            const isSelected = formState.targetGroups.includes(group);
-                            return (
-                                <View
-                                    key={group}
-                                    onClick={() => toggleGroup(group)}
-                                    className={`px-4 py-1.5 text-xs text-center rounded-xl border m-0 ${isSelected ? 'bg-green-50 text-green-600 border-green-500' : 'bg-gray-50 text-gray-500 border-transparent'}`}
-                                >
-                                    {group}
-                                </View>
-                            );
-                        })}
                     </View>
                 </View>
             </View>

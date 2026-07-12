@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { NavBar, Modal } from '@/components'
 import Taro from '@tarojs/taro'
-import { getQweather } from '@/api/common'
+import { getQweather, getDomesticRegions, getCountries } from '@/api/common'
 import { useRequest } from 'ahooks'
 
 export default function PublishPage() {
@@ -38,7 +38,8 @@ export default function PublishPage() {
     if (cached) {
       setTripDraftModalVisible(true);
     } else {
-      Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+      // Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+      Taro.navigateTo({ url: '/pages/where/index' });
     }
   };
 

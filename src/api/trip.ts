@@ -73,7 +73,7 @@ export interface TripData {
   viewCount: number;
 }
 
-// 攻略主体信息
+// 行程主体信息
 export interface Trip {
   id: string;
   userId: string;
@@ -96,7 +96,7 @@ export interface Trip {
   updatedAt: string;
 }
 
-// 攻略详情接口返回data结构
+// 行程详情接口返回data结构
 export interface TripDetailData {
   days: TripDay[];
   trip: Trip;
@@ -108,8 +108,8 @@ export interface TripDetailData {
 }
 
 /**
- * 创建旅行攻略
- * @param data 攻略表单提交参数
+ * 创建旅行行程
+ * @param data 行程表单提交参数
  * @returns 请求返回值
  */
 export const createTrip = (data: TripDetailData) => {
@@ -121,9 +121,9 @@ export const createTrip = (data: TripDetailData) => {
 };
 
 /**
- * 根据攻略ID获取攻略详情
- * @param id 攻略id
- * @returns 攻略详情 + 每日行程
+ * 根据行程ID获取行程详情
+ * @param id 行程id
+ * @returns 行程详情 + 每日行程
  */
 export const getTripDetail = (id: string) => {
   return request<TripDetailData>({
@@ -133,8 +133,8 @@ export const getTripDetail = (id: string) => {
 };
 
 /**
- * 点赞攻略
- * @param id 攻略ID
+ * 点赞行程
+ * @param id 行程ID
  */
 export const likeTrip = (id: string) => {
   return request<string>({
@@ -144,8 +144,8 @@ export const likeTrip = (id: string) => {
 };
 
 /**
- * 取消点赞攻略
- * @param id 攻略ID
+ * 取消点赞行程
+ * @param id 行程ID
  */
 export const unlikeTrip = (id: string) => {
   return request<string>({
