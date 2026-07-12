@@ -1,95 +1,155 @@
 import request from './request';
 
-/** 行程节点 */
-export interface PlanItem {
-  time: string;
-  name: string;
-  type: 'attraction' | 'restaurant';
-  duration: string;
-  note?: string;
-}
-
-/** 每日计划 */
-export interface DailyPlan {
-  day: number;
-  items: PlanItem[];
-}
-
-/** 行程 */
-export interface Trip {
-  id: number;
-  userId: number;
-  title: string;
-  destination: string;
-  days: number;
-  startDate?: string;
-  dailyPlans: DailyPlan[];
-  weatherData?: any;
-  status: number;
-  collaborators?: { userId: number; permission: number }[];
-  version: number;
+// 每日行程景点/项目明细
+export interface TripDayItem {
+  address: string;
   createdAt: string;
+  description: string;
+  endLat: number;
+  endLng: number;
+  endPoint: string;
+  endTime: string;
+  id: string;
+  images: string[];
+  latitude: number;
+  longitude: number;
+  needReservation: boolean;
+  sectionType: string;
+  startLat: number;
+  startLng: number;
+  startPoint: string;
+  startTime: string;
+  ticketChannel: string;
+  ticketPrice: number;
+  title: string;
+  transportMode: string;
+  tripDayId: string;
+}
+
+// 成员
+export interface TripMember {
+  createdAt: string;
+  id: string;
+  name: string;
+  role: string;
+  tripId: string;
+  userId: string;
+}
+
+export interface TripDay {
+  createdAt: string;
+  date: string;
+  dayNumber: number;
+  id: string;
+  items: TripDayItem[];
+  title: string;
+  tripId: string;
+}
+
+// 单日行程
+export interface TripData {
+  city: string;
+  country: string;
+  coverImage: string;
+  createdAt: string;
+  days: TripDay[];
+  destination: string;
+  endDate: string;
+  favoriteCount: number;
+  guideId: string;
+  id: string;
+  isOverseas: number;
+  isPublic: number;
+  likeCount: number;
+  members: TripMember[];
+  note: string;
+  province: string;
+  startDate: string;
+  status: number;
+  title: string;
+  totalBudget: number;
+  updatedAt: string;
+  userId: string;
+  viewCount: number;
+}
+
+// 攻略主体信息
+export interface Trip {
+  id: string;
+  userId: string;
+  bestSeason: string;
+  budgetMax: number;
+  budgetMin: number;
+  coverImage: string;
+  crowdType: string;
+  destination: string;
+  difficulty: string;
+  isOriginal: number;
+  likeCount: number;
+  recommendedDays: number;
+  status: number;
+  summary: string;
+  tags: string;
+  title: string;
+  viewCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 攻略详情接口返回data结构
+export interface TripDetailData {
+  days: TripDay[];
+  trip: Trip;
+  isLiked?: boolean;
+  isFavorited?: boolean;
+  favoriteCount?: number;
+  commentCount?: number;
+  likeCount?: number
 }
 
 /**
- * 创建手动行程
- * @param data 行程基本信息
- * @returns 行程对象
+ * 创建旅行攻略
+ * @param data 攻略表单提交参数
+ * @returns 请求返回值
  */
-export const createTrip = (data: Partial<Trip>) =>
-  request<Trip>({
+export const createTrip = (data: TripDetailData) => {
+  return request<null>({
     url: '/trip',
     method: 'POST',
     data,
   });
+};
 
 /**
- * AI 生成行程
- * @param params 目的地、天数、偏好标签
- * @returns AI 生成的行程
+ * 根据攻略ID获取攻略详情
+ * @param id 攻略id
+ * @returns 攻略详情 + 每日行程
  */
-export const generateTrip = (params: {
-  destination: string;
-  days: number;
-  tags: string[];
-}) =>
-  request<Trip>({
-    url: '/trip/ai-generate',
-    method: 'POST',
-    data: params,
-  });
-
-/**
- * 获取行程详情
- * @param id 行程ID
- * @returns 行程详情
- */
-export const getTripDetail = (id: number) =>
-  request<Trip>({
+export const getTripDetail = (id: string) => {
+  return request<TripDetailData>({
     url: `/trip/${id}`,
     method: 'GET',
   });
+};
 
 /**
- * 更新行程（协同编辑）
- * @param id 行程ID
- * @param data 更新数据
- * @returns 更新后的行程
+ * 点赞攻略
+ * @param id 攻略ID
  */
-export const updateTrip = (id: number, data: { dailyPlans?: DailyPlan[] }) =>
-  request<Trip>({
-    url: `/trip/${id}`,
-    method: 'PUT',
-    data,
-  });
-
-/**
- * 邀请好友协作编辑
- * @param id 行程ID
- * @returns 邀请链接等信息
- */
-export const inviteCollaborator = (id: number) =>
-  request<{ inviteUrl: string }>({
-    url: `/trip/${id}/invite`,
+export const likeTrip = (id: string) => {
+  return request<string>({
+    url: `/trip/${id}/like`,
     method: 'POST',
   });
+};
+
+/**
+ * 取消点赞攻略
+ * @param id 攻略ID
+ */
+export const unlikeTrip = (id: string) => {
+  return request<string>({
+    url: `/trip/${id}/like`,
+    method: 'DELETE',
+  });
+};

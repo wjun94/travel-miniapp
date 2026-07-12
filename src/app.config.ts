@@ -8,7 +8,6 @@ export default defineAppConfig({
     'pages/message/index',
     'pages/mine/index',
     'pages/chat/index',
-    'pages/trip/detail/index',
     'pages/partner/detail/index',
     'pages/accounting/list',
     'pages/checklist/list/index',
@@ -20,6 +19,10 @@ export default defineAppConfig({
     'pages/guide/detail/index',
     'pages/guide/preview/index',
     'pages/guide/itinerary/index',
+    'pages/trip/basic/index',
+    'pages/trip/detail/index',
+    'pages/trip/preview/index',
+    'pages/trip/itinerary/index',
   ],
   // 底部 TabBar 配置
   tabBar: {

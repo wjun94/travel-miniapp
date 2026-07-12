@@ -7,6 +7,7 @@ import { useRequest } from 'ahooks'
 
 export default function PublishPage() {
   const [draftModalVisible, setDraftModalVisible] = useState(false);
+  const [tripDraftModalVisible, setTripDraftModalVisible] = useState(false);
 
   // 点击"图文攻略"：检查是否有缓存草稿
   const handleCreateGuide = () => {
@@ -29,6 +30,27 @@ export default function PublishPage() {
     Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
     setDraftModalVisible(false);
     Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+  };
+
+  // 行程规划：检查是否有缓存行程草稿
+  const handleCreateTrip = () => {
+    const cached = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+    if (cached) {
+      setTripDraftModalVisible(true);
+    } else {
+      Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+    }
+  };
+
+  const handleContinueTripDraft = () => {
+    setTripDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+  };
+
+  const handleStartTripFresh = () => {
+    Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+    setTripDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
   };
 
   // 模拟数据 (建议在实际项目中从 API 获取)
@@ -59,7 +81,8 @@ export default function PublishPage() {
       icon: '🧭',
       bg: 'bg-green-50',
       color: 'bg-green-200',
-      textColor: 'text-green-500'
+      textColor: 'text-green-500',
+      fn: handleCreateTrip
     },
     {
       id: 4,
@@ -179,6 +202,22 @@ export default function PublishPage() {
         <View className="py-2 text-center">
           <Text className="text-gray-600 text-[28px] leading-relaxed">
             检测到您之前有正在编辑的攻略草稿，是否继续编辑？
+          </Text>
+        </View>
+      </Modal>
+
+      {/* 行程草稿继续编辑弹窗 */}
+      <Modal
+        visible={tripDraftModalVisible}
+        title="发现未完成的行程草稿"
+        confirmText="继续编辑"
+        cancelText="重新开始"
+        onConfirm={handleContinueTripDraft}
+        onCancel={handleStartTripFresh}
+      >
+        <View className="py-2 text-center">
+          <Text className="text-gray-600 text-[28px] leading-relaxed">
+            检测到您之前有正在编辑的行程草稿，是否继续编辑？
           </Text>
         </View>
       </Modal>
