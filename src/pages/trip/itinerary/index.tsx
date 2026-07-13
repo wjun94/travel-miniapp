@@ -210,6 +210,16 @@ export default function ItineraryPage() {
     setModalVisible(true);
   };
 
+  // 置顶行程项（将指定项移到数组首位）
+  const handlePinItem = (dayIndex: number, itemId: string) => {
+    setDayPlans(dayPlans.map(day => {
+      if (day.dayIndex !== dayIndex) return day;
+      const idx = day.items.findIndex(item => item.id === itemId);
+      if (idx <= 0) return day;
+      return { ...day, items: [day.items[idx], ...day.items.filter((_, i) => i !== idx)] };
+    }));
+  };
+
   const triggerDeleteItem = (dayIndex: number, itemId: string, itemTitle: string) => {
     setModalTitle('确定删除该行程项吗？');
     setModalContent(`确认删除：${itemTitle || '未命名行程'} 吗？`);
@@ -366,8 +376,14 @@ export default function ItineraryPage() {
                 const cfg = typeConfigMap[item.sectionType];
                 return (
                   <View key={item.id} className='bg-white p-4 rounded-2xl shadow-sm space-y-4 relative box-border'>
-                    {/* 卡片头部：类型标签 + 删除 */}
-                    <View className='flex justify-end items-center border-b border-gray-50 box-border'>
+                    {/* 卡片头部：置顶 + 删除 */}
+                    <View className='flex justify-end items-center border-b border-gray-50 box-border gap-3'>
+                      <Text
+                        onClick={() => handlePinItem(day.dayIndex, item.id)}
+                        className='text-blue-500 font-medium active:opacity-60'
+                      >
+                        ↑ 置顶
+                      </Text>
                       <Text
                         onClick={() => triggerDeleteItem(day.dayIndex, item.id, item.title)}
                         className='text-red-500 font-medium active:opacity-60'
