@@ -22,7 +22,8 @@ export default defineAppConfig({
     'pages/trip/basic/index',
     'pages/trip/detail/index',
     'pages/trip/preview/index',
-    'pages/where/index',
+    'pages/trip/where/index',
+    'pages/trip/date/index',
   ],
   // 底部 TabBar 配置
   tabBar: {

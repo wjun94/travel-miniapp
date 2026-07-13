@@ -29,11 +29,13 @@ export interface DomesticResponse {
 
 // 新增：搜索目的地数据项类型
 export interface DestinationItem {
-    code: string;
-    emoji: string;
-    name: string;
-    province: string;
-    type: string;
+    "city": string,
+    "code": string,
+    "district": string,
+    "emoji": string,
+    "name": string,
+    "province": string,
+    "type": string
 }
 
 // --- API 接口 ---
@@ -55,6 +57,16 @@ export const getCountries = () =>
 export const getDomesticRegions = () =>
     request<DomesticResponse>({
         url: '/regions/domestic',
+        method: 'GET'
+    });
+
+/**
+* 获取国内省/市列表
+* @returns 国内省/市列表数据
+*/
+export const getRegionsAll = () =>
+    request<any>({
+        url: '/regions/all',
         method: 'GET'
     });
 

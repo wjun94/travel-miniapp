@@ -39,7 +39,7 @@ export default function PublishPage() {
       setTripDraftModalVisible(true);
     } else {
       // Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
-      Taro.navigateTo({ url: '/pages/where/index' });
+      Taro.navigateTo({ url: '/pages/trip/where/index' });
     }
   };
 
