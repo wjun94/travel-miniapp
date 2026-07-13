@@ -6,7 +6,6 @@ import { createTrip } from '@/api/trip'
 // 定义表单的状态类型
 interface FormState {
     title: string;
-    destination: string;
     summary: string;
     coverImage: string;
     totalBudget: string;
@@ -17,7 +16,6 @@ export default function BasicInfoPage() {
     // 使用 ahooks 的 useSetState 统一管理复杂的表单字段
     const [formState, setFormState] = useSetState<FormState>({
         title: '',
-        destination: '',
         summary: '',
         coverImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800',
         totalBudget: '',
@@ -30,9 +28,9 @@ export default function BasicInfoPage() {
 
     // 最终组装数据并请求后端接口
     const handleSubmit = async (isPublish: boolean) => {
-        const { title, destination, summary, coverImage, totalBudget } = formState;
+        const { title, summary, coverImage, totalBudget } = formState;
 
-        if (!title || !destination) {
+        if (!title) {
             Taro.showToast({ title: '请完善基本必填信息', icon: 'error' });
             return;
         }
@@ -43,17 +41,13 @@ export default function BasicInfoPage() {
         })();
 
         const payload = {
-            trip: {
-                title,
-                coverImage,
-                destination,
-                summary,
-                isOriginal: 1,
-                totalBudget: totalBudget ? parseFloat(totalBudget) : undefined,
-                isPublic: formState.isPublic ? 1 : 0,
-                status: isPublish ? 2 : 1,
-            },
-            days: cachedItinerary.map((day: any) => ({
+            title,
+            coverImage,
+            totalBudget: totalBudget ? parseFloat(totalBudget) : undefined,
+            isPublic: formState.isPublic ? 1 : 0,
+            status: isPublish ? 2 : 1,
+            days: cachedItinerary.map((day: any, dayIdx: number) => ({
+                dayNumber: dayIdx + 1,
                 date: day.date ? `${day.date}T00:00:00Z` : null,
                 title: day.title,
                 items: day.items.map((item: any) => ({
@@ -67,12 +61,12 @@ export default function BasicInfoPage() {
                     address: item.address,
                     // 交通类型专属字段
                     transportMode: item.transportMode,
-                    startAddress: item.startAddress,
-                    startLatitude: item.startLatitude,
-                    startLongitude: item.startLongitude,
-                    endAddress: item.endAddress,
-                    endLatitude: item.endLatitude,
-                    endLongitude: item.endLongitude,
+                    startLat: item.startLatitude,
+                    startLng: item.startLongitude,
+                    startPoint: item.startAddress,
+                    endLat: item.endLatitude,
+                    endLng: item.endLongitude,
+                    endPoint: item.endAddress,
                     // 购票相关字段
                     needReservation: item.needReservation,
                     ticketChannel: item.ticketChannel,
@@ -114,19 +108,6 @@ export default function BasicInfoPage() {
                             placeholder='请输入行程标题'
                             value={formState.title}
                             onInput={(e) => setFormState({ title: e.detail.value })}
-                        />
-                    </View>
-                </View>
-
-                {/* 2. 目的地输入框 */}
-                <View className='space-y-1.5'>
-                    <Text className='text-sm font-medium text-gray-700'><Text className='text-red-500'>*</Text> 目的地</Text>
-                    <View>
-                        <Input
-                            className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
-                            placeholder='请输入目的地，如：杭州'
-                            value={formState.destination}
-                            onInput={(e) => setFormState({ destination: e.detail.value })}
                         />
                     </View>
                 </View>
