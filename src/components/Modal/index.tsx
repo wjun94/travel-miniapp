@@ -15,6 +15,8 @@ export interface ModalProps {
   showCancel?: boolean
   /** 点击确认回调 */
   onConfirm?: () => void
+  /** 点击蒙层回调 */
+  onMaskClick?: () => void
   /** 点击取消回调 */
   onCancel?: () => void
   /** 是否允许点击遮罩关闭，默认：true */
@@ -34,6 +36,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
   showCancel = true,
   onConfirm,
   onCancel,
+  onMaskClick,
   maskClosable = true,
   children,
   contentClassName = '',
@@ -44,7 +47,11 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
 
   const handleMaskClick = () => {
     if (maskClosable) {
-      onCancel?.()
+      if (onMaskClick) {
+        onMaskClick?.()
+      } else {
+        onCancel?.()
+      }
     }
   }
 

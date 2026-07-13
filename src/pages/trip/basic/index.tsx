@@ -40,12 +40,16 @@ export default function BasicInfoPage() {
             return raw.dayPlans ? raw.dayPlans : raw;
         })();
 
+        const destinationMeta = Taro.getStorageSync('TEMP_TRIP_DESTINATIONS') || {};
+
         const payload = {
             title,
             coverImage,
+            summary,
             totalBudget: totalBudget ? parseFloat(totalBudget) : undefined,
             isPublic: formState.isPublic ? 1 : 0,
             status: isPublish ? 2 : 1,
+            ...destinationMeta,
             days: cachedItinerary.map((day: any, dayIdx: number) => ({
                 dayNumber: dayIdx + 1,
                 date: day.date ? `${day.date}T00:00:00Z` : null,
@@ -79,9 +83,12 @@ export default function BasicInfoPage() {
 
         await createRunAsync(payload as any);
 
-        Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+        Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
         setTimeout(() => {
-            Taro.navigateBack({ delta: 2 });
+            Taro.switchTab({ url: '/pages/publish/index' });
+            setTimeout(() => {
+                Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+            }, 500);
         }, 1500);
     };
 

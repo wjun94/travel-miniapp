@@ -107,7 +107,7 @@ export interface Trip {
   /** 成员列表 */
   members: TripMember[];
   /** 备注 */
-  note: string;
+  summary: string;
   /** 省份列表 */
   provinces: string[];
   /** 状态（1-草稿，2-已发布，3-已完成） */

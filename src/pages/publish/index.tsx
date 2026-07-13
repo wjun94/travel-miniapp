@@ -28,8 +28,9 @@ export default function PublishPage() {
   // 重新开始（清除缓存）
   const handleStartFresh = () => {
     Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
+    Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
     setDraftModalVisible(false);
-    Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+    Taro.navigateTo({ url: '/pages/trip/where/index' });
   };
 
   // 行程规划：检查是否有缓存行程草稿
@@ -50,8 +51,9 @@ export default function PublishPage() {
 
   const handleStartTripFresh = () => {
     Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+    Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
     setTripDraftModalVisible(false);
-    Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+    Taro.navigateTo({ url: '/pages/trip/where/index' });
   };
 
   // 模拟数据 (建议在实际项目中从 API 获取)
@@ -215,6 +217,7 @@ export default function PublishPage() {
         cancelText="重新开始"
         onConfirm={handleContinueTripDraft}
         onCancel={handleStartTripFresh}
+        onMaskClick={() => setTripDraftModalVisible(false)}
       >
         <View className="py-2 text-center">
           <Text className="text-gray-600 text-[28px] leading-relaxed">
