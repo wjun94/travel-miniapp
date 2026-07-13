@@ -1,7 +1,15 @@
 import request from './request';
 
-// 每日行程景点/项目明细
-export interface TripDayItem {
+interface TripMember {
+  createdAt: string;
+  id: string;
+  name: string;
+  role: string;
+  tripId: string;
+  userId: string;
+}
+
+interface TripDayItem {
   address: string;
   createdAt: string;
   description: string;
@@ -26,17 +34,7 @@ export interface TripDayItem {
   tripDayId: string;
 }
 
-// 成员
-export interface TripMember {
-  createdAt: string;
-  id: string;
-  name: string;
-  role: string;
-  tripId: string;
-  userId: string;
-}
-
-export interface TripDay {
+interface TripDay {
   createdAt: string;
   date: string;
   dayNumber: number;
@@ -46,25 +44,22 @@ export interface TripDay {
   tripId: string;
 }
 
-// 单日行程
-export interface TripData {
-  city: string;
-  country: string;
+export interface Trip {
+  cities: string[];
+  countries: string[];
   coverImage: string;
   createdAt: string;
   days: TripDay[];
-  destination: string;
-  endDate: string;
+  destinations: string[];
   favoriteCount: number;
   guideId: string;
   id: string;
-  isOverseas: number;
-  isPublic: number;
+  isOverseas: 0 | 1;
+  isPublic: 0 | 1;
   likeCount: number;
   members: TripMember[];
   note: string;
-  province: string;
-  startDate: string;
+  provinces: string[];
   status: number;
   title: string;
   totalBudget: number;
@@ -73,46 +68,12 @@ export interface TripData {
   viewCount: number;
 }
 
-// 行程主体信息
-export interface Trip {
-  id: string;
-  userId: string;
-  bestSeason: string;
-  budgetMax: number;
-  budgetMin: number;
-  coverImage: string;
-  crowdType: string;
-  destination: string;
-  difficulty: string;
-  isOriginal: number;
-  likeCount: number;
-  recommendedDays: number;
-  status: number;
-  summary: string;
-  tags: string;
-  title: string;
-  viewCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// 行程详情接口返回data结构
-export interface TripDetailData {
-  days: TripDay[];
-  trip: Trip;
-  isLiked?: boolean;
-  isFavorited?: boolean;
-  favoriteCount?: number;
-  commentCount?: number;
-  likeCount?: number
-}
-
 /**
  * 创建旅行行程
  * @param data 行程表单提交参数
  * @returns 请求返回值
  */
-export const createTrip = (data: TripDetailData) => {
+export const createTrip = (data: Trip) => {
   return request<null>({
     url: '/trip',
     method: 'POST',
@@ -126,7 +87,7 @@ export const createTrip = (data: TripDetailData) => {
  * @returns 行程详情 + 每日行程
  */
 export const getTripDetail = (id: string) => {
-  return request<TripDetailData>({
+  return request<Trip>({
     url: `/trip/${id}`,
     method: 'GET',
   });

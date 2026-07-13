@@ -37,7 +37,10 @@ export default function BasicInfoPage() {
             return;
         }
 
-        const cachedItinerary = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || [];
+        const cachedItinerary = (() => {
+            const raw = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || [];
+            return raw.dayPlans ? raw.dayPlans : raw;
+        })();
 
         const payload = {
             trip: {

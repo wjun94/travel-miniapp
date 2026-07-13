@@ -20,6 +20,7 @@ export default defineAppConfig({
     'pages/guide/preview/index',
     'pages/guide/itinerary/index',
     'pages/trip/basic/index',
+    'pages/trip/itinerary/index',
     'pages/trip/detail/index',
     'pages/trip/preview/index',
     'pages/trip/where/index',

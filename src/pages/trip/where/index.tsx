@@ -39,8 +39,7 @@ export default function SearchPage() {
 
     // 点击选择目的地
     const handleSelect = (item: DestinationItem) => {
-        Taro.setStorageSync('SELECTED_DESTINATION', item);
-        Taro.navigateTo({ url: '../date/index' });
+        Taro.navigateTo({ url: `../date/index?destination=${encodeURIComponent(JSON.stringify(item))}` });
     };
 
     // 清空输入框

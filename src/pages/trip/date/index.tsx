@@ -1,5 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, PickerView, PickerViewColumn } from '@tarojs/components';
+import { useState, useMemo, useEffect } from 'react';
+import Taro from '@tarojs/taro';
+import { View, Text, ScrollView, PickerView, PickerViewColumn, Input } from '@tarojs/components';
+import { BottomSheet } from '@/components';
+import { searchDestinations, type DestinationItem } from '@/api/common';
 
 export default function TravelDurationPicker() {
     const [activeTab, setActiveTab] = useState<'specific' | 'flexible'>('flexible');
@@ -15,6 +18,93 @@ export default function TravelDurationPicker() {
     // 具体日期状态：开始与结束日期字符串
     const [startDate, setStartDate] = useState<string | null>('');
     const [endDate, setEndDate] = useState<string | null>('');
+
+    // 目的地搜索弹窗
+    const [sheetVisible, setSheetVisible] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState<DestinationItem[]>([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+
+    // 从 URL 参数读取已选目的地（数组）
+    const [destinations, setDestinations] = useState<DestinationItem[]>(() => {
+        try {
+            const params = Taro.getCurrentInstance().router?.params;
+            const raw = params?.destination as string;
+            return raw ? [JSON.parse(decodeURIComponent(raw))] : [];
+        } catch { return []; }
+    });
+
+    // 移除指定目的地
+    const removeDestination = (index: number) => {
+        setDestinations(prev => prev.filter((_, i) => i !== index));
+    };
+
+    // 验证是否已选目的地
+    const requireDestination = (callback: () => void) => {
+        if (destinations.length === 0) {
+            Taro.showToast({ title: '请先添加目的地', icon: 'none' });
+        } else {
+            callback();
+        }
+    };
+
+    // 保存草稿并跳转到行程规划页
+    const handleNext = () => {
+        // 具体日期模式下必须选择日期
+        if (activeTab === 'specific') {
+            if (!startDate) {
+                Taro.showToast({ title: '请选择出发日期', icon: 'none' });
+                return;
+            }
+            const end = endDate || startDate;
+            Taro.navigateTo({ url: `../itinerary/index?startDate=${startDate}&endDate=${end}` });
+        } else {
+            const days = selectedDayIndex + 1;
+            Taro.navigateTo({ url: `../itinerary/index?flexDays=${days}` });
+        }
+    };
+
+    // 防抖搜索
+    useEffect(() => {
+        if (!keyword.trim()) {
+            setSearchResults([]);
+            setSearchLoading(false);
+            return;
+        }
+        setSearchLoading(true);
+        const timer = setTimeout(async () => {
+            try {
+                const res = await searchDestinations({ keyword });
+                setSearchResults(res || []);
+            } catch {
+                setSearchResults([]);
+            } finally {
+                setSearchLoading(false);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [keyword]);
+
+    // 高亮匹配关键词
+    const renderHighlightedName = (name: string, target: string) => {
+        if (!target || !name.includes(target)) {
+            return <Text className='text-36px font-bold text-gray-900'>{name}</Text>;
+        }
+        const index = name.indexOf(target);
+        const before = name.substring(0, index);
+        const match = target;
+        const after = name.substring(index + target.length);
+        return (
+            <Text className='text-36px font-bold text-gray-900'>
+                {before}<Text style={{ color: '#10B981' }}>{match}</Text>{after}
+            </Text>
+        );
+    };
+
+    // 拼接地址描述
+    const formatAddress = (item: DestinationItem) => {
+        return [item.province, item.city, item.district].filter(Boolean).join('');
+    };
 
     /**
      * 动态生成 6x7 矩阵的日历数据
@@ -123,14 +213,18 @@ export default function TravelDurationPicker() {
     return (
         <View className="flex flex-col h-screen bg-white text-gray-900 font-sans pb-safe">
             {/* 城市标签 */}
-            <View className="px-6 py-2 flex items-center space-x-3">
-                <View className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg font-light text-gray-600">
+            <View className="px-6 py-2 flex items-center flex-wrap gap-2">
+                <View className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg font-light text-gray-600 shrink-0" onClick={() => setSheetVisible(true)}>
                     <Text className='iconfont icon-plus' />
                 </View>
-                <View className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-medium border border-emerald-100/50">
-                    <Text>温州市</Text>
-                    <Text className="text-xs text-emerald-400">✕</Text>
-                </View>
+                {destinations.length > 0 ? destinations.map((d, i) => (
+                    <View key={d.code || i} className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-medium border border-emerald-100/50">
+                        <Text>{d.name}</Text>
+                        <Text className="text-xs text-emerald-400" onClick={() => removeDestination(i)}>✕</Text>
+                    </View>
+                )) : (
+                    <Text className="text-gray-400 text-sm">请添加目的地</Text>
+                )}
             </View>
 
             {/* 大标题 */}
@@ -185,9 +279,9 @@ export default function TravelDurationPicker() {
                         <View className="animate-fadeIn">
                             {/* 动态显示的月份及切换控制 */}
                             <View className="flex items-center justify-between px-4 mb-6">
-                                <Text className="text-gray-400 text-lg px-2 active:opacity-50" onClick={() => changeMonth('prev')}>〈</Text>
+                                <Text className="text-gray-400 text-lg px-2 active:opacity-50" onClick={() => changeMonth('prev')}><Text className='iconfont icon-next-copy' /></Text>
                                 <Text className="text-lg font-bold tracking-wide">{`${currentYear}年${String(currentMonth).padStart(2, '0')}月`}</Text>
-                                <Text className="text-gray-400 text-lg px-2 active:opacity-50" onClick={() => changeMonth('next')}>〉</Text>
+                                <Text className="text-gray-400 text-lg px-2 active:opacity-50" onClick={() => changeMonth('next')}><Text className='iconfont icon-next' /></Text>
                             </View>
 
                             <View className="grid grid-cols-7 gap-y-4 text-center text-sm font-medium text-gray-400 mb-2">
@@ -221,11 +315,79 @@ export default function TravelDurationPicker() {
 
             {/* 底部操作区 */}
             <View className="px-6 py-4 flex items-center justify-between border-t border-gray-50 bg-white">
-                <Text className="text-gray-400 text-base font-medium tracking-wide active:text-gray-600">跳过</Text>
-                <View className="w-2/3 bg-emerald-500 active:bg-emerald-600 text-white text-center py-3.5 rounded-full font-bold text-base shadow-sm tracking-widest transition-colors">
-                    完成
+                <Text onClick={() => requireDestination(() => Taro.navigateTo({ url: '../itinerary/index' }))} className="text-gray-400 text-base font-medium tracking-wide active:text-gray-600">跳过</Text>
+                <View
+                    onClick={() => requireDestination(() => {
+                        handleNext()
+                    })}
+                    className="w-2/3 bg-emerald-500 active:bg-emerald-600 text-white text-center py-3.5 rounded-full font-bold text-base shadow-sm tracking-widest transition-colors"
+                >
+                    下一步
                 </View>
             </View>
+
+            {/* 目的地搜索弹窗 */}
+            <BottomSheet
+                visible={sheetVisible}
+                title="搜索目的地"
+                onClose={() => { setSheetVisible(false); setKeyword(''); setSearchResults([]); }}
+            >
+                <View className="pb-4">
+                    <View className="bg-gray-50 rounded-xl px-3 flex items-center mb-4">
+                        <Text className="iconfont icon-search text-gray-400 mr-2" />
+                        <Input
+                            className="flex-1 h-[72px] text-[28px]"
+                            placeholder="输入目的地名称"
+                            placeholderStyle="color:#9ca3af"
+                            value={keyword}
+                            onInput={(e) => setKeyword(e.detail.value)}
+                        />
+                    </View>
+
+                    <ScrollView scrollY className="max-h-80vh h-60vh">
+                        {searchLoading && (
+                            <Text className='text-sm text-gray-400 block text-center py-4'>正在搜索...</Text>
+                        )}
+
+                        {!searchLoading && searchResults.length > 0 && (
+                            <View className='flex flex-col gap-y-6'>
+                                {searchResults.map((item, idx) => (
+                                    <View
+                                        key={item.code || idx}
+                                        className='flex items-center justify-between active:opacity-70 py-1'
+                                        onClick={() => {
+                                            setDestinations(prev => [...prev, item]);
+                                            setSheetVisible(false);
+                                            setKeyword('');
+                                            setSearchResults([]);
+                                        }}
+                                    >
+                                        <View className='flex items-center space-x-2'>
+                                            {item.emoji && <Text className='text-xl mr-2'>{item.emoji}</Text>}
+                                            <View className='flex flex-col'>
+                                                {renderHighlightedName(item.name || '', keyword.trim())}
+                                                <Text className='text-26px text-gray-400 mt-2 font-light tracking-wide'>
+                                                    {formatAddress(item)}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        {item.type && (
+                                            <Text className='text-24px bg-gray-50 text-gray-400 px-2 py-0.5 rounded border border-solid border-gray-100 font-light'>
+                                                {item.type}
+                                            </Text>
+                                        )}
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+
+                        {!searchLoading && keyword.trim() && searchResults.length === 0 && (
+                            <Text className='text-sm text-gray-400 block text-center py-8'>未找到相关目的地</Text>
+                        )}
+                    </ScrollView>
+                </View>
+            </BottomSheet>
         </View>
     );
 }

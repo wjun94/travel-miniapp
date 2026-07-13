@@ -67,8 +67,47 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
 
 export default function ItineraryPage() {
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
+    // 优先从 URL 参数读取日期（从 date 页面跳转过来）
+    const params = Taro.getCurrentInstance().router?.params;
+    if (params) {
+      const startDate = params.startDate as string;
+      const endDate = params.endDate as string;
+      const flexDays = params.flexDays as string;
+
+      if (startDate) {
+        const start = new Date(startDate);
+        const end = endDate ? new Date(endDate) : new Date(start);
+        const days: DayPlan[] = [];
+        const current = new Date(start);
+        let idx = 1;
+        while (current <= end) {
+          const y = current.getFullYear();
+          const m = String(current.getMonth() + 1).padStart(2, '0');
+          const d = String(current.getDate()).padStart(2, '0');
+          days.push({ dayIndex: idx, date: `${y}-${m}-${d}`, title: '', items: [createEmptyItem(idx, 'attraction')] });
+          current.setDate(current.getDate() + 1);
+          idx++;
+        }
+        if (days.length > 0) return days;
+      }
+
+      if (flexDays) {
+        const count = parseInt(flexDays, 10);
+        return Array.from({ length: count }, (_, i) => ({
+          dayIndex: i + 1,
+          date: '',
+          title: '',
+          items: [createEmptyItem(i + 1, 'attraction')],
+        }));
+      }
+    }
+
+    // 兜底：从 Storage 读取
     const saved = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS');
-    if (saved) return saved;
+    if (saved) {
+      if (saved.dayPlans) return saved.dayPlans;
+      return saved;
+    }
     return [
       { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
     ];
@@ -88,7 +127,8 @@ export default function ItineraryPage() {
   // 页面关闭/隐藏时自动保存（仅当有改动时）
   const saveIfModified = () => {
     if (modifiedRef.current) {
-      Taro.setStorageSync('TEMP_TRIP_ITINERARY_PLANS', dayPlansRef.current);
+      const existing = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || {};
+      Taro.setStorageSync('TEMP_TRIP_ITINERARY_PLANS', { ...(existing.dayPlans ? existing : {}), dayPlans: dayPlansRef.current });
     }
   };
   useDidHide(saveIfModified);
@@ -254,7 +294,7 @@ export default function ItineraryPage() {
         }
       }
     }
-    Taro.setStorageSync('TEMP_TRIP_ITINERARY_PLANS', dayPlans);
+    Taro.setStorageSync('TEMP_TRIP_ITINERARY_PLANS', (() => { const existing = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || {}; return { ...(existing.dayPlans ? existing : {}), dayPlans }; })());
     Taro.navigateTo({ url: '/pages/trip/basic/index' });
   };
 

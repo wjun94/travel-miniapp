@@ -21,6 +21,20 @@
     "miniprogram": {
       "list": [
         {
+          "name": "选择日期",
+          "pathName": "pages/trip/date/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "想去哪儿",
+          "pathName": "pages/trip/where/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "发布",
           "pathName": "pages/publish/index",
           "query": "",
