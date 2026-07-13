@@ -57,11 +57,31 @@ export default function TravelDurationPicker() {
                 return;
             }
             const end = endDate || startDate;
+
+            // 保存目的地信息（Trip 格式）
+            saveDestinationMeta();
+
             Taro.navigateTo({ url: `../itinerary/index?startDate=${startDate}&endDate=${end}` });
         } else {
             const days = selectedDayIndex + 1;
+
+            // 保存目的地信息（Trip 格式）
+            saveDestinationMeta();
+
             Taro.navigateTo({ url: `../itinerary/index?flexDays=${days}` });
         }
+    };
+
+    // 将选中地址按 Trip 接口的请求参数格式保存到本地
+    const saveDestinationMeta = () => {
+        const meta = {
+            cities: [...new Set(destinations.map(d => d.name))],
+            destinations: destinations.map(d => d.code),
+            provinces: [...new Set(destinations.map(d => d.province).filter(Boolean))],
+            countries: destinations.filter(d => d.type === 'overseas').map(d => d.name),
+            isOverseas: (destinations.some(d => d.type === 'overseas') ? 1 : 0) as 0 | 1,
+        };
+        Taro.setStorageSync('TEMP_TRIP_DESTINATIONS', meta);
     };
 
     // 防抖搜索
