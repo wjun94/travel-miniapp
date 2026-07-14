@@ -87,7 +87,7 @@ export default memo(function BottomActionBar({
     return (
         <>
             {/* 底部操作栏 */}
-            <View className='absolute bottom-0 left-0 right-0 h-[110px] bg-white/95 backdrop-blur-md border-t border-stone-100 flex flex-row items-center justify-between px-4 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.02)] z-50'>
+            <View className='fixed bottom-0 left-0 right-0 h-[110px] bg-white/95 backdrop-blur-md border-t border-stone-100 flex flex-row items-center justify-between px-4 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.02)] z-50'>
                 {/* 左侧留言气泡触发 */}
                 <View
                     onClick={() => setShowInput(true)}

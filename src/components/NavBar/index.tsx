@@ -44,7 +44,7 @@ export default function NavBar({ backgroundColor = '#FCFBF7', children, bgImg, c
               }
             })
           }}
-          className='iconfont icon-next-copy font-bold relative bottom-14px leading-[1] mr-16px'
+          className='iconfont icon-next-copy font-bold inline-block h-56px w-50px leading-56px'
         />
 
       )}

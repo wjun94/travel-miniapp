@@ -100,16 +100,16 @@ export default function TravelGuideDetail() {
 
     return (
         <>
-            <NavBar showBack backgroundColor='transparent'>
+            <NavBar showBack backgroundColor='white'>
                 <View className='flex flex-row items-center flex-1'>
                     <Image isAvatar src={guide.authorAvatar} className='w-[48px] h-[48px] text-[20px] rounded-full border-2 border-white/80' />
                     <Text className='ml-2 text-[24px] font-bold drop-shadow-md'>{guide.authorName || ''}</Text>
                     {!guide.isSelf && (
                         <View
                             onClick={handleToggleFollow}
-                            className={`ml-3 px-2 py-1 bg-[#F97316] rounded-full border text-[20px] font-medium ${guide.isFollowed ? 'border-white/60 text-white/80' : 'border-white text-white bg-white/20'}`}
+                            className='ml-3 px-2 py-1 bg-[#F97316] rounded-full border text-[20px] font-medium'
                         >
-                            {guide.isFollowed ? '已关注' : '关注'}
+                            <Text className={`${guide.isFollowed ? 'border-white/60 text-white/80' : 'border-white text-white bg-white/20'}`}>{guide.isFollowed ? '已关注' : '关注'}</Text>
                         </View>
                     )}
                 </View>
