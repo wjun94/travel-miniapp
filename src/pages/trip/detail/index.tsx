@@ -351,7 +351,7 @@ export default function TripDetail() {
                 className='absolute bottom-[140px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
             >
                 <Text className='iconfont icon-view mb-1 text-32px' />
-                <Text className='text-[20px] font-black'>切视图</Text>
+                <Text className='text-[20px] font-black'>行程预览</Text>
             </View>
 
             {/* 🎨 挂载解耦出来的底部悬浮多功能工具组件 */}
