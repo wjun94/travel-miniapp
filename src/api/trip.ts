@@ -126,6 +126,10 @@ export interface Trip {
   isLiked: boolean;
   isFavorited: boolean;
   commentCount: number;
+  isSelf: boolean
+  isFollowed: boolean
+  authorName: string
+  authorAvatar: string
 }
 
 /**

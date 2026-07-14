@@ -56,6 +56,10 @@ export interface TravelGuideDetailData {
   favoriteCount?: number;
   commentCount?: number;
   likeCount?: number;
+  isSelf: boolean
+  isFollowed: boolean
+  authorName: string
+  authorAvatar: string
   days: TripDay[];
 }
 

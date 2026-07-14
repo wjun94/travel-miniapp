@@ -23,9 +23,16 @@
         {
           "name": "pages/guide/detail/index",
           "pathName": "pages/guide/detail/index",
-          "query": "id=2076966077379645440",
+          "query": "id=2077023138574503936",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/guide/detail/index",
+          "pathName": "pages/guide/detail/index",
+          "query": "id=2076966077379645440",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/trip/itinerary/index",

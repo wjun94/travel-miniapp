@@ -1,5 +1,6 @@
-import { View } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import { getHeaderHeight, getImageCdnUrl } from '@/utils'
+import Taro from '@tarojs/taro'
 
 interface NavBarProps {
   /** 背景色，默认 #FCFBF7 */
@@ -13,10 +14,12 @@ interface NavBarProps {
   titleAlign?: 'left' | 'center'
   /** 是否显示返回按钮 */
   showBack?: boolean
+  /** 自定义左侧内容（返回按钮旁） */
+  children?: React.ReactNode
 }
 
 /** 自定义导航栏：占据状态栏 + 胶囊按钮区域高度，防止内容被遮挡 */
-export default function NavBar({ backgroundColor = '#FCFBF7', bgImg, className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
+export default function NavBar({ backgroundColor = '#FCFBF7', children, bgImg, className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
   const headerHeight = getHeaderHeight()
 
   return (
@@ -33,13 +36,28 @@ export default function NavBar({ backgroundColor = '#FCFBF7', bgImg, className =
       }}
     >
       {showBack && (
-        <View style={{ fontSize: 20, lineHeight: 1, marginRight: 8 }}>{'‹'}</View>
+        <Text
+          onClick={() => {
+            Taro.navigateBack({
+              fail: () => {
+                Taro.switchTab({ url: '/pages/home/index' })
+              }
+            })
+          }}
+          className='iconfont icon-next-copy font-bold relative bottom-14px leading-[1] mr-16px'
+        />
+
       )}
-      {title && (
-        <View style={{ fontSize: 16, fontWeight: 600, color: '#333', flex: 1, textAlign: titleAlign, marginRight: showBack ? 32 : 0 }}>
+      {children ? (
+        <View className='flex-1 flex flex-row items-center'>
+          {children}
+        </View>
+      ) : title ? (
+        <View className={`flex-1 text-[34px] font-semibold text-gray-700 ${titleAlign === 'left' ? 'text-left' : 'text-center'}`}
+          style={{ marginRight: showBack ? 32 : 0 }}>
           {title}
         </View>
-      )}
+      ) : null}
     </View>
   )
 }
