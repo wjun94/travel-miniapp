@@ -1,7 +1,7 @@
 import { View, Text } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
-import { navigateTo } from '@tarojs/taro'
+import Taro from '@tarojs/taro'
 import { getProfile } from '@/api/auth'
 import { useRequest } from 'ahooks'
 
@@ -18,7 +18,7 @@ export default function ProfilePage() {
       title: '备忘清单',
       icon: 'icon-memos',
       onFn: () => {
-        navigateTo({ url: '/pages/checklist/list/index' })
+        Taro.navigateTo({ url: '/pages/checklist/list/index' })
       }
     },
     { id: 4, title: '汇率换算', icon: 'icon-rates' },
@@ -31,7 +31,7 @@ export default function ProfilePage() {
       title: '我的收藏',
       icon: 'icon-weishoucang',
       onFn: () => {
-        navigateTo({ url: '/pages/favorite/index' })
+        Taro.navigateTo({ url: '/pages/favorite/index' })
       }
     },
     {
@@ -39,7 +39,7 @@ export default function ProfilePage() {
       title: '浏览历史',
       icon: 'icon-history',
       onFn: () => {
-        navigateTo({ url: '/pages/history/index' })
+        Taro.navigateTo({ url: '/pages/history/index' })
       }
     },
     { id: 4, title: '联系客服', icon: 'icon-contact' },
@@ -91,12 +91,12 @@ export default function ProfilePage() {
         {/* 3. 数据统计交互行 */}
         <View className="grid grid-cols-4 text-center my-4 px-1">
           {[
-            { value: profile?.guideCount ?? '0', label: '攻略' },
-            { value: profile?.tripCount ?? '0', label: '行程' },
-            { value: profile?.followerCount ?? '0', label: '粉丝' },
-            { value: profile?.followCount ?? '0', label: '关注' }
+            { value: profile?.guideCount ?? '0', label: '攻略', url: '/pages/guide/list/index' },
+            { value: profile?.tripCount ?? '0', label: '行程', url: '/pages/trip/list/index' },
+            { value: profile?.followerCount ?? '0', label: '粉丝', url: '/pages/fans/index' },
+            { value: profile?.followCount ?? '0', label: '关注', url: '/pages/follow/index' }
           ].map((stat, i) => (
-            <View key={i} className="flex flex-col active:opacity-70">
+            <View key={i} className="flex flex-col active:opacity-70" onClick={() => Taro.navigateTo({ url: stat.url })}>
               <Text className="text-lg font-black text-gray-800 tracking-tight">{stat.value}</Text>
               <Text className="text-xs mt-1 font-medium">{stat.label}</Text>
             </View>

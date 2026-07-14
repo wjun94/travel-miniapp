@@ -1,4 +1,5 @@
 import request from './request';
+import type { Guide } from './post'
 
 interface TripMember {
   /** 创建时间 */
@@ -170,3 +171,15 @@ export const unlikeTrip = (id: string) => {
     method: 'DELETE',
   });
 };
+
+/**
+ * 获取我的行程列表
+ * @param page 页码
+ * @param pageSize 每页条数
+ */
+export const getMyTrips = (page: number, pageSize: number) =>
+  request<{ list: Guide[]; total: number }>({
+    url: '/my/trips',
+    method: 'GET',
+    data: { page, pageSize },
+  });

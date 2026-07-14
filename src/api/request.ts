@@ -5,6 +5,14 @@ import { silentLogin } from '@/utils/auth';
 // 定义缺少的 API_BASE，防止编译报错（请根据你实际的全局变量或导入调整）
 declare const API_BASE: string;
 
+/**
+ * 分页列表通用返回结构
+ */
+export interface PageResult<T> {
+    list: T[];
+    total: number;
+}
+
 interface RequestOptions {
   url: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';

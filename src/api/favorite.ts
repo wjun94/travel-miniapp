@@ -1,4 +1,4 @@
-import request from './request';
+import request, { PageResult } from './request';
 
 /**
  * 收藏项
@@ -56,7 +56,7 @@ export interface GetFavoritesParams {
 }
 
 export const getFavorites = (params: GetFavoritesParams) => {
-    return request<{ list: FavoriteItem[]; total: number }>({
+    return request<PageResult<FavoriteItem>>({
         url: '/favorites',
         method: 'GET',
         data: params,

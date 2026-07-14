@@ -1,4 +1,5 @@
 import request from './request';
+import type { Guide } from './post'
 
 // 每日行程景点/项目明细
 export interface TripDayItem {
@@ -135,3 +136,15 @@ export const unlikeTravelGuide = (id: string) => {
     method: 'DELETE',
   });
 };
+
+/**
+ * 获取我的攻略列表
+ * @param page 页码
+ * @param pageSize 每页条数
+ */
+export const getMyGuides = (page: number, pageSize: number) =>
+  request<{ list: Guide[]; total: number }>({
+    url: '/my/guides',
+    method: 'GET',
+    data: { page, pageSize },
+  });

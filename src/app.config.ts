@@ -3,6 +3,8 @@ const imgUrl = './assets/tabbar/';
 export default defineAppConfig({
   pages: [
     'pages/home/index',
+    'pages/follow/index',
+    'pages/fans/index',
     'pages/nearby/index',
     'pages/publish/index',
     'pages/message/index',
@@ -15,10 +17,12 @@ export default defineAppConfig({
     'pages/footprint/index',
     'pages/history/index',
     'pages/favorite/index',
+    'pages/guide/list/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',
     'pages/guide/preview/index',
     'pages/guide/itinerary/index',
+    'pages/trip/list/index',
     'pages/trip/basic/index',
     'pages/trip/itinerary/index',
     'pages/trip/detail/index',

@@ -1,4 +1,4 @@
-import request from './request';
+import request, { PageResult } from './request';
 
 /** 单条评论/回复的核心数据结构 */
 export interface CommentItem {
@@ -36,13 +36,6 @@ export interface GetCommentsParams {
     pageSize?: number;
 }
 
-export interface GetCommentsResponse {
-    /** 评论列表数据 */
-    list: CommentItem[];
-    /** 总记录数 */
-    total: number;
-}
-
 // 5. 发表评论参数
 export interface CreateCommentBody {
     /** 评论内容 */
@@ -65,7 +58,7 @@ export interface CreateCommentBody {
  * @param params 查询参数 (target_type, target_id, page, pageSize)
  */
 export const getComments = (params: GetCommentsParams) =>
-    request<GetCommentsResponse>({
+    request<PageResult<CommentItem>>({
         url: '/comments',
         method: 'GET',
         data: params // GET 请求通常使用 params 传参，若底层的 request 支持 data 自动转换也可保持原样
