@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { ScrollLoadList } from '@/components'
+import { ScrollLoadList, Image } from '@/components'
 import { getMyFollowers, removeFollower } from '@/api/follow'
 import type { UserFollowInfo } from '@/api/follow'
 
@@ -20,7 +20,7 @@ export default function FansPage() {
         return (
             <View className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-50">
                 <View className="flex items-center flex-1 min-w-0">
-                    <Image src={item.avatarUrl} className="w-20 h-20 rounded-full bg-gray-100 flex-shrink-0" />
+                    <Image isAvatar src={item.avatarUrl} className="w-20 h-20 rounded-full text-12px flex-shrink-0" />
                     <View className="ml-3 flex-1 min-w-0">
                         <Text className="text-[28px] font-medium text-gray-800 truncate block">{item.nickname}</Text>
                         {item.isMutual && (

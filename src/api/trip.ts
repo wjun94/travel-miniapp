@@ -123,6 +123,9 @@ export interface Trip {
   userId: string;
   /** 浏览数 */
   viewCount: number;
+  isLiked: boolean;
+  isFavorited: boolean;
+  commentCount: number;
 }
 
 /**

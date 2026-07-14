@@ -1,13 +1,19 @@
 import { View, Text } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { getProfile } from '@/api/auth'
 import { useRequest } from 'ahooks'
 
 export default function ProfilePage() {
   // 每次进入页面都刷新个人资料
-  const { data: profile } = useRequest(getProfile)
+  const { data: profile, refresh } = useRequest(getProfile, {
+    manual: true
+  })
+
+  useDidShow(() => {
+    refresh()
+  })
 
   // 1. 自由行工具箱数据
   const tools = [

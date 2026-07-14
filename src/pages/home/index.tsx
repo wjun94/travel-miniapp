@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
-import { View, Text, Image, Input, ScrollView } from '@tarojs/components'
+import { View, Text, Input, ScrollView } from '@tarojs/components'
+import { Image } from '@/components'
 import Taro from '@tarojs/taro'
 import { getHeaderHeight } from '@/utils'
 import { NavBar, ScrollLoadList } from '@/components'
@@ -119,50 +120,57 @@ export default function HomePage() {
     const isLiked = localLike?.isLiked ?? item.isLiked
     const likeCount = localLike?.likeCount ?? item.likeCount
     return (
-    <View
-      className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
-      onClick={() => Taro.navigateTo({ url: `/pages/guide/detail/index?id=${item.id}` })}
-    >
-      <View className="w-full h-44 relative bg-gray-50">
-        <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
-      </View>
+      <View
+        className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
+        onClick={() => {
+          if (item.itemType === 'guide') {
+            Taro.navigateTo({ url: `/pages/guide/detail/index?id=${item.id}` })
+          } else if (item.itemType === 'trip') {
+            Taro.navigateTo({ url: `/pages/trip/detail/index?id=${item.id}` })
+          }
+        }}
+      >
+        <View className="w-full h-44 relative bg-gray-50">
+          <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
+        </View>
 
-      <View className="p-2.5 flex flex-col">
-        <Text className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 white-space-normal mb-1">
-          {item.title}
-        </Text>
+        <View className="p-2.5 flex flex-col">
+          <Text className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 white-space-normal mb-1">
+            {item.title}
+          </Text>
 
-        {(item.tripDays || item.sectionCount) && (
-          <View className="flex flex-row items-center gap-2 mb-1">
-            {item.tripDays && (
-              <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
-                <Text className="text-[20rpx] text-emerald-600 font-medium">📅 {item.tripDays}天</Text>
-              </View>
-            )}
-            {item.sectionCount && (
-              <View className="bg-stone-50 px-2 py-0.5 rounded-full">
-                <Text className="text-[20rpx] text-stone-500 font-medium">📍 {item.sectionCount}个行程</Text>
-              </View>
-            )}
-          </View>
-        )}
+          {(item.tripDays || item.sectionCount) && (
+            <View className="flex flex-row items-center gap-2 mb-1">
+              {item.tripDays && (
+                <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <Text className="text-[20rpx] text-emerald-600 font-medium">📅 {item.tripDays}天</Text>
+                </View>
+              )}
+              {item.sectionCount && (
+                <View className="bg-stone-50 px-2 py-0.5 rounded-full">
+                  <Text className="text-[20rpx] text-stone-500 font-medium">📍 {item.sectionCount}个行程</Text>
+                </View>
+              )}
+            </View>
+          )}
 
-        <View className="flex flex-row items-center justify-between mt-auto">
-          <View className="flex flex-row items-center flex-1 min-w-0 mr-2">
-            <Image src={item.authorAvatar} className="w-4 h-4 rounded-full bg-gray-100 flex-shrink-0" />
-            <Text className="text-[22rpx] text-gray-500 ml-1 truncate flex-1">{item.authorName}</Text>
-          </View>
-          <View
-            className="flex flex-row items-center flex-shrink-0 text-gray-500 active:scale-90 transition-transform"
-            onClick={(e) => handleLikeRef.current(e, item)}
-          >
-            <Text className={`iconfont leading-none mr-8px ${isLiked ? 'icon-follow-fill text-red-400' : 'icon-follow'}`} />
-            <Text className="leading-1">{likeCount || '点赞'}</Text>
+          <View className="flex flex-row items-center justify-between mt-auto">
+            <View className="flex flex-row items-center flex-1 min-w-0 mr-2">
+              <Image isAvatar src={item.authorAvatar} className="w-4 h-4 rounded-full flex-shrink-0 text-12px" />
+              <Text className="text-[22rpx] text-gray-500 ml-1 truncate flex-1">{item.authorName}</Text>
+            </View>
+            <View
+              className="flex flex-row items-center flex-shrink-0 text-gray-500 active:scale-90 transition-transform"
+              onClick={(e) => handleLikeRef.current(e, item)}
+            >
+              <Text className={`iconfont leading-none mr-8px ${isLiked ? 'icon-follow-fill text-red-400' : 'icon-follow'}`} />
+              <Text className="leading-1">{likeCount || '点赞'}</Text>
+            </View>
           </View>
         </View>
       </View>
-    </View>
-  )}, [])
+    )
+  }, [])
 
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">

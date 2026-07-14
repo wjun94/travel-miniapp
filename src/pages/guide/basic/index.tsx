@@ -50,13 +50,6 @@ export default function BasicInfoPage() {
         }
     };
 
-    // 时间格式转换器：拼装为符合 Go time.Time 的 ISO 格式字符串
-    const formatToIsoTime = (timeStr: string, baseDate: string) => {
-        if (!timeStr) return null;
-        const date = baseDate || new Date().toISOString().split('T')[0];
-        return `${date}T${timeStr}:00Z`;
-    };
-
     // 最终组装数据并请求后端接口
     const handleSubmit = async (isPublish: boolean) => {
         const {
@@ -118,8 +111,10 @@ export default function BasicInfoPage() {
 
         await createRunAsync(payload as any);
 
-        Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
         setTimeout(() => {
+            setTimeout(() => {
+                Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
+            }, 500)
             Taro.navigateBack({ delta: 2 });
         }, 1500);
     };

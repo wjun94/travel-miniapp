@@ -30,17 +30,36 @@ export const getFeed = (page: number) =>
 
 /** 攻略参数 */
 export interface Guide {
-  id: string
-  title: string
-  coverImage: string
-  summary: string
-  authorName: string
-  authorAvatar: string
-  likeCount: number
-  isLiked: boolean
-  tripDays?: number
-  sectionCount?: number
-  createdAt: string
+  /** 作者头像 */
+  authorAvatar: string;
+  /** 作者昵称 */
+  authorName: string;
+  /** 封面图 */
+  coverImage: string;
+  /** 创建时间 */
+  createdAt: string;
+  /** 目的地名称 */
+  destination: string;
+  /** 攻略/行程 ID */
+  id: string;
+  /** 是否已点赞 */
+  isLiked: boolean;
+  /** 是否原创（0-转载，1-原创） */
+  isOriginal: number;
+  /** 点赞数 */
+  likeCount: number;
+  /** 行程数 */
+  sectionCount: number;
+  /** 标题 */
+  title: string;
+  /** 旅行天数 */
+  tripDays: number;
+  /** 用户 ID */
+  userId: string;
+  /** 浏览数 */
+  viewCount: number;
+  /** 内容类型：guide(攻略) / trip(行程) */
+  itemType: 'trip' | 'guide';
 }
 
 /**
@@ -50,7 +69,7 @@ export interface Guide {
  */
 export const getGuides = (page: number, pageSize: number) =>
   request<{ list: Guide[]; total: number }>({
-    url: '/guides',
+    url: '/guide/feed',
     method: 'GET',
     data: { page, pageSize },
   });

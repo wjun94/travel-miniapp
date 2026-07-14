@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { ScrollLoadList } from '@/components'
+import { ScrollLoadList, Image } from '@/components'
 import { getMyTrips } from '@/api/trip'
 import type { Guide } from '@/api/post'
 
@@ -10,7 +10,7 @@ export default function MyGuideListPage() {
         return (
             <View
                 className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
-                onClick={() => Taro.navigateTo({ url: `/pages/guide/detail/index?id=${item.id}` })}
+                onClick={() => Taro.navigateTo({ url: `/pages/trip/detail/index?id=${item.id}` })}
             >
                 <View className="w-full h-44 relative bg-gray-50">
                     <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
@@ -35,13 +35,6 @@ export default function MyGuideListPage() {
                             )}
                         </View>
                     )}
-
-                    <View className="flex flex-row items-center justify-between mt-auto">
-                        <View className="flex flex-row items-center flex-1 min-w-0 mr-2">
-                            <Image src={item.authorAvatar} className="w-4 h-4 rounded-full bg-gray-100 flex-shrink-0" />
-                            <Text className="text-[22rpx] text-gray-500 ml-1 truncate flex-1">{item.authorName}</Text>
-                        </View>
-                    </View>
                 </View>
             </View>
         )

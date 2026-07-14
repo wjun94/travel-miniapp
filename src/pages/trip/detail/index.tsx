@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { Image } from '@/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { getTripDetail, Trip, TripDetailData } from '@/api/trip';
+import { getTripDetail, Trip } from '@/api/trip';
 import { createHistoryRecord } from '@/api/history';
 import { useRequest } from 'ahooks';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
@@ -21,32 +21,33 @@ export default function TripDetail() {
         () => getTripDetail(id || ''),
         {
             refreshDeps: [id],
-            onSuccess: (data: TripDetailData) => {
+            onSuccess: (data: Trip) => {
                 setCurrentDayIdx(0);
-                if (data?.trip) {
+                if (data) {
                     createHistoryRecord({
                         targetId: id || '',
                         targetType: 'trip',
-                        title: data.trip.title || '',
-                        coverImage: data.trip.coverImage || '',
+                        title: data.title || '',
+                        coverImage: data.coverImage || '',
                     }).catch(() => { });
                 }
             }
         }
     );
 
-    const guide = guideData?.trip || {} as Trip;
+    // 此时 guideData 就是返回的 Trip 实例，我们直接将其作为 guide 映射
+    const guide = guideData || {} as Trip;
     const days = guideData?.days || [];
 
     // 处理工具方法
-    const getImgArray = (images) => {
+    const getImgArray = (images: any) => {
         if (!images) return [];
         if (Array.isArray(images)) return images.slice(0, 9);
         if (typeof images === 'string') return images.split(',').filter(Boolean).slice(0, 9);
         return [];
     };
 
-    const formatTimeRange = (start, end) => {
+    const formatTimeRange = (start: string, end: string) => {
         if (!start && !end) return '全天/待定';
         return start && end ? `${start} - ${end}` : (start || end);
     };
@@ -61,6 +62,22 @@ export default function TripDetail() {
         setScrollTargetId('');
         setTimeout(() => setScrollTargetId('comment-section'), 50);
     };
+
+    // 目的地文本拼接逻辑
+    const getDestinationText = () => {
+        if (guide.cities && guide.cities.length > 0) {
+            return guide.cities.join(' · ');
+        }
+        if (guide.provinces && guide.provinces.length > 0) {
+            return guide.provinces.join(' · ');
+        }
+        if (guide.countries && guide.countries.length > 0) {
+            return guide.countries.join(' · ');
+        }
+        return '';
+    };
+
+    const destinationText = getDestinationText();
 
     if (loading) {
         return (
@@ -97,44 +114,54 @@ export default function TripDetail() {
                 <View className='relative -mt-10 mx-4 bg-white/95 backdrop-blur rounded-3xl p-5 shadow-sm border border-stone-100/50'>
                     <View className='flex flex-row items-start flex-wrap gap-2 mb-2'>
                         <Text className='text-[34px] font-extrabold text-stone-900 leading-snug'>{guide.title || '未命名故事'}</Text>
-                        {guide.isOriginal === 1 && (
-                            <Text className='bg-orange-50 text-[#F97316] text-[18px] px-2 py-0.5 rounded-full font-bold border border-orange-100'>
-                                精选原创
-                            </Text>
-                        )}
+
+                        {/* 替换 isOriginal 逻辑，展示 境内/境外 标签 */}
+                        <Text className={`text-[18px] px-2 py-0.5 rounded-full font-bold border ${guide.isOverseas === 1
+                                ? 'bg-blue-50 text-blue-500 border-blue-100'
+                                : 'bg-orange-50 text-[#F97316] border-orange-100'
+                            }`}>
+                            {guide.isOverseas === 1 ? '境外探秘' : '国内畅游'}
+                        </Text>
                     </View>
 
-                    {guide.destination && (
+                    {destinationText && (
                         <View className='flex flex-row items-center text-stone-500 text-[24px] mb-4 font-medium'>
                             <Text className='mr-1 text-[26px] text-[#F97316]'>📍</Text>
-                            <Text>{guide.destination}</Text>
+                            <Text>{destinationText}</Text>
                         </View>
                     )}
 
-                    {/* ✨ Bento Box 块级便当盒网格设计 */}
+                    {/* ✨ Bento Box 块级便当盒网格设计 - 已根据后端可用字段重构 */}
                     <View className='grid grid-cols-2 gap-3 py-1 text-left'>
                         <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                            <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>🍂 探索最佳时节</Text>
-                            <Text className='text-stone-800 font-bold text-[25px]'>{guide.bestSeason || '随心出发'}</Text>
+                            <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>🗺️ 途经城市数</Text>
+                            <Text className='text-stone-800 font-bold text-[25px]'>
+                                {guide.cities?.length || 0} 个城市
+                            </Text>
                         </View>
-                        {guide.recommendedDays && (
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⏱️ 建议行程天数</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>{guide.recommendedDays} 天深度游</Text>
-                            </View>
-                        )}
-                        {guide?.difficulty && (
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⛰️ 地形户外难度</Text>
-                                <Text className='text-[#F97316] font-bold text-[25px]'>{guide.difficulty}</Text>
-                            </View>
-                        )}
-                        {guide.crowdType && (
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>👥 最佳出行旅伴</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>{guide.crowdType}</Text>
-                            </View>
-                        )}
+
+                        <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
+                            <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⏱️ 规划天数</Text>
+                            <Text className='text-stone-800 font-bold text-[25px]'>
+                                {days.length} 天深度游
+                            </Text>
+                        </View>
+
+                        <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
+                            <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>👥 出行伴侣</Text>
+                            <Text className='text-[#F97316] font-bold text-[25px]'>
+                                {guide.members && guide.members.length > 0
+                                    ? `${guide.members.length} 人同行`
+                                    : '独自探索'}
+                            </Text>
+                        </View>
+
+                        <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
+                            <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>📈 浏览热度</Text>
+                            <Text className='text-stone-800 font-bold text-[25px]'>
+                                {guide.viewCount || 0} 次围观
+                            </Text>
+                        </View>
                     </View>
 
                     {guide.summary && (
@@ -145,12 +172,12 @@ export default function TripDetail() {
                         </View>
                     )}
 
-                    {/* 预算范围 */}
+                    {/* 预算范围 - 更改为后端单字段 totalBudget */}
                     <View className='flex flex-row items-center justify-between text-[24px] mt-4 pt-3 border-t border-stone-50'>
-                        <Text className='text-[26px] text-stone-700 font-bold'>预估开销</Text>
+                        <Text className='text-[26px] text-stone-700 font-bold'>预估总开销</Text>
                         <View className='bg-[#F97316] text-white font-bold px-4 py-1 rounded-full text-[24px] shadow-sm shadow-orange-500/20'>
-                            {guide.budgetMin !== null && guide.budgetMax !== null
-                                ? `¥${guide.budgetMin} ~ ¥${guide.budgetMax} / 人`
+                            {guide.totalBudget !== undefined && guide.totalBudget !== null && guide.totalBudget > 0
+                                ? `¥${guide.totalBudget} / 人`
                                 : '随心穷游'}
                         </View>
                     </View>
@@ -338,8 +365,8 @@ export default function TripDetail() {
                     mutate((prev: any) => {
                         const next = !prev?.isLiked;
                         prev.likeCount = next ? prev.likeCount + 1 : prev.likeCount - 1;
-                        prev.isLiked = next
-                        return prev
+                        prev.isLiked = next;
+                        return { ...prev }; // 浅拷贝触发 React 状态更新
                     });
                 }}
                 onCollectToggle={() => {
@@ -347,16 +374,16 @@ export default function TripDetail() {
                         const next = !prev?.isFavorited;
                         prev.isFavorited = next;
                         prev.favoriteCount = next ? prev.favoriteCount + 1 : prev.favoriteCount - 1;
-                        return prev;
+                        return { ...prev };
                     });
                 }}
                 onCommentIconClick={handleScrollToComments}
                 guideId={id || ''}
                 onCommentSuccess={() => {
-                    setCommentRefreshKey(v => v + 1)
+                    setCommentRefreshKey(v => v + 1);
                     mutate((prev: any) => {
-                        prev.commentCount += 1
-                        return prev
+                        prev.commentCount += 1;
+                        return { ...prev };
                     });
                 }}
             />
