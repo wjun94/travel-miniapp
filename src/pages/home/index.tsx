@@ -10,7 +10,13 @@ import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 import { useUpdate } from 'ahooks'
 
 // 1. 将静态数组移到组件外部，避免不必要的 renderHeader 依赖重绘
-const TABS = ['推荐', '热门', '最新', '国内', '国外', '小众']
+const TABS = [
+  { label: '推荐', value: 'recommend' },
+  { label: '热门', value: 'hot' },
+  { label: '最新', value: 'latest' },
+  { label: '国内', value: 'domestic' },
+  { label: '国外', value: 'overseas' },
+]
 
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0)
@@ -98,7 +104,7 @@ export default function HomePage() {
                 className="inline-flex flex-col items-center mr-6 last:mr-4 relative py-1"
               >
                 <Text className={`text-sm tracking-wide transition-all ${isActive ? 'font-bold text-gray-900 scale-110' : 'text-gray-400'}`}>
-                  {tab}
+                  {tab.label}
                 </Text>
                 {isActive && (
                   <View className="absolute w-4 h-[3px] bg-[#e97442] rounded-full bottom-0" />
@@ -107,9 +113,6 @@ export default function HomePage() {
             )
           })}
         </ScrollView>
-        <View className="pl-3 border-l border-gray-200 flex items-center justify-center bg-[#FCFBF7]">
-          <Text className="text-lg text-gray-400 font-bold leading-none">⊞</Text>
-        </View>
       </View>
     </>
   ), [headerHeight, currentTab])
@@ -191,6 +194,7 @@ export default function HomePage() {
     <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">
       <ScrollLoadList
         request={getGuides}
+        params={{ category: TABS[currentTab].value }}
         renderItem={renderCard}
         renderHeader={renderHeader}
         numColumns={2}

@@ -66,12 +66,13 @@ export interface Guide {
  * 获取攻略列表（ScrollLoadList 分页）
  * @param page 页码
  * @param pageSize 每页条数
+ * @param extra 额外筛选参数（如 category）
  */
-export const getGuides = (page: number, pageSize: number) =>
+export const getGuides = (page: number, pageSize: number, extra?: Record<string, any>) =>
   request<{ list: Guide[]; total: number }>({
     url: '/guide/feed',
     method: 'GET',
-    data: { page, pageSize },
+    data: { page, pageSize, ...extra },
   });
 
 /**

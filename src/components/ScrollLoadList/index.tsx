@@ -11,6 +11,7 @@ export interface RequestResult<T> {
 export interface ScrollLoadListProps<T = any> {
   request: (page: number, pageSize: number) => Promise<RequestResult<T>> | any
   renderItem: (item: T | any, index: number) => React.ReactNode
+  params?: any
   pageSize?: number
   initialPage?: number
   immediate?: boolean
@@ -46,6 +47,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   const {
     request,
     renderItem,
+    params = {},
     pageSize = 10,
     initialPage = 1,
     immediate = true,
@@ -91,7 +93,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     setError(false)
 
     try {
-      const res = await request(currentPage, pageSize)
+      const res = await request(currentPage, pageSize, params)
       if (!isMounted.current) return
 
       const { list, total } = res
@@ -118,7 +120,12 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
         setInitialLoading(false)
       }
     }
-  }, [request, pageSize, loadingMore])
+  }, [request, pageSize, loadingMore, params])
+
+  // params 变化时自动刷新列表
+  useEffect(() => {
+    refresh()
+  }, [JSON.stringify(params)])
 
   // 对外暴露的刷新方法
   const refresh = useCallback(() => {
