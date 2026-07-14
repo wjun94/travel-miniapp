@@ -38,6 +38,50 @@ export interface DestinationItem {
     "type": string
 }
 
+// 新增：每日天气详情数据项类型
+export interface DailyWeatherItem {
+    /** 云量（%） */
+    cloud: string;
+    /** 预报日期（yyyy-MM-dd） */
+    fxDate: string;
+    /** 相对湿度（%） */
+    humidity: string;
+    /** 白天天气图标代码 */
+    iconDay: string;
+    /** 夜间天气图标代码 */
+    iconNight: string;
+    /** 降水量（mm） */
+    precip: string;
+    /** 日出时间 */
+    sunrise: string;
+    /** 日落时间 */
+    sunset: string;
+    /** 最高温度 */
+    tempMax: string;
+    /** 最低温度 */
+    tempMin: string;
+    /** 白天天气描述 */
+    textDay: string;
+    /** 夜间天气描述 */
+    textNight: string;
+    /** 紫外线指数 */
+    uvIndex: string;
+    /** 能见度（km） */
+    vis: string;
+    /** 白天风向 */
+    windDirDay: string;
+    /** 白天风力等级 */
+    windScaleDay: string;
+}
+
+// 新增：天气数据主体类型
+export interface QweatherData {
+    code: string;
+    daily: DailyWeatherItem[];
+    fxLink: string;
+    updateTime: string;
+}
+
 // --- API 接口 ---
 
 /**
@@ -88,7 +132,7 @@ export const searchDestinations = (params: { keyword: string }) =>
  * @returns 获取城市天气
  */
 export const getQweather = (params: { city: string }) =>
-    request<any>({
+    request<QweatherData>({
         url: '/weather/qweather',
         method: 'GET',
         data: params

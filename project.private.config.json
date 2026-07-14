@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/trip/itinerary/index",
+          "pathName": "pages/trip/itinerary/index",
+          "query": "flexDays=1",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "选择日期",
           "pathName": "pages/trip/date/index",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "想去哪儿",

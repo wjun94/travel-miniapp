@@ -3,6 +3,7 @@ import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/component
 import Taro, { useDidHide } from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
+import WeatherWidget from '@/features/weather';
 import TransportForm from '@/features/guide/TransportForm';
 import AttractionForm from '@/features/guide/AttractionForm';
 import FoodForm from '@/features/guide/FoodForm';
@@ -325,11 +326,17 @@ export default function ItineraryPage() {
   return (
     <View className='w-full h-screen bg-gray-50 text-gray-800 flex flex-col overflow-hidden relative text-[28px] box-border'>
       {/* 顶部固定栏 */}
-      <View className='bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border'>
-        <View className='px-4 py-3 flex justify-between items-center box-border'>
+      <View className='border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border'>
+        <View className='px-4 py-3 flex justify-between items-center box-border bg-white'>
           <Text className='font-bold text-gray-900 text-[28px]'>每日行程编辑</Text>
           <Button onClick={handleAddDay} className='m-0 px-3 py-1 bg-green-500 text-white font-medium rounded-full text-[24px]'>+ 再加一天</Button>
         </View>
+      </View>
+
+      {/* 主体滚动卡片区域 */}
+      <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll}>
+        <WeatherWidget />
+
         <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
           {dayPlans.map((day) => (
             <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>
@@ -337,11 +344,9 @@ export default function ItineraryPage() {
             </View>
           ))}
         </ScrollView>
-      </View>
 
-      {/* 主体滚动卡片区域 */}
-      <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll}>
         <View className='pb-12 box-border'>
+
           {dayPlans.map((day, dIdx) => (
             <View key={day.dayIndex} id={`day-node-${day.dayIndex}`} className='day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0 box-border'>
 

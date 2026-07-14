@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { NavBar, Modal } from '@/components'
 import Taro from '@tarojs/taro'
-import { getQweather, getDomesticRegions, getCountries } from '@/api/common'
-import { useRequest } from 'ahooks'
 
 export default function PublishPage() {
   const [draftModalVisible, setDraftModalVisible] = useState(false);
@@ -98,15 +96,6 @@ export default function PublishPage() {
     },
   ]
 
-  const weatherList = [
-    { day: '今天', date: '5/24', icon: '☀️', temp: '22°', minTemp: '8°' },
-    { day: '明天', date: '5/25', icon: '🌧️', temp: '23°', minTemp: '9°' },
-    { day: '周一', date: '5/26', icon: '⛅', temp: '24°', minTemp: '19°' },
-    { day: '周二', date: '5/27', icon: '🌧️', temp: '20°', minTemp: '9°' },
-    { day: '周三', date: '5/28', icon: '🌧️', temp: '19°', minTemp: '8°' },
-    { day: '周四', date: '5/29', icon: '🌧️', temp: '21°', minTemp: '8°' },
-    { day: '周五', date: '5/30', icon: '🌧️', temp: '22°', minTemp: '8°' },
-  ]
 
   const destinationList = [
     { name: '大理', image: 'https://images.unsplash.com/photo-1590076215667-875d4efdb625?w=300&q=80' },
@@ -114,12 +103,6 @@ export default function PublishPage() {
     { name: '三亚', image: 'https://images.unsplash.com/photo-1540202404-b711e458319c?w=300&q=80' },
     { name: '西藏', image: 'https://images.unsplash.com/photo-1525049386811-933e144a169b?w=300&q=80' },
   ]
-
-  const { data } = useRequest(getQweather, {
-    defaultParams: [{ city: '丽江' }]
-  })
-
-  console.log(data)
 
   return (
     <View className="min-h-screen px-4 font-sans">
@@ -147,30 +130,6 @@ export default function PublishPage() {
             </View>
           </View>
         ))}
-      </View>
-
-      {/* 天气预报模块 */}
-      <View className="bg-[#fef1e3] rounded-2xl py-4 px-1px shadow-sm mb-6">
-        <View className="flex justify-between items-center mb-4 px-4">
-          <Text className="text-base font-bold text-gray-800">丽江 · 未来7天天气</Text>
-          <Text className="text-xs text-gray-400">更多 {'>'}</Text>
-        </View>
-
-        <View className="w-full flex flex-row justify-between items-center">
-          {weatherList.map((item, index) => (
-            <View
-              key={index}
-              className={`flex flex-col items-center justify-center flex-1 py-2 rounded-xl ${index === 0 ? 'bg-white shadow-sm' : ''
-                }`}
-            >
-              <Text className="text-xs text-gray-500 mb-1">{item.day}</Text>
-              <Text className="text-[24px] text-gray-400 mb-2">{item.date}</Text>
-              <Text className="text-2xl my-1.5">{item.icon}</Text>
-              <Text className="text-sm font-bold text-gray-800">{item.temp}</Text>
-              <Text className="text-[24px] text-gray-400 mt-1">{item.minTemp}</Text>
-            </View>
-          ))}
-        </View>
       </View>
 
       {/* 热门目的地模块 */}

@@ -119,6 +119,8 @@ export default function HomePage() {
     const localLike = likeStateMap.current[item.id]
     const isLiked = localLike?.isLiked ?? item.isLiked
     const likeCount = localLike?.likeCount ?? item.likeCount
+    // 判断当前项是否为行程类型
+    const isTrip = item.itemType === 'trip'
     return (
       <View
         className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
@@ -132,6 +134,19 @@ export default function HomePage() {
       >
         <View className="w-full h-44 relative bg-gray-50">
           <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
+
+          {/* 绝对定位的毛玻璃微标签 */}
+          <View className="absolute top-2 left-2 z-10 flex flex-row items-center">
+            {isTrip ? (
+              <View className="bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm">
+                <Text className="text-[18rpx] text-white font-bold">🗺️ 行程路线</Text>
+              </View>
+            ) : (
+              <View className="bg-sky-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm">
+                <Text className="text-22px text-white font-bold">📖 实用攻略</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         <View className="p-2.5 flex flex-col">
