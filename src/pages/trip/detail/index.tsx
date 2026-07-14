@@ -137,7 +137,7 @@ export default function TripDetail() {
                     scrollY
                     scrollWithAnimation
                     scrollIntoView={scrollTargetId}
-                    className='w-full flex-1 pb-[140px] box-border'
+                    className='w-full flex-1 box-border'
                 >
                     {/* 顶部沉浸式大图封面 */}
                     <View className='relative w-full h-[520px] bg-stone-200'>
