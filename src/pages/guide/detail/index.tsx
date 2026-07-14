@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { Image } from '@/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { getTravelGuideDetail, TravelGuide } from '@/api/guide';
+import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
 import { useRequest } from 'ahooks';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
@@ -23,20 +23,20 @@ export default function TravelGuideDetail() {
             refreshDeps: [id],
             onSuccess: (data) => {
                 setCurrentDayIdx(0);
-                if (data?.guide) {
+                if (data?.title) {
                     createHistoryRecord({
                         targetId: id || '',
                         targetType: 'guide',
-                        title: data.guide.title || '',
-                        coverImage: data.guide.coverImage || '',
+                        title: data.title || '',
+                        coverImage: data.coverImage || '',
                     }).catch(() => { });
                 }
             }
         }
     );
 
-    const guide = guideData?.guide || {} as TravelGuide;
-    const days = guideData?.days || [];
+    const guide = guideData || {} as TravelGuideDetailData;
+    const days = guide?.days || [];
 
     // 处理工具方法
     const getImgArray = (images) => {
@@ -70,7 +70,7 @@ export default function TravelGuideDetail() {
         );
     }
 
-    if (error || !guideData) {
+    if (error || !guide) {
         return (
             <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
                 <Text className='text-[40px]'>⚠️</Text>
@@ -329,11 +329,11 @@ export default function TravelGuideDetail() {
 
             {/* 🎨 挂载解耦出来的底部悬浮多功能工具组件 */}
             <BottomActionBar
-                isLiked={guideData?.isLiked!}
-                isCollected={guideData?.isFavorited!}
-                likeCount={guideData?.likeCount ?? 0}
-                favoriteCount={guideData.favoriteCount ?? 0}
-                commentCount={guideData?.commentCount ?? 0}
+                isLiked={guide?.isLiked!}
+                isCollected={guide?.isFavorited!}
+                likeCount={guide?.likeCount ?? 0}
+                favoriteCount={guide?.favoriteCount ?? 0}
+                commentCount={guide?.commentCount ?? 0}
                 onLikeToggle={() => {
                     mutate((prev: any) => {
                         const next = !prev?.isLiked;

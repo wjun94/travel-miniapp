@@ -31,8 +31,8 @@ export interface TripDay {
   createdAt: string;
 }
 
-// 攻略主体信息
-export interface TravelGuide {
+// 攻略详情接口返回data结构
+export interface TravelGuideDetailData {
   id: string;
   userId: string;
   bestSeason: string;
@@ -43,7 +43,6 @@ export interface TravelGuide {
   destination: string;
   difficulty: string;
   isOriginal: number;
-  likeCount: number;
   recommendedDays: number;
   status: number;
   summary: string;
@@ -52,17 +51,12 @@ export interface TravelGuide {
   viewCount: number;
   createdAt: string;
   updatedAt: string;
-}
-
-// 攻略详情接口返回data结构
-export interface TravelGuideDetailData {
-  days: TripDay[];
-  guide: TravelGuide;
   isLiked?: boolean;
   isFavorited?: boolean;
   favoriteCount?: number;
   commentCount?: number;
-  likeCount?: number
+  likeCount?: number;
+  days: TripDay[];
 }
 
 // 后端统一返回格式
