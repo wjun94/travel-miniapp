@@ -41,7 +41,7 @@ export default function MyGuideListPage() {
     }, [])
 
     return (
-        <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">
+        <View className="min-h-screen bg-[#FCFBF7] font-sans box-border py-20px">
             <ScrollLoadList
                 request={getMyTrips}
                 renderItem={renderCard}
