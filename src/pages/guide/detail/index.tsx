@@ -102,19 +102,10 @@ export default function TravelGuideDetail() {
         );
     }
 
-    if (error || !guide) {
-        return (
-            <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
-                <Text className='text-[40px]'>⚠️</Text>
-                <Text>行程数据加载失败或不存在</Text>
-            </View>
-        );
-    }
-
     return (
         <>
             <NavBar showBack backgroundColor='white'>
-                <View className='flex flex-row items-center flex-1'>
+                {guide?.userId ? <View className='flex flex-row items-center flex-1'>
                     <Image isAvatar src={guide.authorAvatar} className='w-[48px] h-[48px] text-[20px] rounded-full border-2 border-white/80' />
                     <Text className='ml-2 text-[24px] font-bold drop-shadow-md'>{guide.authorName || ''}</Text>
                     {!guide.isSelf && (
@@ -125,9 +116,12 @@ export default function TravelGuideDetail() {
                             <Text className={`${guide.isFollowed ? 'border-white/60 text-white/80' : 'border-white text-white bg-white/20'}`}>{guide.isFollowed ? '已关注' : '关注'}</Text>
                         </View>
                     )}
-                </View>
+                </View> : null}
             </NavBar>
-            <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
+            {error || !guide ? <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
+                <Text className='text-[40px]'>⚠️</Text>
+                <Text>行程数据加载失败或不存在</Text>
+            </View> : <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
                 {/* 顶部导航栏 */}
 
                 <ScrollView
@@ -413,7 +407,7 @@ export default function TravelGuideDetail() {
                     replyTo={replyTo}
                     onClearReply={() => setReplyTo(null)}
                 />
-            </View>
+            </View>}
         </>
     );
 }
