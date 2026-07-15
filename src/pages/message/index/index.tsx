@@ -21,7 +21,7 @@ export default function MessagePage() {
   ], [unreadData])
 
   const handleClickItem = (item: Conversation) => {
-    Taro.navigateTo({ url: `/pages/chat/index?userId=${item.otherUserId}` })
+    Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.otherUserId}` })
   }
 
   return (
@@ -31,7 +31,7 @@ export default function MessagePage() {
       {/* 1. 顶部圆圈功能区 */}
       <View className='grid grid-cols-4 gap-2 text-center mt-2 mb-8'>
         {categories.map((item) => (
-          <View key={item.id} className='flex flex-col items-center'>
+          <View key={item.id} onClick={() => Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })} className='flex flex-col items-center'>
             <View className={`w-14 h-14 rounded-full ${item.bgColor} flex items-center justify-center relative mb-2 shadow-sm`}>
               <Text className='text-xl'>{item.icon}</Text>
               {item.badge > 0 && (

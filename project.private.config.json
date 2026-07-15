@@ -22,7 +22,7 @@
       "list": [
         {
           "name": "消息中心",
-          "pathName": "pages/message/index",
+          "pathName": "pages/message/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"

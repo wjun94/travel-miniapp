@@ -1,4 +1,4 @@
-import request from './request';
+import request, { PageResult } from './request';
 
 /**
  * 消息
@@ -24,6 +24,35 @@ export interface Conversation {
   otherUserId: string;    // 对方用户ID (注意：文档中为string类型)
   unreadCount: number;    // 未读消息数
 }
+
+// 新增：通知单条项类型
+export interface NotificationItem {
+  content: string;
+  createdAt: string;
+  id: string;
+  isRead: number;
+  relatedId: string;
+  type: number;
+  userId: string;
+}
+
+/**
+ * 获取通知列表
+ * @param type 通知类型：0全部 1搭子申请 2点赞 3新增关注 4系统通知
+ * @param page 页码
+ * @param pageSize 每页条数
+ * @returns 分页通知列表
+ */
+export const getNotificationList = (params: {
+  type?: number;
+  page: number;
+  pageSize: number;
+}) =>
+  request<PageResult<NotificationItem>>({
+    url: '/notification/list',
+    method: 'GET',
+    data: params,
+  });
 
 /**
  * 获取与某用户的聊天记录
