@@ -21,11 +21,25 @@
     "miniprogram": {
       "list": [
         {
+          "name": "编辑资料",
+          "pathName": "pages/profile/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "我的",
+          "pathName": "pages/home/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "攻略",
           "pathName": "pages/guide/detail/index",
           "query": "id=2077206463469588480",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/guide/detail/index",

@@ -89,7 +89,10 @@ export default function ProfilePage() {
           </View>
 
           {/* 编辑资料按钮 - 右侧居中 */}
-          <View className="bg-[#ecf3fd] px-3 py-1.5 rounded-full active:opacity-70 flex-shrink-0">
+          <View
+            className="bg-[#ecf3fd] px-3 py-1.5 rounded-full active:opacity-70 flex-shrink-0"
+            onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
+          >
             <Text className="text-[#3688C7] text-[22px] font-medium">编辑资料</Text>
           </View>
         </View>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Input, ScrollView } from '@tarojs/components';
+import { View, Text, Input, Picker, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import {
     createChecklist,
@@ -9,6 +9,7 @@ import {
     updateChecklist,
     getChecklistDetail
 } from '@/api/checklist';
+import { getMyTrips } from '@/api/trip';
 
 export default function ChecklistFormPage() {
     const router = useRouter();
@@ -19,6 +20,10 @@ export default function ChecklistFormPage() {
     const [name, setName] = useState('');
     const [tripId, setTripId] = useState('');
     const [items, setItems] = useState<ChecklistItem[]>([]);
+
+    // 关联行程选择
+    const [tripList, setTripList] = useState<any[]>([]);
+    const [selectedTripIdx, setSelectedTripIdx] = useState(-1);
 
     // 输入框受控状态
     const [customItemText, setCustomItemText] = useState('');
@@ -38,6 +43,12 @@ export default function ChecklistFormPage() {
             }
         });
 
+        // 3. 获取我的行程列表
+        getMyTrips(1, 100).then((res: any) => {
+            const list = res?.list || [];
+            setTripList(list);
+        });
+
         // 2. 如果是编辑模式，通过详情接口回显数据
         if (isEdit) {
             Taro.setNavigationBarTitle({ title: '修改备忘清单' });
@@ -47,6 +58,17 @@ export default function ChecklistFormPage() {
                     setName(detail.name);
                     setTripId(detail.tripId || '');
                     setItems(detail.items || []);
+                    // 编辑模式回显时同步选中索引
+                    if (detail.tripId) {
+                        // 等 tripList 加载完成后匹配，或直接尝试匹配
+                        setTimeout(() => {
+                            setTripList(prev => {
+                                const idx = prev.findIndex((t: any) => t.id === detail.tripId);
+                                if (idx >= 0) setSelectedTripIdx(idx);
+                                return prev;
+                            });
+                        }, 300);
+                    }
                 }
             });
         } else {
@@ -135,14 +157,34 @@ export default function ChecklistFormPage() {
                     />
                 </View>
                 <View>
-                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">关联行程 ID (选填)</Text>
-                    <Input
-                        type="text"
-                        placeholder="绑定对应的旅行行程"
-                        value={tripId}
-                        onInput={(e) => setTripId(e.detail.value)}
-                        className="w-full h-11 bg-stone-50 rounded-2xl px-4 placeholder-stone-300 border-none box-border text-[28px]"
-                    />
+                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">关联行程(选填)</Text>
+                    {tripList.length > 0 ? (
+                        <View className='relative'>
+                            <Picker
+                                mode='selector'
+                                range={tripList}
+                                rangeKey='title'
+                                value={selectedTripIdx >= 0 ? selectedTripIdx : 0}
+                                onChange={(e) => {
+                                    const idx = Number(e.detail.value);
+                                    setSelectedTripIdx(idx);
+                                    setTripId(tripList[idx]?.id || '');
+                                }}
+                                className='w-full'
+                            >
+                                <View className='w-full h-11 bg-stone-50 rounded-2xl px-4 flex flex-row items-center justify-between border-none box-border'>
+                                    <Text className={`text-[26px] ${selectedTripIdx >= 0 ? 'text-stone-700' : 'text-stone-300'}`}>
+                                        {selectedTripIdx >= 0 ? tripList[selectedTripIdx]?.title : '请选择关联的旅行行程'}
+                                    </Text>
+                                    <Text className='iconfont icon-arrow-down text-[24px] text-stone-300' />
+                                </View>
+                            </Picker>
+                        </View>
+                    ) : (
+                        <View className='w-full h-11 bg-stone-50 rounded-2xl px-4 flex flex-row items-center border-none box-border'>
+                            <Text className='text-[26px] text-stone-300'>暂无行程数据</Text>
+                        </View>
+                    )}
                 </View>
             </View>
 
