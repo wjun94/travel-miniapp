@@ -127,7 +127,7 @@ export default function TravelGuideDetail() {
                     )}
                 </View>
             </NavBar>
-            <View className='w-full min-h-screen bg-stone-50 flex flex-col'>
+            <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
                 {/* 顶部导航栏 */}
 
                 <ScrollView

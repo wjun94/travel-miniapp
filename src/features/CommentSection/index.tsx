@@ -68,10 +68,10 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
     };
 
     return (
-        <View className='mt-4 bg-white mx-4 rounded-3xl p-5 shadow-sm pb-[calc(160px+env(safe-area-inset-bottom))]'>
+        <View className='mt-4 bg-white mx-4 rounded-3xl p-5 shadow-sm'>
             {/* 头部标题 */}
             <View className='flex flex-row items-baseline justify-between mb-6 pb-2 border-b border-stone-50'>
-                <Text className='text-[34px] font-black text-stone-800 tracking-wider'>驴友热议</Text>
+                <Text className='text-[34px] font-black text-stone-700 tracking-wider'>驴友热议</Text>
                 <Text className='text-[22px] text-stone-400 font-semibold tracking-wide'>
                     共 {data?.commentCount || 0} 条互动
                 </Text>
@@ -100,7 +100,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                 {/* 顶部昵称与点赞 */}
                                 <View className='flex flex-row items-center justify-between'>
                                     <View className='flex flex-row items-center space-x-2 min-w-0'>
-                                        <Text className='font-bold text-stone-800 text-[26px] truncate max-w-[280px] tracking-wide'>
+                                        <Text className='font-bold text-stone-700 text-[26px] truncate max-w-[280px] tracking-wide'>
                                             {item.nickname || '匿名驴友'}
                                         </Text>
                                         {item.isAuthor && (
@@ -131,7 +131,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                 )}
 
                                 {/* 评论正文 - 优化行高与字间距 */}
-                                <Text className='text-[26px] text-stone-600 leading-relaxed mt-1 break-all pr-2 tracking-wide font-normal'>
+                                <Text className='text-[26px] text-black leading-relaxed mt-1 break-all pr-2 tracking-wide font-normal'>
                                     {item.content}
                                 </Text>
 
@@ -194,7 +194,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                                             </View>
                                                         )}
                                                     </View>
-                                                    <Text className='text-[24px] text-stone-600 leading-relaxed mt-1 break-all tracking-wide'>
+                                                    <Text className='text-[24px] text-black leading-relaxed mt-1 break-all tracking-wide'>
                                                         {reply.content}
                                                     </Text>
 

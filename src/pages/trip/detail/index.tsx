@@ -145,7 +145,7 @@ export default function TripDetail() {
                     )}
                 </View>
             </NavBar>
-            <View className='w-full min-h-screen bg-stone-50 flex flex-col'>
+            <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
                 <ScrollView
                     scrollY
                     scrollWithAnimation
