@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { ScrollLoadList, Image } from '@/components'
@@ -6,45 +6,67 @@ import { getMyFollowers, removeFollower } from '@/api/follow'
 import type { UserFollowInfo } from '@/api/follow'
 
 export default function FansPage() {
-    const handleRemoveFollower = async (userId: string, e: any) => {
+    const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
+
+    const handleClickItem = (userId: string) => {
+        Taro.navigateTo({ url: `/pages/user/index?id=${userId}` })
+    }
+
+    const handleRemove = async (userId: string, e: any) => {
         e.stopPropagation()
         try {
             await removeFollower(userId)
             Taro.showToast({ title: '已移除', icon: 'success' })
+            setRemovedIds(prev => new Set(prev).add(userId))
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' })
         }
     }
 
     const renderItem = useCallback((item: UserFollowInfo) => {
+        const isRemoved = removedIds.has(item.userId)
         return (
-            <View className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-50">
-                <View className="flex items-center flex-1 min-w-0">
-                    <Image isAvatar src={item.avatarUrl} className="w-20 h-20 rounded-full text-12px flex-shrink-0" />
-                    <View className="ml-3 flex-1 min-w-0">
-                        <Text className="text-[28px] font-medium text-gray-800 truncate block">{item.nickname}</Text>
-                        {item.isMutual && (
-                            <Text className="text-[22px] text-gray-400">互相关注</Text>
-                        )}
+            <View
+                className='flex items-center justify-between px-4 py-4 bg-white border-b border-stone-100 active:bg-stone-50 transition-colors'
+                onClick={() => handleClickItem(item.userId)}
+            >
+                <View className='flex items-center flex-1 min-w-0 space-x-3'>
+                    <Image isAvatar src={item.avatarUrl} className='w-[76px] h-[76px] rounded-full flex-shrink-0 shadow-sm' />
+                    <View className='flex-1 min-w-0'>
+                        <View className='flex flex-row items-center space-x-2'>
+                            <Text className='text-[28px] font-bold text-stone-800 truncate max-w-[200px]'>{item.nickname}</Text>
+                            {!isRemoved && item.isMutual && (
+                                <View className='bg-orange-50 border border-orange-100 rounded-md px-1.5 py-0.5'>
+                                    <Text className='text-[18px] text-orange-500 font-semibold'>互关</Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
                 </View>
-                <View
-                    className="px-4 py-1.5 border border-gray-300 rounded-full active:opacity-60"
-                    onClick={(e) => handleRemoveFollower(item.userId, e)}
-                >
-                    <Text className="text-[24px] text-gray-500">移除</Text>
-                </View>
+                {!isRemoved && (
+                    <View
+                        className='px-4 py-1.5 border border-stone-300 rounded-full active:scale-95 transition-transform'
+                        onClick={(e) => handleRemove(item.userId, e)}
+                    >
+                        <Text className='text-[24px] text-stone-500 font-medium'>移除</Text>
+                    </View>
+                )}
+                {isRemoved && (
+                    <View className='px-4 py-1.5 bg-stone-50 rounded-full'>
+                        <Text className='text-[24px] text-stone-300 font-medium'>已移除</Text>
+                    </View>
+                )}
             </View>
         )
-    }, [])
+    }, [removedIds])
 
     return (
-        <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">
+        <View className='min-h-screen bg-[#FAFAF9] font-sans box-border'>
             <ScrollLoadList
                 request={(page, pageSize) => getMyFollowers({ page, pageSize })}
                 renderItem={renderItem}
                 pageSize={20}
-                emptyText="暂无粉丝"
+                emptyText='暂无粉丝'
                 scrollViewProps={{
                     className: 'box-border',
                     style: { height: '100vh' }
