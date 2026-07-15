@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro';
 import { getHistoryList, clearAllHistory, deleteHistoryRecord, type HistoryRecord } from '@/api/history';
 import { ScrollLoadList, Modal, Image } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
-import {formatCommentTime } from '@/utils'
+import { formatTime } from '@/utils'
 
 // 目标类型展示映射
 const targetTypeLabel: Record<string, string> = {
@@ -85,7 +85,7 @@ export default function BrowseHistoryPage() {
           </Text>
           <Text className="text-stone-300 text-[24px]">|</Text>
           <Text className="text-stone-400 text-[22px] truncate">
-            {formatCommentTime(item.createdAt)}
+            {formatTime(item.createdAt)}
           </Text>
         </View>
       </View>

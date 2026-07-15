@@ -2,6 +2,7 @@ import { View, Text } from '@tarojs/components';
 import { Image } from '@/components';
 import { useRequest } from 'ahooks';
 import { getComments, type CommentItem } from '@/api/comment';
+import { formatTime } from '@/utils'
 
 interface CommentSectionProps {
     targetId: string;
@@ -46,32 +47,32 @@ export default function CommentSection({ targetId, targetType, refreshKey, onLik
                             {/* 评论主体 */}
                             <View className='flex-1 flex flex-col'>
                                 <View className='flex flex-row items-center justify-between'>
-                                    <Text className='text-[26px] font-bold text-stone-700'>{item.nickname || '匿名驴友'}</Text>
+                                    <Text className='font-bold text-stone-700'>{item.nickname || '匿名驴友'}</Text>
 
                                     {/* 点赞接口互动 */}
                                     <View
                                         onClick={() => onLikeComment?.(item.id)}
                                         className='flex flex-row items-center space-x-1 p-1 active:scale-95 transition-transform'
                                     >
-                                        <Text className='iconfont icon-follow text-[24px] text-stone-400' />
-                                        <Text className='text-[20px] text-stone-400'>{item.likeCount || 0}</Text>
+                                        <Text className='iconfont icon-follow text-[26px] text-stone-400' />
+                                        <Text className='text-[24px] text-stone-400'>{item.likeCount || 0}</Text>
                                     </View>
                                 </View>
 
                                 {/* 区分回复与普通评论 */}
                                 {item.parentId && (
-                                    <Text className='text-[20px] text-[#F97316] bg-orange-50 px-1.5 py-0.5 rounded w-fit my-1 font-medium'>
+                                    <Text className='text-[24px] text-[#F97316] bg-orange-50 px-1.5 py-0.5 rounded w-fit my-1 font-medium'>
                                         回复层
                                     </Text>
                                 )}
 
-                                <Text className='text-[25px] text-stone-600 leading-relaxed mt-1'>{item.content}</Text>
+                                <Text className='text-[26px] text-stone-600 leading-relaxed mt-1'>{item.content}</Text>
 
-                                <View className='flex flex-row items-center space-x-4 mt-2'>
-                                    <Text className='text-[20px] text-stone-400'>{item.createdAt}</Text>
+                                <View className='flex flex-row items-center space-x-2 mt-2'>
+                                    <Text className='text-[24px] text-stone-400'>{formatTime(item.createdAt)}</Text>
                                     <Text
                                         onClick={() => onReplyComment?.(item)}
-                                        className='text-[22px] font-medium text-stone-500 active:text-[#F97316]'
+                                        className='text-[24px] font-medium text-stone-500 active:text-[#F97316]'
                                     >
                                         回复
                                     </Text>

@@ -8,6 +8,7 @@ import { useUpdate } from 'ahooks'
 
 interface BottomActionBarProps {
     isLiked: boolean;
+    targetType: string;
     isCollected: boolean;
     likeCount: number;
     commentCount: number;
@@ -21,6 +22,7 @@ interface BottomActionBarProps {
 
 export default memo(function BottomActionBar({
     isLiked,
+    targetType,
     isCollected,
     likeCount,
     commentCount,
@@ -43,7 +45,7 @@ export default memo(function BottomActionBar({
             await createComment({
                 content: commentText.trim(),
                 targetId: guideId,
-                targetType: 'guide'
+                targetType
             });
             Taro.showToast({ title: '评论成功', icon: 'none' });
             setShowInput(false);

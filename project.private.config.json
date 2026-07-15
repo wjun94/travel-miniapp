@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "攻略",
+          "pathName": "pages/guide/detail/index",
+          "query": "id=2077206463469588480",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "pages/guide/detail/index",
           "pathName": "pages/guide/detail/index",
           "query": "id=2077023138574503936",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/guide/detail/index",

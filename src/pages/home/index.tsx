@@ -48,8 +48,6 @@ export default function HomePage() {
   // 优化 2: 抽取头部渲染，修复异常的 text-[34px] 为响应式字号
   const renderHeader = useCallback(() => (
     <>
-      <NavBar />
-
       {/* 1. 顶部搜索栏 */}
       <View className="flex flex-row items-center justify-between my-3 px-0.5">
         <View className="flex-1 flex flex-row items-center bg-white rounded-full px-4 py-2.5 shadow-sm border border-gray-100">
@@ -191,12 +189,15 @@ export default function HomePage() {
   }, [])
 
   return (
-    <View className="min-h-screen bg-[#FCFBF7] font-sans box-border">
+    <View className="min-h-screen bg-[#FCFBF7] font-sans box-border pb-20px">
+      <NavBar />
+      <View className='px-4'>
+        {renderHeader()}
+      </View>
       <ScrollLoadList
         request={getGuides}
         params={{ category: TABS[currentTab].value }}
         renderItem={renderCard}
-        renderHeader={renderHeader}
         numColumns={2}
         columnGap={12}
         rowGap={12}
@@ -204,8 +205,7 @@ export default function HomePage() {
         pageSize={10}
         emptyText="暂无攻略"
         scrollViewProps={{
-          className: 'px-4 pb-10 box-border',
-          style: { height: '100vh' } // 显式声明高度确保内部滚动顺畅
+          className: 'px-4 box-border',
         }}
       />
     </View>

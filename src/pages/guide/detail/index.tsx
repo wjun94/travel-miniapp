@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { NavBar, Image } from '@/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -14,11 +14,10 @@ export default function TravelGuideDetail() {
     const { id } = router.params || {};
 
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
-    const [scrollTargetId, setScrollTargetId] = useState('');
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
 
     // 1. 获取攻略详情
-    const { data: guideData, mutate, loading, error } = useRequest(
+    const { data: guideData, mutate, loading, error, refresh } = useRequest(
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
@@ -54,13 +53,20 @@ export default function TravelGuideDetail() {
 
     const handleTabClick = (idx: number) => {
         setCurrentDayIdx(idx);
-        setScrollTargetId(`day-node-${idx}`);
+        Taro.pageScrollTo({
+            selector: `#day-node-${idx}`, // 直接穿透定位
+            duration: 300,
+            offsetTop: -100 // 预留出顶部自定义 NavBar 的高度
+        });
     };
 
     // 留言图标点击 — 锚点滚动到评论区
     const handleScrollToComments = () => {
-        setScrollTargetId('');
-        setTimeout(() => setScrollTargetId('comment-section'), 50);
+        Taro.pageScrollTo({
+            selector: '#comment-section', // 直接穿透定位
+            duration: 300,
+            offsetTop: -100 // 预留出顶部自定义 NavBar 的高度
+        });
     };
 
     // 切换关注
@@ -80,6 +86,12 @@ export default function TravelGuideDetail() {
             Taro.showToast({ title: '操作失败', icon: 'none' });
         }
     };
+
+    /** 刷新 */
+    usePullDownRefresh(async () => {
+        refresh();
+        setCommentRefreshKey(v => v + 1)
+    });
 
     if (loading) {
         return (
@@ -114,13 +126,12 @@ export default function TravelGuideDetail() {
                     )}
                 </View>
             </NavBar>
-            <View className='relative w-full h-screen bg-stone-50 flex flex-col'>
+            <View className='w-full min-h-screen bg-stone-50 flex flex-col'>
                 {/* 顶部导航栏 */}
 
                 <ScrollView
                     scrollY
                     scrollWithAnimation
-                    scrollIntoView={scrollTargetId}
                     className='w-full flex-1 box-border'
                 >
                     {/* 顶部沉浸式大图封面 */}
@@ -366,6 +377,7 @@ export default function TravelGuideDetail() {
                 {/* 🎨 挂载解耦出来的底部悬浮多功能工具组件 */}
                 <BottomActionBar
                     isLiked={guide?.isLiked!}
+                    targetType="guide"
                     isCollected={guide?.isFavorited!}
                     likeCount={guide?.likeCount ?? 0}
                     favoriteCount={guide?.favoriteCount ?? 0}

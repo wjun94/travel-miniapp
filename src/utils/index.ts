@@ -23,7 +23,7 @@ export function getImageUrl(url = "") {
  * @param {string | number | Date} originTime 原始时间（时间戳/字符串/Date）
  * @returns {string} 格式化文案
  */
-export function formatCommentTime(originTime) {
+export function formatTime(originTime) {
   if (!originTime) return ''
   const target = dayjs(originTime)
   const now = dayjs()
