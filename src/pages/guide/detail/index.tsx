@@ -15,9 +15,10 @@ export default function TravelGuideDetail() {
 
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
+    const [replyTo, setReplyTo] = useState<{ parentId: string; nickname: string } | null>(null);
 
     // 1. 获取攻略详情
-    const { data: guideData, mutate, loading, error, refresh } = useRequest(
+    const { data: tripData, mutate, loading, error, refresh } = useRequest(
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
@@ -35,7 +36,7 @@ export default function TravelGuideDetail() {
         }
     );
 
-    const guide = guideData || {} as TravelGuideDetailData;
+    const guide = tripData || {} as TravelGuideDetailData;
     const days = guide?.days || [];
 
     // 处理工具方法
@@ -360,7 +361,9 @@ export default function TravelGuideDetail() {
                         <CommentSection
                             targetId={id || ''}
                             targetType="guide"
+                            data={tripData}
                             refreshKey={commentRefreshKey}
+                            onReplyComment={(comment) => setReplyTo({ parentId: comment.id, nickname: comment.nickname })}
                         />
                     </View>
                 </ScrollView>
@@ -368,7 +371,7 @@ export default function TravelGuideDetail() {
                 {/* 切换视图悬浮按钮 */}
                 <View
                     onClick={() => Taro.navigateTo({ url: `../preview/index?id=${id}` })}
-                    className='absolute bottom-[140px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
+                    className='fixed bottom-[200px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
                 >
                     <Text className='iconfont icon-view mb-1 text-32px' />
                     <Text className='text-[20px] font-black'>行程预览</Text>
@@ -407,6 +410,8 @@ export default function TravelGuideDetail() {
                             return prev
                         });
                     }}
+                    replyTo={replyTo}
+                    onClearReply={() => setReplyTo(null)}
                 />
             </View>
         </>

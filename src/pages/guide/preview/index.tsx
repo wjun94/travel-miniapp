@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components';
 import { Image } from '@/components'
 import { useRouter } from '@tarojs/taro';
 import { getTravelGuideDetail } from '@/api/guide';
-import { createHistoryRecord } from '@/api/history'
 import { useRequest } from 'ahooks';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
 
@@ -19,16 +18,8 @@ export default function TravelGuideDetail() {
         () => getTravelGuideDetail(id || ''),
         {
             refreshDeps: [id],
-            onSuccess: (data) => {
+            onSuccess: () => {
                 setCurrentDayIdx(0);
-                if (data?.guide) {
-                    createHistoryRecord({
-                        targetId: id || '',
-                        targetType: 'guide',
-                        title: data.guide.title || '',
-                        coverImage: data.guide.coverImage || '',
-                    }).catch(() => { });
-                }
             }
         }
     );

@@ -8,6 +8,8 @@ export interface CommentItem {
     content: string;
     /** 创建时间 */
     createdAt: string;
+    /** 回复数 */
+    replyCount: number
     /** 评论 ID */
     id: string;
     /** 点赞数 */
@@ -22,6 +24,10 @@ export interface CommentItem {
     targetType: string;
     /** 用户 ID */
     userId: string;
+    /** 被回复人昵称（仅回复列表有效） */
+    replyToNickname: string;
+    /** 是否是作者 */
+    isAuthor: boolean;
 }
 
 // 1. 获取评论列表参数
