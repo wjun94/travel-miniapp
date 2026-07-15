@@ -79,10 +79,10 @@ export default function TravelGuideDetail() {
             } else {
                 await followUser(guide.userId);
             }
-            mutate((prev: any) => {
-                prev.isFollowed = !prev.isFollowed;
-                return { ...prev };
-            });
+            mutate((prev: any) => ({
+                ...prev,
+                isFollowed: !prev?.isFollowed,
+            }));
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' });
         }
@@ -111,9 +111,9 @@ export default function TravelGuideDetail() {
                     {!guide.isSelf && (
                         <View
                             onClick={handleToggleFollow}
-                            className='ml-3 px-2 py-1 bg-[#F97316] rounded-full border text-[20px] font-medium'
+                            className={`ml-3 px-2 py-1 rounded-full border leading-0 font-medium ${guide.isFollowed ? 'bg-gray-400' : 'bg-[#F97316]'}`}
                         >
-                            <Text className={`${guide.isFollowed ? 'border-white/60 text-white/80' : 'border-white text-white bg-white/20'}`}>{guide.isFollowed ? '已关注' : '关注'}</Text>
+                            <Text className="border-white/60 text-white text-[20px]">{guide.isFollowed ? '已关注' : '关注'}</Text>
                         </View>
                     )}
                 </View> : null}
