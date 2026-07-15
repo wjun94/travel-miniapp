@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "编辑资料",
-          "pathName": "pages/profile/index",
+          "name": "消息中心",
+          "pathName": "pages/message/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "编辑资料",
+          "pathName": "pages/profile/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "我的",
