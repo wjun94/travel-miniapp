@@ -17,7 +17,7 @@ export default function MessagePage() {
     { id: 1, title: '搭子申请', icon: 'icon-apply', bgColor: '#EAF5F1', textColor: '#56A88E', badge: unreadData?.partnerApplyCount || 0 },
     { id: 2, title: '评论点赞', icon: 'icon-follow-fill', bgColor: '#FFF0E6', textColor: '#FA8C4F', badge: unreadData?.likeCount || 0 },
     { id: 3, title: '新增关注', icon: 'icon-people', bgColor: '#FFF0E6', textColor: '#FA8C4F', badge: unreadData?.followCount || 0 },
-    { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#EBF2FC', textColor: '#5C94E0', badge: unreadData?.systemNotifyCount || 0 },
+    { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#EBF2FC', textColor: '#5C94E0', badge: unreadData?.commentCount || 0 },
   ], [unreadData])
 
   const handleClickItem = (item: Conversation) => {
@@ -36,7 +36,7 @@ export default function MessagePage() {
               <View style={{ backgroundColor: item.bgColor }} className='w-14 h-14 rounded-full flex items-center justify-center relative mb-2 shadow-sm'>
                 <Text style={{ color: item.textColor }} className={`iconfont ${item.icon} text-52px`} />
                 {item.badge > 0 && (
-                  <View className='absolute -top-1 -right-1 bg-[#FF3B30] text-white text-[14px] font-bold px-1.5 min-w-[18px] h-4 rounded-full flex items-center justify-center border border-white'>
+                  <View className='absolute -top-1 -right-1 bg-[#FF3B30] text-white text-22px font-bold px-12px py-6px rounded-full flex items-center justify-center border border-white'>
                     {item.badge > 99 ? '99+' : item.badge}
                   </View>
                 )}

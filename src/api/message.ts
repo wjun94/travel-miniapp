@@ -27,11 +27,20 @@ export interface Conversation {
 
 // 新增：通知单条项类型
 export interface NotificationItem {
+  commentContent: string;
   content: string;
   createdAt: string;
+  fromUser: {
+    avatarUrl: string;
+    id: string;
+    nickname: string;
+  };
+  fromUserId: string;
   id: string;
   isRead: number;
   relatedId: string;
+  targetId: string
+  targetType: string
   type: number;
   userId: string;
 }
@@ -90,6 +99,7 @@ export const getUnreadNotificationCount = () =>
     likeCount: number;
     partnerApplyCount: number;
     systemNotifyCount: number;
+    commentCount: number
   }>({
     url: '/notification/unread',
     method: 'GET',
