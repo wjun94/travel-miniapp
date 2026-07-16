@@ -5,12 +5,12 @@ import { getNotificationList, markNotificationAsRead, NotificationItem } from '@
 import { NavBar, ScrollLoadList, Image } from '@/components';
 import { formatTime } from '@/utils';
 
-const TYPE_ICONS: Record<number, { icon: string; bg: string }> = {
-    1: { icon: '🤝', bg: 'bg-blue-50' },
-    2: { icon: '👍', bg: 'bg-red-50' },
-    3: { icon: '👤', bg: 'bg-green-50' },
-    4: { icon: '📢', bg: 'bg-orange-50' },
-    5: { icon: '💬', bg: 'bg-purple-50' },
+const TYPE_BG: Record<number, string> = {
+    1: 'bg-blue-50',
+    2: 'bg-red-50',
+    3: 'bg-green-50',
+    4: 'bg-orange-50',
+    5: 'bg-purple-50',
 };
 
 export default function MessageList() {
@@ -53,7 +53,7 @@ export default function MessageList() {
                     getNotificationList({ type: defaultType, page, pageSize })
                 }
                 renderItem={(item) => {
-                    const info = item.type ? TYPE_ICONS[item.type] : TYPE_ICONS[4];
+                    const bg = item.type ? TYPE_BG[item.type] : TYPE_BG[4];
                     return (
                         <View
                             onClick={() => handleItemClick(item)}
@@ -77,9 +77,7 @@ export default function MessageList() {
                                     src={item.fromUser?.avatarUrl}
                                     className='w-[80px] h-[80px] rounded-full ring-2 ring-white shadow-sm'
                                 />
-                                <View className={`absolute -bottom-1 -right-1 w-[32px] h-[32px] rounded-full flex items-center justify-center text-[16px] border-2 border-white shadow-sm ${info.bg}`}>
-                                    <Text>{info.icon}</Text>
-                                </View>
+                                <View className={`absolute -bottom-1 -right-1 w-[10px] h-[10px] rounded-full ring-2 ring-white ${bg}`} />
                             </View>
 
                             {/* 内容区：去除了固定的 h-[80px]，改为自适应高度，配合 space-y 控制间距 */}
