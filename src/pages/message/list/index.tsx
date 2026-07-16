@@ -58,7 +58,7 @@ export default function MessageList() {
                         <View
                             onClick={() => handleItemClick(item)}
                             className={`
-                                relative flex flex-row items-start px-4 py-4 border-b border-gray-100 transition-all duration-150 active:scale-[0.99]
+                                relative flex flex-row items-start px-4 py-4 bb transition-all duration-150 active:scale-[0.99]
                                 ${item.isRead
                                     ? 'bg-white active:bg-gray-50'
                                     : 'bg-orange-50/10 active:bg-orange-50/30'
@@ -103,7 +103,7 @@ export default function MessageList() {
 
                                 {/* 第三行：评论/回复气泡背景 */}
                                 {item.commentContent && (
-                                    <View className='mt-2 bg-gray-50 border border-gray-100 px-3 py-2 rounded-lg max-w-full'>
+                                    <View className='mt-2 bg-gray-50 border border-solid border-gray-100 px-3 py-2 rounded-lg max-w-full'>
                                         <Text className='text-[22px] text-gray-500 line-clamp-2 leading-relaxed'>
                                             {item.commentContent}
                                         </Text>

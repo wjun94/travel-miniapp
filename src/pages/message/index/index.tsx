@@ -53,9 +53,9 @@ export default function MessagePage() {
           <Text className='text-[28px] text-stone-400'>加载中...</Text>
         </View>
       ) : conversationList.length === 0 ? (
-        <View className='py-20 flex flex-col items-center justify-center space-y-2'>
-          <Text className='text-[44px]'>💬</Text>
-          <Text className='text-[24px] text-stone-400'>暂无消息</Text>
+        <View className='py-20 flex flex-col items-center justify-center space-y-2 text-stone-400'>
+          <Text className='iconfont icon-message text-72px' />
+          <Text className='text-[26px]'>暂无消息</Text>
         </View>
       ) : (
         <View className='flex flex-col'>
