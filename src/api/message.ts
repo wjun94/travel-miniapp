@@ -38,7 +38,7 @@ export interface NotificationItem {
 
 /**
  * 获取通知列表
- * @param type 通知类型：0全部 1搭子申请 2点赞 3新增关注 4系统通知
+ * @param type 通知类型：0全部 1搭子申请 2点赞 3新增关注 4系统通知 5评论
  * @param page 页码
  * @param pageSize 每页条数
  * @returns 分页通知列表

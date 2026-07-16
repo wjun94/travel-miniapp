@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { NavBar } from '@/components'
+import { NavBar, Image } from '@/components'
 import { useRequest } from 'ahooks'
 import { getUnreadNotificationCount, getConversationList, type Conversation } from '@/api/message'
 import { formatTime } from '@/utils'
@@ -14,10 +14,10 @@ export default function MessagePage() {
   const { data: conversationList = [], loading } = useRequest(getConversationList)
 
   const categories = useMemo(() => [
-    { id: 1, title: '搭子申请', icon: '👥', bgColor: 'bg-[#EAF5F1]', textColor: 'text-[#56A88E]', badge: unreadData?.partnerApplyCount || 0 },
-    { id: 2, title: '评论点赞', icon: '❤️', bgColor: 'bg-[#FFF0E6]', textColor: 'text-[#FA8C4F]', badge: unreadData?.likeCount || 0 },
-    { id: 3, title: '新增关注', icon: '❤️', bgColor: 'bg-[#FFF0E6]', textColor: 'text-[#FA8C4F]', badge: unreadData?.followCount || 0 },
-    { id: 4, title: '系统通知', icon: '🔔', bgColor: 'bg-[#EBF2FC]', textColor: 'text-[#5C94E0]', badge: unreadData?.systemNotifyCount || 0 },
+    { id: 1, title: '搭子申请', icon: 'icon-apply', bgColor: '#EAF5F1', textColor: '#56A88E', badge: unreadData?.partnerApplyCount || 0 },
+    { id: 2, title: '评论点赞', icon: 'icon-follow-fill', bgColor: '#FFF0E6', textColor: '#FA8C4F', badge: unreadData?.likeCount || 0 },
+    { id: 3, title: '新增关注', icon: 'icon-people', bgColor: '#FFF0E6', textColor: '#FA8C4F', badge: unreadData?.followCount || 0 },
+    { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#EBF2FC', textColor: '#5C94E0', badge: unreadData?.systemNotifyCount || 0 },
   ], [unreadData])
 
   const handleClickItem = (item: Conversation) => {
@@ -28,21 +28,23 @@ export default function MessagePage() {
     <View className='min-h-screen bg-[#FAFAF9] px-4 pb-4 font-sans'>
       <NavBar title='消息中心' />
 
-      {/* 1. 顶部圆圈功能区 */}
-      <View className='grid grid-cols-4 gap-2 text-center mt-2 mb-8'>
-        {categories.map((item) => (
-          <View key={item.id} onClick={() => Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })} className='flex flex-col items-center'>
-            <View className={`w-14 h-14 rounded-full ${item.bgColor} flex items-center justify-center relative mb-2 shadow-sm`}>
-              <Text className='text-xl'>{item.icon}</Text>
-              {item.badge > 0 && (
-                <View className='absolute -top-1 -right-1 bg-[#FF3B30] text-white text-[14px] font-bold px-1.5 min-w-[18px] h-4 rounded-full flex items-center justify-center border border-white'>
-                  {item.badge > 99 ? '99+' : item.badge}
-                </View>
-              )}
+      {/* 1. 顶部功能区 */}
+      <View className='mt-2 mb-6 bg-white rounded-2xl px-3 py-5 shadow-sm'>
+        <View className='grid grid-cols-4 gap-1 text-center'>
+          {categories.map((item) => (
+            <View key={item.id} onClick={() => Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })} className='flex flex-col items-center active:scale-95 transition-transform'>
+              <View style={{ backgroundColor: item.bgColor }} className='w-14 h-14 rounded-full flex items-center justify-center relative mb-2 shadow-sm'>
+                <Text style={{ color: item.textColor }} className={`iconfont ${item.icon} text-52px`} />
+                {item.badge > 0 && (
+                  <View className='absolute -top-1 -right-1 bg-[#FF3B30] text-white text-[14px] font-bold px-1.5 min-w-[18px] h-4 rounded-full flex items-center justify-center border border-white'>
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </View>
+                )}
+              </View>
+              <Text className='text-[26px] font-medium tracking-wide'>{item.title}</Text>
             </View>
-            <Text className='text-[26px] font-medium text-stone-700 tracking-wide'>{item.title}</Text>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
 
       {/* 2. 会话列表区 */}

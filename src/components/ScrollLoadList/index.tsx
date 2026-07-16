@@ -9,7 +9,7 @@ export interface RequestResult<T> {
 }
 
 export interface ScrollLoadListProps<T = any> {
-  request: (page: number, pageSize: number) => Promise<RequestResult<T>> | any
+  request: (page: number, pageSize: number, params?: any) => Promise<RequestResult<T>>
   renderItem: (item: T | any, index: number) => React.ReactNode
   params?: any
   pageSize?: number
