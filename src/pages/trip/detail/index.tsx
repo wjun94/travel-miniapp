@@ -72,7 +72,8 @@ export default function TripDetail() {
     };
 
     // 切换关注
-    const handleToggleFollow = async () => {
+    const handleToggleFollow = async (e) => {
+        e.stopPropagation();
         if (!guide.userId) return;
         try {
             if (guide.isFollowed) {
@@ -123,7 +124,10 @@ export default function TripDetail() {
         <>
             {/* 顶部导航栏 */}
             <NavBar showBack backgroundColor='white'>
-                {guide?.userId ? <View className='flex flex-row items-center flex-1'>
+                {guide?.userId ? <View
+                    className='flex flex-row items-center flex-1'
+                    onClick={() => Taro.navigateTo({ url: `/pages/personal/index?id=${guide.userId}` })}
+                >
                     <Image isAvatar src={guide.authorAvatar} className='w-[48px] h-[48px] text-20px rounded-full border-2 border-white/80' />
                     <Text className='ml-2 text-[24px] font-bold drop-shadow-md'>{guide.authorName || ''}</Text>
                     {!guide.isSelf && (
