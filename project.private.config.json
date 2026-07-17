@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/personal/index",
+          "pathName": "pages/personal/index",
+          "query": "userId=14194304&id2077408732563640320=undefined",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "消息中心",
           "pathName": "pages/message/index/index",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "编辑资料",
