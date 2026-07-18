@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { NavBar, Image, ScrollLoadList } from '@/components';
+import { NavBar, Image, ScrollLoadList, GuideCard } from '@/components';
 import { useRequest } from 'ahooks';
 import { getProfile, getUserFeed, getUserFavorites } from '@/api/personal';
 import { followUser, unfollowUser } from '@/api/follow';
-import { formatTime } from '@/utils';
 
 export default function PersonalPage() {
     const router = useRouter();
@@ -174,50 +173,9 @@ export default function PersonalPage() {
                         scrollViewProps={{
                             className: 'px-2 pt-2 box-border',
                         }}
-                        renderItem={(item) => {
-                            const isJustViewed = justViewedId === item.id;
-                            return (
-                                <View
-                                    onClick={() => {
-                                        const page = item.itemType === 'trip' ? 'trip' : 'guide';
-                                        Taro.navigateTo({ url: `/pages/${page}/detail/index?id=${item.id}` });
-                                    }}
-                                    className="bg-white rounded-lg overflow-hidden mb-3 shadow-sm border border-gray-100 active:opacity-90"
-                                >
-                                    <View className="relative">
-                                        <Image
-                                            src={item.coverImage}
-                                            mode="widthFix"
-                                            className="w-full h-44 min-h-[160px] bg-gray-200"
-                                        />
-                                        {isJustViewed && (
-                                            <View className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                <Text className="text-white text-xs bg-black/40 px-2 py-1 rounded-full">刚刚看过</Text>
-                                            </View>
-                                        )}
-                                        {item.itemType === 'trip' && item.tripDays > 0 && (
-                                            <View className="absolute bottom-2 left-2 bg-black/50 text-white text-[18px] px-2 py-0.5 rounded">
-                                                {item.tripDays}天
-                                            </View>
-                                        )}
-                                    </View>
-                                    <View className="p-2.5">
-                                        <Text className="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight">
-                                            {item.title || item.summary}
-                                        </Text>
-                                        <View className="flex items-center justify-between mt-2">
-                                            <View className="flex items-center space-x-1.5">
-                                                <Text className="text-[22px] text-gray-400 truncate max-w-[70px]">{item.destinations?.[0] || ''}</Text>
-                                            </View>
-                                            <View className="flex items-center space-x-0.5 text-gray-400">
-                                                <Text>🤍</Text>
-                                                <Text className="text-[18px]">{item.likeCount ?? 0}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                            );
-                        }}
+                        renderItem={(item) => (
+                            <GuideCard item={item} justViewedId={justViewedId} />
+                        )}
                     />
                 ) : (
                     <ScrollLoadList
@@ -237,32 +195,7 @@ export default function PersonalPage() {
                             className: 'px-2 pt-2 box-border',
                         }}
                         renderItem={(item) => (
-                            <View
-                                onClick={() => {
-                                    const page = item.targetType === 'trip' ? 'trip' : 'guide';
-                                    Taro.navigateTo({ url: `/pages/${page}/detail/index?id=${item.targetId}` });
-                                }}
-                                className="bg-white rounded-lg overflow-hidden mb-3 shadow-sm border border-gray-100 active:opacity-90"
-                            >
-                                <View className="relative">
-                                    <Image
-                                        src={item.coverImage}
-                                        mode="widthFix"
-                                        className="w-full h-44 min-h-[160px] bg-gray-200"
-                                    />
-                                </View>
-                                <View className="p-2.5">
-                                    <Text className="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight">
-                                        {item.title}
-                                    </Text>
-                                    <View className="flex items-center justify-between mt-2">
-                                        <Text className="text-[18px] text-gray-400">{formatTime(item.createdAt)}</Text>
-                                        <Text className="text-[18px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                                            {item.targetType === 'trip' ? '行程' : '攻略'}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
+                            <GuideCard item={item} />
                         )}
                     />
                 )}
