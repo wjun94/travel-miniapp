@@ -1,43 +1,89 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Input, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { Image } from '@/components'
 import { useAuthStore } from '@/store/authStore';
+import { getMessageList, sendMessage as sendMessageApi, Message } from '@/api/message'
 
-// 初始模拟数据
-const INITIAL_MESSAGES = [
-  { id: 1, type: 'left', content: '嗨！今天过得怎么样？', time: '14:20' },
-  { id: 2, type: 'right', content: '挺不错的，正在用 Taro 和 Tailwind 写一个超酷的聊天界面！', time: '14:22' },
-  { id: 3, type: 'left', content: '哇，听起来很赞，使用的是什么主题色？', time: '14:23' },
-  { id: 4, type: 'right', content: '当然是充满活力的日落橙 (#F97316) 啦！🍊 试试一串超长的测试文本看它会不会溢出：撑满全屏测试撑满全屏测试abcdefghijklmnopqrstuvwxyz1234567890', time: '14:25' },
-];
+// 前端聊天消息结构，兼容后端返回的 Message 类型
+type ChatMessage = {
+  id: number | string;
+  type: 'left' | 'right';
+  content: string;
+  senderId?: string;
+  time: string;
+};
+
+// 将后端返回的 Message 转为前端 ChatMessage
+const toChatMessage = (msg: Message, myUserId: string): ChatMessage => ({
+  id: msg.id,
+  type: String(msg.fromUserId) === myUserId ? 'right' : 'left',
+  content: msg.content,
+  senderId: String(msg.fromUserId),
+  time: msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+});
+
+// 根据两个用户 ID 生成一致的聊天房间名（保证双向一样）
+const makeChatRoomId = (uid1: string, uid2: string) => {
+  return [uid1, uid2].sort().join(':');
+};
 
 export default function ChatView() {
   const { userInfo } = useAuthStore(state => state);
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [scrollTop, setScrollTop] = useState(9999);
+  const [loading, setLoading] = useState(true);
+
+  // 从路由参数获取对方用户 ID 和昵称
+  const router = Taro.getCurrentInstance().router;
+  const targetUserId = router?.params?.userId || '';
+  const targetNickname = router?.params?.nickname || '聊天';
 
   // 使用 useRef 保存 socketTask 和心跳定时器，防止组件刷新时丢失引用
   const socketTask = useRef<Taro.SocketTask | null>(null);
   const heartbeatTimer = useRef<any>(null);
   const isConnect = useRef<boolean>(false);
   const token = Taro.getStorageSync('token') || '';
-  // WebSocket 服务器地址（请替换为你的真实 WS/WSS 地址）
   const wsUrl = SOCKET_BASE + '/ws' + `?token=${token}`;
 
-  // 初始化 WebSocket 连接
+  // 初始化：先加载历史消息，再连接 WebSocket
   useEffect(() => {
-    connectWS();
+    if (!targetUserId) {
+      Taro.showToast({ title: '缺少聊天对象', icon: 'none' });
+      return;
+    }
 
-    // 组件销毁时关闭连接，清除定时器
+    // 加载历史消息
+    loadHistory();
+
     return () => {
       closeWS();
     };
-  }, []);
+  }, [targetUserId]);
+
+  // 加载历史消息
+  const loadHistory = async () => {
+    try {
+      setLoading(true);
+      const res = await getMessageList(Number(targetUserId));
+      const myId = String(userInfo?.id || '');
+      const formatted = (res || []).map(msg => toChatMessage(msg, myId));
+      setMessages(formatted);
+      // 消息加载完毕后再连 WS，保证消息顺序
+      connectWS();
+      setTimeout(() => setScrollTop(prev => prev + 9999), 300);
+    } catch (err) {
+      console.error('加载历史消息失败', err);
+      connectWS();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 1. 建立连接
   const connectWS = () => {
-    if (isConnect.current) return;
+    if (isConnect.current || !targetUserId) return;
 
     Taro.connectSocket({
       url: wsUrl,
@@ -46,58 +92,49 @@ export default function ChatView() {
       },
       fail: (err) => {
         console.error('WebSocket 任务创建失败', err);
-        // 失败后尝试重连
         setTimeout(() => connectWS(), 5000);
       }
     }).then(task => {
       socketTask.current = task;
 
-      // 监听连接打开
       task.onOpen(() => {
         console.log('WebSocket 连接已打开！');
         isConnect.current = true;
-        startHeartbeat(); // 开启心跳
-        // 1. 必须先加入当前行程的房间
+        startHeartbeat();
+        // 加入当前聊天房间
+        const roomId = makeChatRoomId(String(userInfo?.id || ''), targetUserId);
         task.send({
-          data: JSON.stringify({ action: "join_trip", tripId: userInfo?.id }),
+          data: JSON.stringify({ action: "join_trip", tripId: roomId }),
         });
       });
 
-      // 监听收到服务器消息
       task.onMessage((res) => {
         console.log('收到服务器消息：', res.data);
-
-        // 如果收到的是心跳回应，则不展示在聊天界面
         if (res.data === 'ping' || res.data === 'pong') return;
 
-        // 解析并渲染接收到的消息
         try {
-          // 假设后端返回的是 JSON 字符串
           const data = JSON.parse(res.data);
-          // 2. 监听后台广播的分支
           if (data.action === "send_message") {
-            // 收到群内其他人发的消息
-            appendMessage('left', data.content, data.senderId);
-          } else if (data.action === "edit_trip") {
-            // 收到其他人协同编辑行程的通知，这里做画布/UI更新
-            console.log('行程被别人改啦:', data);
+            // 收到其他人发的消息，若 senderId 不是自己才追加
+            const senderId = String(data.senderId || '');
+            const myId = String(userInfo?.id || '');
+            if (senderId !== myId) {
+              appendMessage('left', data.content, senderId);
+            }
           }
         } catch (e) {
-          // 如果是一般字符串文本
+          // 纯文本消息
           appendMessage('left', res.data);
         }
       });
 
-      // 监听连接关闭
       task.onClose((res) => {
         console.log('WebSocket 连接已关闭：', res);
         isConnect.current = false;
         stopHeartbeat();
-        // 自动重连机制
         setTimeout(() => connectWS(), 5000);
       });
 
-      // 监听连接错误
       task.onError((err) => {
         console.error('WebSocket 报错：', err);
         isConnect.current = false;
@@ -105,17 +142,17 @@ export default function ChatView() {
     });
   };
 
-  // 2. 心跳检测（防止小程序在后台或网络波动时被动断开）
+  // 2. 心跳检测
   const startHeartbeat = () => {
     stopHeartbeat();
     heartbeatTimer.current = setInterval(() => {
       if (isConnect.current && socketTask.current) {
         socketTask.current.send({
-          data: 'ping', // 向后端发送心跳包，内容根据后端约定修改
+          data: 'ping',
           fail: () => console.log('心跳发送失败')
         });
       }
-    }, 30000); // 每 30 秒发送一次心跳
+    }, 30000);
   };
 
   const stopHeartbeat = () => {
@@ -148,31 +185,30 @@ export default function ChatView() {
   // 4. 发送消息按钮点击
   const handleSend = () => {
     if (!inputValue.trim()) return;
+    const content = inputValue.trim();
 
-    if (!isConnect.current || !socketTask.current) {
-      Taro.showToast({ title: '网络未连接', icon: 'none' });
-      return;
-    }
+    // 1) 调用 HTTP API 持久化消息
+    sendMessageApi(targetUserId, content).then(() => {
+      // 2) 本地立即渲染自己的消息
+      appendMessage('right', content);
+      setInputValue('');
 
-    // 构建发送给后端的数据结构（这里直接发送文本，也可以转为 JSON 字符串）
-    const payload = {
-      action: "send_message",
-      tripId: userInfo?.id,
-      content: inputValue
-    };
-
-    // 通过 WebSocket 发送数据
-    socketTask.current.send({
-      data: JSON.stringify(payload),
-      success: () => {
-        // 发送成功后，本地先渲染自己发的消息
-        appendMessage('right', inputValue);
-        setInputValue('');
-      },
-      fail: (err) => {
-        Taro.showToast({ title: '发送失败', icon: 'none' });
-        console.error('发送失败：', err);
+      // 3) 通过 WebSocket 通知对方
+      if (isConnect.current && socketTask.current) {
+        const roomId = makeChatRoomId(String(userInfo?.id || ''), targetUserId);
+        const payload = {
+          action: "send_message",
+          tripId: roomId,
+          content,
+        };
+        socketTask.current.send({
+          data: JSON.stringify(payload),
+          fail: (err) => console.error('WS 实时推送失败：', err),
+        });
       }
+    }).catch((err) => {
+      Taro.showToast({ title: '发送失败', icon: 'none' });
+      console.error('发送失败：', err);
     });
   };
 
@@ -180,7 +216,7 @@ export default function ChatView() {
     <View className='flex flex-col h-screen overflow-hidden bg-gray-50 text-gray-800'>
       {/* 顶部导航栏 */}
       <View className='bg-orange-500 text-white text-center py-4 font-bold shadow-sm pt-12 flex-shrink-0'>
-        日落橙实时聊天室
+        {targetNickname}
       </View>
 
       {/* 聊天内容区域 */}
@@ -191,6 +227,16 @@ export default function ChatView() {
           scrollWithAnimation
           className='h-full'
         >
+          {loading && (
+            <View className='flex items-center justify-center py-8'>
+              <Text className='text-gray-400 text-sm'>加载中...</Text>
+            </View>
+          )}
+          {!loading && messages.length === 0 && (
+            <View className='flex items-center justify-center py-8'>
+              <Text className='text-gray-400 text-sm'>暂无消息，开始聊天吧</Text>
+            </View>
+          )}
           {messages.map((msg) => {
             const isRight = msg.type === 'right';
             return (
@@ -199,9 +245,7 @@ export default function ChatView() {
 
                 <View className='flex items-start max-w-[75%]'>
                   {!isRight && (
-                    <View className='w-9 h-9 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center mr-2 text-sm flex-shrink-0'>
-                      🤖
-                    </View>
+                    <Image isAvatar src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full mr-1' /> 
                   )}
 
                   <View
@@ -213,11 +257,7 @@ export default function ChatView() {
                     <Text className='break-all whitespace-pre-wrap'>{msg.content}</Text>
                   </View>
 
-                  {isRight && (
-                    <View className='w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center ml-2 text-sm text-white font-semibold flex-shrink-0'>
-                      ME
-                    </View>
-                  )}
+                  {isRight ? <Image isAvatar src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full ml-1' /> : null}
                 </View>
               </View>
             );

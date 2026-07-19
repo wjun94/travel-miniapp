@@ -10,6 +10,7 @@ export interface Message {
   content: string;
   type: number; // 1私聊 2系统通知
   isRead: number;
+  avatarUrl: string
   createdAt: string;
 }
 
@@ -21,7 +22,7 @@ export interface Conversation {
   lastContent: string;    // 最后一条消息内容
   lastTime: string;       // 最后消息时间
   nickname: string;       // 对方昵称
-  otherUserId: string;    // 对方用户ID (注意：文档中为string类型)
+  userId: string;    // 对方用户ID (注意：文档中为string类型)
   unreadCount: number;    // 未读消息数
 }
 
@@ -81,11 +82,11 @@ export const getMessageList = (targetUserId: number) =>
  * @param content 消息内容
  * @returns void
  */
-export const sendMessage = (toUserId: number, content: string) =>
+export const sendMessage = (toUserId: string, content: string) =>
   request({
     url: '/message/send',
     method: 'POST',
-    data: { targetUserId: toUserId, content },
+    data: { toUserId, content },
   });
 
 /**

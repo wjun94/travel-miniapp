@@ -38,7 +38,7 @@ export default function PersonalPage() {
     return (
         <View className="min-h-screen bg-slate-800 text-white flex flex-col font-sans pb-10">
 
-            <NavBar showBack backgroundColor='transparent' />
+            <NavBar showBack backgroundColor='#1e293b' />
 
             {/* 2. 个人信息区域 */}
             <View className="px-5 pb-4 pt-2">
@@ -96,7 +96,14 @@ export default function PersonalPage() {
                             >
                                 {profile?.isFollowed ? '已关注' : '关注'}
                             </View>
-                            <View className="flex-1 bg-slate-700 text-white text-center py-2.5 rounded-full font-semibold text-sm active:opacity-90 transition-opacity">
+                            <View
+                                className="flex-1 bg-slate-700 text-white text-center py-2.5 rounded-full font-semibold text-sm active:opacity-90 transition-opacity"
+                                onClick={() => {
+                                    Taro.navigateTo({
+                                        url: `/pages/message/chat/index?userId=${userId}&nickname=${profile?.nickname || ''}`,
+                                    });
+                                }}
+                            >
                                 发私信
                             </View>
                             <View className="bg-slate-700 px-3 flex items-center justify-center rounded-full text-lg">

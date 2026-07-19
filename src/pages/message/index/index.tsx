@@ -1,17 +1,27 @@
 import { useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { NavBar, Image } from '@/components'
 import { useRequest } from 'ahooks'
-import { getUnreadNotificationCount, getConversationList, type Conversation } from '@/api/message'
+import { getUnreadNotificationCount, markNotificationAsRead, getConversationList, type Conversation } from '@/api/message'
 import { formatTime } from '@/utils'
 
 export default function MessagePage() {
   // 1. 获取未读统计
-  const { data: unreadData } = useRequest(getUnreadNotificationCount)
+  const { data: unreadData, refresh: refreshUnread } = useRequest(getUnreadNotificationCount)
 
   // 2. 获取会话列表
-  const { data: conversationList = [], loading } = useRequest(getConversationList)
+  const { data: conversationList = [], loading, refresh: refreshList } = useRequest(getConversationList)
+
+  // 下拉刷新
+  usePullDownRefresh(async () => {
+    await Promise.all([refreshUnread(), refreshList()])
+    Taro.stopPullDownRefresh()
+  })
+
+  useDidShow(async () => {
+    await Promise.all([refreshUnread(), refreshList()])
+  })
 
   const categories = useMemo(() => [
     { id: 1, title: '搭子申请', icon: 'icon-apply', bgColor: '#EAF5F1', textColor: '#56A88E', badge: unreadData?.partnerApplyCount || 0 },
@@ -20,8 +30,9 @@ export default function MessagePage() {
     { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#EBF2FC', textColor: '#5C94E0', badge: unreadData?.commentCount || 0 },
   ], [unreadData])
 
-  const handleClickItem = (item: Conversation) => {
-    Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.otherUserId}` })
+  const handleClickItem = async (item: Conversation) => {
+    await markNotificationAsRead(item.userId)
+    Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.userId}` })
   }
 
   return (
@@ -61,16 +72,17 @@ export default function MessagePage() {
         <View className='flex flex-col'>
           {conversationList.map((item) => (
             <View
-              key={item.otherUserId}
+              key={item.userId}
               className='flex flex-row items-center py-3.5 border-b border-stone-100 last:border-0 active:bg-stone-50 transition-colors'
               onClick={() => handleClickItem(item)}
             >
               {/* 左侧头像 */}
-              <View className='relative w-[52px] h-[52px] flex-shrink-0'>
+              <View className='relative w-[62px] h-[62px] flex-shrink-0'>
                 <Image
+                  isAvatar
                   src={item.avatarUrl || ''}
                   mode='aspectFill'
-                  className='w-full h-full rounded-full bg-stone-100'
+                  className='w-full h-full rounded-full text-24px'
                 />
               </View>
 
@@ -88,7 +100,7 @@ export default function MessagePage() {
               <View className='ml-3 flex flex-col items-end justify-between h-10 flex-shrink-0'>
                 <Text className='text-[22px] text-stone-400'>{formatTime(item.lastTime)}</Text>
                 {item.unreadCount > 0 ? (
-                  <View className='bg-[#FF3B30] text-white text-[12px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1'>
+                  <View className='bg-[#FF3B30] text-white text-[20px] font-bold min-w-[18px] h-[28px] rounded-full flex items-center justify-center px-1'>
                     {item.unreadCount > 99 ? '99+' : item.unreadCount}
                   </View>
                 ) : (
