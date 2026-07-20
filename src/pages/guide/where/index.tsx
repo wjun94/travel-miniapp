@@ -80,7 +80,7 @@ export default function SearchPage() {
         <View className='min-h-screen bg-white px-6 pt-4 box-border'>
             {/* 头部标题 */}
             <View className='text-60px font-bold text-gray-900 tracking-wide mb-8 mt-4'>
-                去哪儿
+                目的地
             </View>
 
             {/* 搜索输入框 */}

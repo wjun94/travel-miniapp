@@ -68,15 +68,6 @@ export default function PublishPage() {
     },
     {
       id: 2,
-      title: '视频攻略',
-      desc: '记录旅行精彩瞬间',
-      icon: '🎥',
-      bg: 'bg-red-50',
-      color: 'bg-red-200',
-      textColor: 'text-red-500'
-    },
-    {
-      id: 3,
       title: '行程规划',
       desc: 'AI/手动创建行程',
       icon: '🧭',
@@ -84,6 +75,16 @@ export default function PublishPage() {
       color: 'bg-green-200',
       textColor: 'text-green-500',
       fn: handleCreateTrip
+    },
+    {
+      id: 3,
+      title: '创建搭子',
+      desc: '寻找旅行同行伙伴',
+      icon: '👥',
+      bg: 'bg-red-50',
+      color: 'bg-red-200',
+      textColor: 'text-red-500',
+      fn: () => Taro.navigateTo({ url: '/pages/partner/create/index' })
     },
     {
       id: 4,

@@ -33,6 +33,7 @@ export default defineAppConfig({
     'pages/trip/preview/index',
     'pages/trip/where/index',
     'pages/trip/date/index',
+    'pages/partner/create/index',
   ],
   // 底部 TabBar 配置
   tabBar: {
