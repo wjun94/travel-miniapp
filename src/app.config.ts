@@ -21,6 +21,7 @@ export default defineAppConfig({
     'pages/history/index',
     'pages/favorite/index',
     'pages/guide/list/index',
+    'pages/guide/where/index',
     'pages/guide/basic/index',
     'pages/guide/detail/index',
     'pages/guide/preview/index',

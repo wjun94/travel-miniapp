@@ -1,5 +1,6 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useEffect } from 'react';
 import { useSetState, useRequest } from 'ahooks';
 import { createTravelGuide } from '@/api/guide'
 import { difficultyOptions } from '@/constants/travel';
@@ -36,6 +37,14 @@ export default function BasicInfoPage() {
     });
 
     const groups = ['家庭', '情侣', '背包客', '独行者', '好友'];
+
+    // 从 where 页获取已选目的地
+    useEffect(() => {
+        const saved = Taro.getStorageSync('TEMP_GUIDE_DESTINATION');
+        if (saved) {
+            setFormState({ destination: saved });
+        }
+    }, []);
 
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTravelGuide, {
         manual: true,
@@ -146,16 +155,13 @@ export default function BasicInfoPage() {
                     </View>
                 </View>
 
-                {/* 2. 目的地输入框 */}
+                {/* 2. 目的地 */}
                 <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'><Text className='text-red-500'>*</Text> 目的地</Text>
-                    <View>
-                        <Input
-                            className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border'
-                            placeholder='请输入目的地，如：杭州'
-                            value={formState.destination}
-                            onInput={(e) => setFormState({ destination: e.detail.value })}
-                        />
+                    <View className='bg-gray-50 rounded-xl px-3 py-3'>
+                        <Text className='text-[28px] text-gray-800'>
+                            {formState.destination || '请先在「想去哪儿」选择目的地'}
+                        </Text>
                     </View>
                 </View>
 

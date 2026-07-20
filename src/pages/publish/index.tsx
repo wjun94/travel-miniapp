@@ -13,7 +13,7 @@ export default function PublishPage() {
     if (cached) {
       setDraftModalVisible(true);
     } else {
-      Taro.navigateTo({ url: '/pages/guide/itinerary/index' });
+      Taro.navigateTo({ url: '/pages/guide/where/index' });
     }
   };
 
@@ -26,9 +26,9 @@ export default function PublishPage() {
   // 重新开始（清除缓存）
   const handleStartFresh = () => {
     Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
-    Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
+    // Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
     setDraftModalVisible(false);
-    Taro.navigateTo({ url: '/pages/trip/where/index' });
+    Taro.navigateTo({ url: '/pages/guide/where/index' });
   };
 
   // 行程规划：检查是否有缓存行程草稿
@@ -44,7 +44,7 @@ export default function PublishPage() {
 
   const handleContinueTripDraft = () => {
     setTripDraftModalVisible(false);
-    Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
+    Taro.navigateTo({ url: '/pages/trip/where/index' });
   };
 
   const handleStartTripFresh = () => {
