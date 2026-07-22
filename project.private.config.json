@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "发布",
-          "pathName": "pages/publish/index",
+          "name": "pages/partner/list/index",
+          "pathName": "pages/partner/list/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "发布",
+          "pathName": "pages/publish/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         }
       ]
     }

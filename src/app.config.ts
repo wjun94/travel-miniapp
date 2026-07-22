@@ -13,7 +13,6 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/personal/index',
     'pages/profile/index',
-    'pages/partner/detail/index',
     'pages/accounting/list',
     'pages/checklist/list/index',
     'pages/checklist/edit/index',
@@ -34,6 +33,8 @@ export default defineAppConfig({
     'pages/trip/where/index',
     'pages/trip/date/index',
     'pages/partner/create/index',
+    'pages/partner/list/index',
+    'pages/partner/detail/index',
   ],
   // 底部 TabBar 配置
   tabBar: {

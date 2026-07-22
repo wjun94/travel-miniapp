@@ -1,7 +1,7 @@
 import { View, Text, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRef, useState } from 'react'
-import { NavBar, ScrollLoadList, Image, Modal } from '@/components'
+import { ScrollLoadList, Image, Modal } from '@/components'
 import { getPartnerList, applyPartner } from '@/api/partner'
 import type { PartnerItem } from '@/api/partner'
 
@@ -37,7 +37,6 @@ export default function PartnerList() {
 
   return (
     <View className='min-h-screen bg-gray-100/70 pb-6'>
-      <NavBar title='搭子列表' showBack />
 
       <ScrollLoadList
         ref={listRef}
