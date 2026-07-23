@@ -2,6 +2,7 @@ import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useSetState, useRequest } from 'ahooks';
 import { createTrip } from '@/api/trip'
+import { uploadSingleFile } from '@/utils/upload';
 
 // 定义表单的状态类型
 interface FormState {
@@ -17,7 +18,7 @@ export default function BasicInfoPage() {
     const [formState, setFormState] = useSetState<FormState>({
         title: '',
         summary: '',
-        coverImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800',
+        coverImage: '',
         totalBudget: '',
         isPublic: false,
     });
@@ -25,6 +26,14 @@ export default function BasicInfoPage() {
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTrip, {
         manual: true,
     });
+
+    const handleChooseCover = async () => {
+        try {
+            const res = await Taro.chooseImage({ count: 1, sizeType: ['compressed'] });
+            const data = await uploadSingleFile(res.tempFilePaths[0]);
+            if (data?.url) setFormState({ coverImage: data.url });
+        } catch { /* ignore */ }
+    };
 
     // 最终组装数据并请求后端接口
     const handleSubmit = async (isPublish: boolean) => {
@@ -96,9 +105,23 @@ export default function BasicInfoPage() {
         <View className='min-h-screen bg-gray-50 pb-28 text-gray-800'>
             {/* 封面 */}
             <View className='relative w-full h-48 bg-gray-200 flex items-center justify-center overflow-hidden'>
-                <Image src={formState.coverImage} className='w-full h-full object-cover' />
-                <View className='absolute inset-0 bg-black/20 flex items-center justify-center'>
-                    <View className='bg-black/40 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm'>更换封面</View>
+                {formState.coverImage ? (
+                    <Image src={formState.coverImage} className='w-full h-full' mode='aspectFill' />
+                ) : (
+                    <View className='w-full h-full flex items-center justify-center' />
+                )}
+                <View
+                    className='absolute inset-0 flex items-center justify-center'
+                    onClick={handleChooseCover}
+                >
+                    {formState.coverImage ? (
+                        <View className='bg-black/40 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm'>点击更换</View>
+                    ) : (
+                        <View className='flex flex-col items-center justify-center w-full h-full bg-gray-100 active:bg-gray-200'>
+                            <Text className='text-gray-400 text-[40px] font-light mb-1'>+</Text>
+                            <Text className='text-gray-400 text-[24px]'>上传封面</Text>
+                        </View>
+                    )}
                 </View>
             </View>
 

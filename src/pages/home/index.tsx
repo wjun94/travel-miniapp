@@ -67,7 +67,7 @@ export default function HomePage() {
           className="w-full h-full absolute inset-0"
         />
         {/* 蒙层渐变 */}
-        <View className="absolute inset-0 bg-gradient-to-r from-[#e97442]/95 via-[#f09366]/75 to-transparent" />
+        <View className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }} />
 
         <View className="absolute inset-y-0 left-0 flex flex-col justify-center pl-6 pr-20 z-10">
           <Text className="text-xl font-bold text-white tracking-wide mb-1">寻找搭子</Text>

@@ -3,7 +3,7 @@ import { View, Text, Input, Textarea, Picker } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { NavBar, Image } from '@/components'
 import { createPartner } from '@/api/partner'
-import { uploadMultiImages } from '@/utils/upload'
+import { uploadSingleFile } from '@/utils/upload'
 
 const TYPE_OPTIONS = [
   { value: 0, label: '不限' },
@@ -37,13 +37,9 @@ export default function CreatePartnerPage() {
   const handleChooseCover = async () => {
     try {
       const res = await Taro.chooseImage({ count: 1, sizeType: ['compressed'] })
-      Taro.showLoading({ title: '上传中...', mask: true })
-      const urls = await uploadMultiImages(res.tempFilePaths)
-      Taro.hideLoading()
-      if (urls[0]) setCover(urls[0])
-    } catch {
-      Taro.hideLoading()
-    }
+      const data = await uploadSingleFile(res.tempFilePaths[0])
+      if (data?.url) setCover(data.url)
+    } catch { /* ignore */ }
   }
 
   const handleSubmit = async () => {
@@ -302,20 +298,23 @@ export default function CreatePartnerPage() {
 
           {/* 公开/私密开关 */}
           <View className='flex flex-row items-center justify-between pt-1'>
-            <View>
+            <View className='flex-1 pr-4'>
               <Text className='text-gray-800 text-[28px] font-semibold block'>公开此搭子</Text>
               <Text className='text-gray-400 text-[22px] block mt-0.5'>关闭后将不展示在公共推荐列表中</Text>
             </View>
+
+            {/* 开关轨道 */}
             <View
               onClick={() => setIsPublic(isPublic ? 0 : 1)}
-              className={`w-12 h-6.5 rounded-full p-0.5 flex items-center transition-colors duration-200 ease-in-out cursor-pointer ${
-                isPublic ? 'bg-[#F97316]' : 'bg-gray-300'
-              }`}
-            >
-              <View
-                className={`w-5.5 h-5.5 bg-white rounded-full shadow-md transition-transform duration-200 ease-in-out ${
-                  isPublic ? 'translate-x-[22px]' : 'translate-x-0'
+              className={`relative w-12 h-6 rounded-full transition-colors duration-200 cursor-pointer ${isPublic ? 'bg-[#F97316]' : 'bg-gray-300'
                 }`}
+            >
+              {/* 开关滑块 */}
+              <View
+                className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200'
+                style={{
+                  transform: isPublic ? 'translateX(24px)' : 'translateX(0px)',
+                }}
               />
             </View>
           </View>
@@ -325,9 +324,8 @@ export default function CreatePartnerPage() {
         <View className='pt-2 pb-4'>
           <View
             onClick={handleSubmit}
-            className={`w-full h-12 rounded-xl flex items-center justify-center font-semibold text-[30px] text-white shadow-md active:scale-[0.98] transition-all ${
-              submitting ? 'bg-orange-300 pointer-events-none' : 'bg-[#F97316] active:bg-[#EA580C]'
-            }`}
+            className={`w-full h-12 rounded-xl flex items-center justify-center font-semibold text-[30px] text-white shadow-md active:scale-[0.98] transition-all ${submitting ? 'bg-orange-300 pointer-events-none' : 'bg-[#F97316] active:bg-[#EA580C]'
+              }`}
           >
             {submitting ? '发布中...' : '发布搭子'}
           </View>
