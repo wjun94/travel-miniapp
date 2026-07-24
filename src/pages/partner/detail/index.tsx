@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { useRequest } from 'ahooks'
 import { NavBar, Image, Modal } from '@/components'
 import { getPartnerDetail, applyPartner } from '@/api/partner'
-import { useAuthStore } from '@/store/authStore'
+import { followUser, unfollowUser } from '@/api/follow'
 
 const TYPE_LABELS: Record<number, string> = { 0: '不限', 1: '自由行', 2: '跟团游', 3: '自驾游' }
 const GENDER_LABELS: Record<number, string> = { 0: '不限', 1: '仅限男', 2: '仅限女' }
@@ -14,9 +14,14 @@ const STATUS_LABELS: Record<number, { label: string; bg: string; text: string }>
   2: { label: '已结束', bg: 'bg-rose-500/80', text: 'text-white' },
 }
 
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '时间待定'
+  const d = new Date(dateStr)
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+}
+
 export default function PartnerDetail() {
   const { id } = useRouter().params
-  const currentUserId = String(useAuthStore.getState().userId || '')
 
   const [applyVisible, setApplyVisible] = useState(false)
   const [applyRemark, setApplyRemark] = useState('')
@@ -27,9 +32,23 @@ export default function PartnerDetail() {
     { refreshDeps: [id] },
   )
 
-  const isSelf = partner?.userId === currentUserId
+  const isSelf = partner?.isSelf
   const statusInfo = STATUS_LABELS[partner?.status ?? 0] || STATUS_LABELS[0]
   const canApply = !isSelf && (partner?.status ?? 0) === 0
+
+  const handleToggleFollow = async () => {
+    if (!partner?.userId) return
+    try {
+      if (partner.isFollowed) {
+        await unfollowUser(partner.userId)
+      } else {
+        await followUser(partner.userId)
+      }
+      refresh()
+    } catch {
+      Taro.showToast({ title: '操作失败', icon: 'none' })
+    }
+  }
 
   const handleApply = async () => {
     if (!id) return
@@ -51,7 +70,24 @@ export default function PartnerDetail() {
 
   return (
     <View className='min-h-screen bg-gray-100/70 flex flex-col pb-24'>
-      <NavBar title='搭子详情' showBack />
+      <NavBar showBack backgroundColor='white'>
+        {partner?.userId ? (
+          <View className='flex flex-row items-center flex-1' onClick={() => Taro.navigateTo({ url: `/pages/personal/index?userId=${partner.userId}` })}>
+            <Image isAvatar src={partner.authorAvatar} className='w-[40px] h-[40px] text-[20px] rounded-full border-2 border-white/80' />
+            <Text className='ml-2 text-[26px] font-bold text-gray-800'>{partner.authorName || ''}</Text>
+            {!isSelf && (
+              <View
+                onClick={(e) => { e.stopPropagation(); handleToggleFollow() }}
+                className={`ml-3 px-2 py-1 rounded-full border leading-0 font-medium ${partner.isFollowed ? 'bg-gray-400' : 'bg-[#F97316]'}`}
+              >
+                <Text className='text-white text-[20px]'>{partner.isFollowed ? '已关注' : '关注'}</Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <Text className='text-[34px] font-semibold text-gray-700'>搭子详情</Text>
+        )}
+      </NavBar>
 
       {/* 封面 Header */}
       <View className='relative w-full h-60 bg-gray-900 overflow-hidden'>
@@ -109,7 +145,7 @@ export default function PartnerDetail() {
             <Text className='text-[26px] text-gray-500'>出行时间</Text>
             <View className='text-right'>
               <Text className='text-[26px] text-gray-800 font-medium'>
-                {partner.startDate || '时间待定'}
+                {formatDate(partner.startDate)}
               </Text>
               {partner.days > 0 && (
                 <Text className='text-[22px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded ml-1.5 font-medium'>

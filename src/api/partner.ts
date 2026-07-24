@@ -58,47 +58,75 @@ export interface HandleApplicationParams {
   status: number; // 1: 同意, 2: 拒绝
 }
 
-/** 搭子列表项的数据结构 */
+/** 搭子/结伴游条目 */
 export interface PartnerItem {
+  /** 唯一标识 */
   id: string;
+  /** 关联的行程 ID */
   tripId: string;
+  /** 发布者用户 ID */
   userId: string;
+  /** 标题 */
   title: string;
+  /** 描述/介绍 */
   desc: string;
+  /** 目的地名称 */
   destination: string;
-  cover: string; // 封面图 URL
-
+  /** 封面图 URL */
+  cover: string;
+  /** 是否已报名申请 */
   isApplied: boolean;
-  isSelf: boolean
-
+  /** 是否为自己发布的 */
+  isSelf: boolean;
+  /** 是否已关注发布者 */
+  isFollowed: boolean;
+  /** 发布者头像 URL */
+  authorAvatar: string;
+  /** 发布者昵称 */
+  authorName: string;
+  /** 发布者用户 ID（同 userId） */
+  authorId: string;
+  /** 开始日期 */
   startDate: string;
+  /** 结束日期 */
   endDate: string;
+  /** 行程天数 */
   days: number;
+  /** 创建时间 */
   createdAt: string;
+  /** 更新时间 */
   updatedAt: string;
-
-  // 人数与限制
+  /** 当前已加入人数 */
   currentMembers: number;
+  /** 最大人数限制 */
   maxMembers: number;
+  /** 最小年龄限制 */
   minAge: number;
+  /** 最大年龄限制 */
   maxAge: number;
-  genderLimit: number; // 性别限制 (例如: 0不限 / 1仅男 / 2仅女)
-  requirement: string; // 报名要求描述
-
-  // 费用与地理位置
+  /** 性别限制: 0 不限 / 1 仅男 / 2 仅女 */
+  genderLimit: number;
+  /** 报名要求描述 */
+  requirement: string;
+  /** 人均预算 */
   budgetPerPerson: number;
+  /** 官方参考价 */
   officialPrice: number;
+  /** 纬度 */
   latitude: number;
+  /** 经度 */
   longitude: number;
-
-  // 标签与分类
-  travelTags: string;  // 若后端返回 "标签1,标签2"，可在前端 .split(',') 转为 string[]
-  type: number;        // 出行类型
-
-  // 状态与运营数据
-  isPublic: 0 | 1;     // 0: 私密/隐藏, 1: 公开
-  status: number;      // 状态码 (如: 0招募中, 1已满员, 2已结束)
+  /** 出行标签，逗号分隔 */
+  travelTags: string;
+  /** 出行类型: 0 不限 / 1 自由行 / 2 跟团游 / 3 自驾游 */
+  type: number;
+  /** 是否公开: 0 私密 / 1 公开 */
+  isPublic: 0 | 1;
+  /** 状态: 0 招募中 / 1 已满员 / 2 已结束 */
+  status: number;
+  /** 排序权重 */
   sortWeight: number;
+  /** 浏览次数 */
   viewCount: number;
 }
 

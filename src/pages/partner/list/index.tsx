@@ -12,6 +12,12 @@ const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
   2: { label: '已结束', bg: 'bg-rose-500/80' },
 }
 
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '时间待定'
+  const d = new Date(dateStr)
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+}
+
 export default function PartnerList() {
   const listRef = useRef<any>(null)
   const [applyVisible, setApplyVisible] = useState(false)
@@ -107,18 +113,13 @@ export default function PartnerList() {
                   <Text className='text-[28px] font-bold text-gray-800 leading-snug line-clamp-1 block'>
                     {item.title || item.destination}
                   </Text>
-                  {item.desc && (
-                    <Text className='text-[24px] text-gray-500 mt-1 line-clamp-1 block leading-normal'>
-                      {item.desc}
-                    </Text>
-                  )}
                 </View>
 
                 {/* 行程时间与人数信息 */}
                 <View className='flex flex-row items-center justify-between pt-1 border-t border-gray-50'>
                   <View className='flex flex-row items-center space-x-2 text-gray-500 text-[24px]'>
                     <Text className='font-medium text-gray-700'>
-                      📅 {item.startDate || '时间待定'}
+                      📅 {formatDate(item.startDate)}
                     </Text>
                     {item.days > 0 && (
                       <Text className='text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium'>
@@ -162,20 +163,28 @@ export default function PartnerList() {
                   )}
                 </View>
 
-                {/* 底部动作按钮 */}
-                <View className='pt-1'>
-                  <View
-                    className='w-full bg-[#F97316] active:bg-[#EA580C] text-white text-center py-2.5 rounded-xl font-bold text-[28px] shadow-sm transition-all active:scale-[0.98]'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setApplyPartnerId(item.id)
-                      setApplyRemark('')
-                      setApplyVisible(true)
-                    }}
-                  >
-                    申请加入
-                  </View>
+                {/* 创建者信息 */}
+                <View className='flex flex-row items-center'>
+                  <Image isAvatar src={item.authorAvatar} className='w-[52px] h-[52px] text-[22px] rounded-full' />
+                  <Text className='text-[26px] text-stone-500 ml-1.5'>{item.authorName}</Text>
                 </View>
+
+                {/* 底部动作按钮 */}
+                {!item.isSelf && (
+                  <View className='pt-1'>
+                    <View
+                      className='w-full bg-[#F97316] active:bg-[#EA580C] text-white text-center py-2.5 rounded-xl font-bold text-[28px] shadow-sm transition-all active:scale-[0.98]'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setApplyPartnerId(item.id)
+                        setApplyRemark('')
+                        setApplyVisible(true)
+                      }}
+                    >
+                      申请加入
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           )

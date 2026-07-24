@@ -73,7 +73,7 @@ export default function HomePage() {
           <Text className="text-xl font-bold text-white tracking-wide mb-1">寻找搭子</Text>
           <Text className="text-xs text-white/90 font-light mb-4 truncate">一个人旅行太无聊？找个搭子一起出发吧！</Text>
           <View className="flex flex-row">
-            <View className="bg-white px-4 py-1.5 rounded-full shadow-sm flex flex-row items-center active:opacity-80">
+            <View onClick={() => Taro.navigateTo({ url: '/pages/partner/list/index' })} className="bg-white px-4 py-1.5 rounded-full shadow-sm flex flex-row items-center active:opacity-80">
               <Text className="text-xs font-bold text-[#e97442] mr-1">去看看</Text>
               <Text className="text-xs text-[#e97442]">➔</Text>
             </View>
