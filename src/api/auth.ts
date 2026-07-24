@@ -57,6 +57,7 @@ export interface UserProfile {
   nickname: string;
   followCount: number;  // 关注数
   followerCount: number;  // 粉丝数
+  partnerCount: number;  // 搭子数
   guideCount: number;  // 已发布的攻略数
   tripCount: number;  // 行程数
 }
