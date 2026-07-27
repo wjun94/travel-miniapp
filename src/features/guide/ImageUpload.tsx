@@ -28,7 +28,7 @@ export default function ImageUpload({ images, onChoose, onDelete }: Props) {
   return (
     <View className='space-y-1.5 box-border'>
       <Text className='text-gray-700 text-[26px] font-medium'>
-        记录美照/凭证<Text className='text-gray-400 font-normal text-[24px]'>（可选，{images.length}/9）</Text>
+        上传游玩图片/票据<Text className='text-gray-400 font-normal text-[24px]'>（可选，{images.length}/9）</Text>
       </Text>
       <View className='flex flex-wrap gap-2 box-border'>
         {images.map((imgUrl, imgIdx) => (

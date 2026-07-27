@@ -52,12 +52,12 @@ export default defineAppConfig({
         iconPath: imgUrl + 'home.png',
         selectedIconPath: imgUrl + 'home1.png',
       },
-      {
-        pagePath: 'pages/nearby/index',
-        text: '周边游',
-        iconPath: imgUrl + 'addr.png',
-        selectedIconPath: imgUrl + 'addr1.png',
-      },
+      // {
+      //   pagePath: 'pages/nearby/index',
+      //   text: '周边游',
+      //   iconPath: imgUrl + 'addr.png',
+      //   selectedIconPath: imgUrl + 'addr1.png',
+      // },
       {
         pagePath: 'pages/publish/index',
         text: '发布',

@@ -83,7 +83,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                 </View>
             ) : comments.length === 0 ? (
                 <View className='py-16 flex flex-col items-center justify-center space-y-3'>
-                    <Text className='text-[60px] animate-bounce duration-1000'>💬</Text>
+                    <Text className='iconfont icon-message text-72px' />
                     <Text className='text-[24px] text-stone-400 font-medium'>暂无评论，快来坐个沙发吧~</Text>
                 </View>
             ) : (

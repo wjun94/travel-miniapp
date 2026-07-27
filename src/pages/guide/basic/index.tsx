@@ -140,22 +140,20 @@ export default function BasicInfoPage() {
     return (
         <View className='min-h-screen bg-gray-50 pb-28 text-gray-800'>
             {/* 封面 */}
-            <View className='relative w-full h-48 bg-gray-200 flex items-center justify-center overflow-hidden'>
-                {formState.coverImage ? (
-                    <Image src={formState.coverImage} className='w-full h-full' mode='aspectFill' />
-                ) : (
-                    <View className='w-full h-full flex items-center justify-center' />
-                )}
-                <View
-                    className='absolute inset-0 flex items-center justify-center'
-                    onClick={handleChooseCover}
-                >
+            <View className='px-4 mt-4'>
+                <View className='relative w-full h-44 bg-gray-100 rounded-xl overflow-hidden shadow-sm active:opacity-95' onClick={handleChooseCover}>
                     {formState.coverImage ? (
-                        <View className='bg-black/40 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm'>点击更换</View>
+                        <>
+                            <Image src={formState.coverImage} className='w-full h-full' mode='aspectFill' />
+                            <View className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                                <Text className='text-white font-medium'>点击更换封面</Text>
+                            </View>
+                        </>
                     ) : (
-                        <View className='flex flex-col items-center justify-center w-full h-full bg-gray-100 active:bg-gray-200'>
-                            <Text className='text-gray-400 text-[40px] font-light mb-1'>+</Text>
-                            <Text className='text-gray-400 text-[24px]'>上传封面</Text>
+                        <View className='w-full h-full flex flex-col items-center justify-center active:bg-gray-200'>
+                            <Text className='text-gray-300 text-4xl font-light mb-1'>+</Text>
+                            <Text className='text-gray-400'>添加封面图片</Text>
+                            <Text className='text-gray-300 text-xs mt-1'>建议尺寸 16:9，展示效果更佳</Text>
                         </View>
                     )}
                 </View>

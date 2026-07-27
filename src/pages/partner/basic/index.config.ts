@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '写攻略'
+  navigationBarTitleText: '发布搭子'
 })

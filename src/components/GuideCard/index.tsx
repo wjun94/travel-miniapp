@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Image } from '@/components'
+import { Image, CoverImage } from '@/components'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 
@@ -63,8 +63,8 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
       className='bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-stone-100 w-full box-border'
       onClick={handleClick}
     >
-      <View className='w-full h-44 relative bg-stone-50'>
-        <Image src={item.coverImage} mode='aspectFill' className='w-full h-full' />
+      <View className='w-full h-44 relative'>
+        <CoverImage src={item.coverImage} title={item.title} />
 
         {/* 刚刚看过蒙层 */}
         {isJustViewed && (

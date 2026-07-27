@@ -120,8 +120,6 @@ export interface PartnerItem {
   startDate: string;
   /** 结束日期 */
   endDate: string;
-  /** 行程天数 */
-  days: number;
   /** 创建时间 */
   createdAt: string;
   /** 更新时间 */
