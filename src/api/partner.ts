@@ -2,49 +2,79 @@ import request, { PageResult } from './request'; // 确保路径正确指向你�
 
 // --- 类型定义 (基于你提供的 JSON 结构) ---
 
-/** 发布/创建搭子时的参数 */
+/** 行程日（对应 days 数组中的每一天） */
+export interface DayItem {
+  date: string;               // 日期（ISO 8601）
+  dayNumber: number;          // 第几天（从 1 开始）
+  title: string;              // 当日标题
+  items: ItineraryItem[];     // 当天行程条目列表
+}
+
+/** 单天内的行程条目 */
+export interface ItineraryItem {
+  address?: string;           // 地址
+  description?: string;       // 描述
+  endLat?: number;            // 结束点纬度
+  endLng?: number;            // 结束点经度
+  endPoint?: string;          // 结束地点名称
+  endTime?: string;           // 结束时间（HH:mm）
+  images?: string[];          // 图片列表
+  latitude?: number;          // 纬度
+  longitude?: number;         // 经度
+  needReservation?: boolean;  // 是否需要预约
+  sectionType?: string;       // 条目类型（transport/attraction/food/hotel/shopping/tips）
+  startLat?: number;          // 出发点纬度
+  startLng?: number;          // 出发点经度
+  startPoint?: string;        // 出发地点名称
+  startTime?: string;         // 开始时间（HH:mm）
+  ticketChannel?: string;     // 购票渠道
+  ticketPrice?: number;       // 票价（分）
+  title: string;              // 条目标题
+  transportMode?: string;     // 交通方式（仅 sectionType=transport 时）
+}
+
+/** 发布/创建搭子时的参数（与后端接口请求体对齐） */
 export interface CreatePartnerParams {
-  id: string;
-  tripId: string;
-  userId: string;
-  title: string;
-  desc: string;
-  destination: string;
-  cover: string; // 封面图片 URL
-
-  startDate: string;
-  endDate: string;
-  days: number;
-  createdAt: string;
-  updatedAt: string;
-
-  // 成员与限制
-  currentMembers: number;
-  maxMembers: number;
-  minAge: number;
-  maxAge: number;
-  genderLimit: number; // 0: 不限, 1: 仅限男性, 2: 仅限女性 (根据业务调整)
-  requirement: string; // 加入要求/备注
-
-  // 费用相关
-  budgetPerPerson: number;
-  officialPrice: number;
-
-  // 地理位置
-  latitude: number;
-  longitude: number;
-
-  // 分类与标签
-  travelTags: string; // 如果后端返回的是逗号分隔字符串，可用 string；如果是序列化数组，建议用 string[]
-  type: number;       // 旅行类型/出行方式
-
-  // 状态与权限
-  isPublic: number;   // 0: 私密/草稿, 1: 公开
-  status: number;     // 0: 招募中, 1: 已满员, 2: 已结束 (根据业务调整)
-
-  // 运营/排序数据
-  sortWeight: number;
-  viewCount: number;
+  address?: string;            // 地址详情
+  allowCollect?: number;       // 允许收藏: 0-禁止 1-允许
+  allowShare?: number;         // 允许分享: 0-禁止 1-允许
+  autoClose?: number;          // 自动截止: 0-关闭 1-开启
+  budgetPerPerson?: number;    // 人均预算（分）
+  category?: string;           // 活动分类
+  cover?: string;              // 封面图 URL
+  days?: DayItem[];            // 行程天数计划（每日包含多个条目）
+  desc?: string;               // 行程简述
+  destination?: string;        // 目的地名称
+  endDate?: string;            // 结束日期（ISO 8601）
+  estTotal?: number;           // 预估总费用（分）
+  feeExclude?: string;         // 费用不含说明
+  feeInclude?: string;         // 费用包含说明
+  feeMode?: number;            // 费用模式: 0-AA 1-全包 2-部分
+  femaleCount?: number;        // 女性名额
+  genderLimit?: number;        // 性别限制: 0-不限 1-仅男生 2-仅女生
+  images?: string;             // 多张图片（逗号分隔或 JSON 数组）
+  isDraft?: number;            // 草稿状态: 0-非草稿 1-草稿
+  isPublic?: number;           // 是否公开: 0-私密 1-公开
+  joinMode?: number;           // 加入方式: 0-自由加入 1-需审核
+  latitude?: number;           // 纬度
+  locationType?: number;       // 位置类型
+  longitude?: number;          // 经度
+  maleCount?: number;          // 男性名额
+  maxAge?: number;             // 年龄上限
+  maxMembers?: number;         // 招募上限
+  minAge?: number;             // 年龄下限
+  minMembers?: number;         // 最少成行人数
+  officialPrice?: number;      // 官方活动定价（分）
+  onlineLink?: string;         // 线上链接（腾讯会议等）
+  requirement?: string;        // 人员要求/报名条件
+  richDesc?: string;           // 富文本描述（HTML/Markdown）
+  startDate?: string;          // 出发日期（ISO 8601）
+  tags?: string;               // 标签（逗号分隔）
+  title?: string;              // 招募标题
+  totalDays?: number;          // 总天数
+  travelTags?: string;         // 出行标签（逗号分隔，如：自驾,徒步,美食）
+  tripId?: string;             // 关联行程 ID
+  visibility?: number;         // 可见性: 0-全部可见 1-仅粉丝 2-仅互关
 }
 
 /** 申请加入搭子的参数 */
@@ -140,6 +170,18 @@ export interface PartnerItem {
 export const getPartnerList = (params?: any) =>
   request<PageResult<PartnerItem>>({
     url: `/partner/list`,
+    method: 'GET',
+    data: params // GET 请求通常使用 params
+  });
+
+/**
+* 1. 获取搭子列表
+* GET /my/partners
+* @param params 查询参数 (如 page, pageSize, destination 等)
+*/
+export const getMyPartners = (params?: any) =>
+  request<PageResult<PartnerItem>>({
+    url: `/my/partners`,
     method: 'GET',
     data: params // GET 请求通常使用 params
   });

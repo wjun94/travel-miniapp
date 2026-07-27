@@ -102,7 +102,7 @@ export default function ProfilePage() {
           {[
             { value: profile?.guideCount ?? '0', label: '攻略', url: '/pages/guide/list/index' },
             { value: profile?.tripCount ?? '0', label: '行程', url: '/pages/trip/list/index' },
-            { value: profile?.partnerCount ?? '0', label: '搭子', url: '/pages/partner/list/index' },
+            { value: profile?.partnerCount ?? '0', label: '搭子', url: '/pages/partner/me/index' },
             { value: profile?.followerCount ?? '0', label: '粉丝', url: '/pages/fans/index' },
             { value: profile?.followCount ?? '0', label: '关注', url: '/pages/follow/index' }
           ].map((stat, i) => (

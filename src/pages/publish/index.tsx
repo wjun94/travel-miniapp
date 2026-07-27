@@ -6,6 +6,7 @@ import Taro from '@tarojs/taro'
 export default function PublishPage() {
   const [draftModalVisible, setDraftModalVisible] = useState(false);
   const [tripDraftModalVisible, setTripDraftModalVisible] = useState(false);
+  const [partnerDraftModalVisible, setPartnerDraftModalVisible] = useState(false);
 
   // 点击"图文攻略"：检查是否有缓存草稿
   const handleCreateGuide = () => {
@@ -26,7 +27,6 @@ export default function PublishPage() {
   // 重新开始（清除缓存）
   const handleStartFresh = () => {
     Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
-    // Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
     setDraftModalVisible(false);
     Taro.navigateTo({ url: '/pages/guide/where/index' });
   };
@@ -37,7 +37,6 @@ export default function PublishPage() {
     if (cached) {
       setTripDraftModalVisible(true);
     } else {
-      // Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
       Taro.navigateTo({ url: '/pages/trip/where/index' });
     }
   };
@@ -52,6 +51,28 @@ export default function PublishPage() {
     Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
     setTripDraftModalVisible(false);
     Taro.navigateTo({ url: '/pages/trip/where/index' });
+  };
+
+  // 创建搭子：检查是否有缓存草稿
+  const handleCreatePartner = () => {
+    const cached = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
+    if (cached) {
+      setPartnerDraftModalVisible(true);
+    } else {
+      Taro.navigateTo({ url: '/pages/partner/where/index' });
+    }
+  };
+
+  const handleContinuePartnerDraft = () => {
+    setPartnerDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/partner/itinerary/index' });
+  };
+
+  const handleStartPartnerFresh = () => {
+    Taro.removeStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
+    Taro.removeStorageSync('TEMP_PARTNER_DESTINATION');
+    setPartnerDraftModalVisible(false);
+    Taro.navigateTo({ url: '/pages/partner/where/index' });
   };
 
   // 模拟数据 (建议在实际项目中从 API 获取)
@@ -84,7 +105,7 @@ export default function PublishPage() {
       bg: 'bg-red-50',
       color: 'bg-red-200',
       textColor: 'text-red-500',
-      fn: () => Taro.navigateTo({ url: '/pages/partner/create/index' })
+      fn: handleCreatePartner
     },
     {
       id: 4,
@@ -182,6 +203,23 @@ export default function PublishPage() {
         <View className="py-2 text-center">
           <Text className="text-gray-600 text-[28px] leading-relaxed">
             检测到您之前有正在编辑的行程草稿，是否继续编辑？
+          </Text>
+        </View>
+      </Modal>
+
+      {/* 搭子草稿继续编辑弹窗 */}
+      <Modal
+        visible={partnerDraftModalVisible}
+        title="发现未完成的搭子草稿"
+        confirmText="继续编辑"
+        cancelText="重新开始"
+        onConfirm={handleContinuePartnerDraft}
+        onCancel={handleStartPartnerFresh}
+        onMaskClick={() => setPartnerDraftModalVisible(false)}
+      >
+        <View className="py-2 text-center">
+          <Text className="text-gray-600 text-[28px] leading-relaxed">
+            检测到您之前有正在编辑的搭子草稿，是否继续编辑？
           </Text>
         </View>
       </Modal>

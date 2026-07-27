@@ -32,8 +32,11 @@ export default defineAppConfig({
     'pages/trip/preview/index',
     'pages/trip/where/index',
     'pages/trip/date/index',
-    'pages/partner/create/index',
+    'pages/partner/where/index',
+    'pages/partner/itinerary/index',
+    'pages/partner/basic/index',
     'pages/partner/list/index',
+    'pages/partner/me/index',
     'pages/partner/detail/index',
   ],
   // 底部 TabBar 配置
