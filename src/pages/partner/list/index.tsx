@@ -1,11 +1,14 @@
 import { View, Text, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRef, useState } from 'react'
+import { usePullDownRefresh } from '@tarojs/taro'
 import { ScrollLoadList, Image, Modal } from '@/components'
 import { getPartnerList, applyPartner } from '@/api/partner'
 import type { PartnerItem } from '@/api/partner'
 
 const TYPE_LABELS: Record<number, string> = { 0: '不限', 1: '自由行', 2: '跟团游', 3: '自驾游' }
+const GENDER_LABELS: Record<number, string> = { 0: '不限', 1: '仅限男', 2: '仅限女' }
+const FEE_LABELS: Record<number, string> = { 0: '免费', 1: 'AA制', 2: '组织者全包', 3: '人均预算' }
 const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
   0: { label: '招募中', bg: 'bg-emerald-500/90' },
   1: { label: '已满员', bg: 'bg-gray-500/80' },
@@ -15,7 +18,15 @@ const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '时间待定'
   const d = new Date(dateStr)
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+  return `${m}月${day}日`
+}
+
+const formatShortDate = (dateStr: string) => {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return `${d.getMonth() + 1}.${d.getDate()}`
 }
 
 export default function PartnerList() {
@@ -40,6 +51,11 @@ export default function PartnerList() {
       setApplying(false)
     }
   }
+
+  usePullDownRefresh(async () => {
+    listRef.current?.refresh()
+    Taro.stopPullDownRefresh()
+  })
 
   return (
     <View className='min-h-screen bg-gray-100/70 pb-6'>
@@ -81,6 +97,11 @@ export default function PartnerList() {
                   <View className={`${statusInfo.bg} text-white text-[20px] px-2.5 py-0.5 rounded-full font-medium shadow-sm backdrop-blur-md`}>
                     {statusInfo.label}
                   </View>
+                  {item.category && (
+                    <View className='bg-white/80 backdrop-blur-md text-orange-600 text-[20px] px-2.5 py-0.5 rounded-full font-medium'>
+                      {item.category}
+                    </View>
+                  )}
                   {item.type > 0 && (
                     <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full font-light'>
                       {TYPE_LABELS[item.type]}
@@ -120,6 +141,7 @@ export default function PartnerList() {
                   <View className='flex flex-row items-center space-x-2 text-gray-500 text-[24px]'>
                     <Text className='font-medium text-gray-700'>
                       📅 {formatDate(item.startDate)}
+                      {item.endDate ? ` - ${formatShortDate(item.endDate)}` : ''}
                     </Text>
                     {item.days > 0 && (
                       <Text className='text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium'>
@@ -133,58 +155,58 @@ export default function PartnerList() {
                   </Text>
                 </View>
 
-                {/* 标签与预算、操作按钮 */}
-                <View className='flex flex-row items-center justify-between pt-1'>
-                  {/* 标签列表 */}
-                  <View className='flex flex-row items-center flex-1 mr-2 overflow-hidden space-x-1'>
-                    {item.travelTags ? (
-                      item.travelTags.split(',').slice(0, 2).map((tag, idx) => (
-                        <Text
-                          key={idx}
-                          className='text-[22px] text-gray-500 bg-gray-100/80 border border-gray-200/60 px-2 py-0.5 rounded-md truncate'
-                        >
-                          #{tag.trim()}
-                        </Text>
-                      ))
-                    ) : (
-                      <Text className='text-[22px] text-gray-400 italic'>暂无标签</Text>
-                    )}
-                  </View>
-
-                  {/* 价格预算 */}
-                  {item.budgetPerPerson > 0 && (
-                    <View className='flex flex-row items-baseline flex-shrink-0'>
-                      <Text className='text-[22px] text-orange-600 font-bold mr-0.5'>¥</Text>
-                      <Text className='text-[30px] text-orange-600 font-bold'>
-                        {item.budgetPerPerson}
-                      </Text>
-                      <Text className='text-[20px] text-gray-400 ml-0.5'>/人</Text>
-                    </View>
+                {/* 性别/年龄/费用标签 */}
+                <View className='flex flex-row items-center flex-wrap gap-1.5'>
+                  {item.genderLimit > 0 && (
+                    <Text className='text-[20px] text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md'>
+                      {GENDER_LABELS[item.genderLimit]}
+                    </Text>
+                  )}
+                  {(item.minAge ?? 0) > 0 || (item.maxAge ?? 0) > 0 ? (
+                    <Text className='text-[20px] text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md'>
+                      {item.minAge || 0}-{item.maxAge || 99}岁
+                    </Text>
+                  ) : null}
+                  {item.feeMode > 0 && (
+                    <Text className='text-[20px] text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md'>
+                      {FEE_LABELS[item.feeMode]}
+                    </Text>
                   )}
                 </View>
 
-                {/* 创建者信息 */}
-                <View className='flex flex-row items-center'>
-                  <Image isAvatar src={item.authorAvatar} className='w-[52px] h-[52px] text-[22px] rounded-full' />
-                  <Text className='text-[26px] text-stone-500 ml-1.5'>{item.authorName}</Text>
-                </View>
+                {/* 简短描述 */}
+                {item.desc && (
+                  <Text className='text-[24px] text-gray-500 leading-relaxed line-clamp-2'>
+                    {item.desc}
+                  </Text>
+                )}
 
-                {/* 底部动作按钮 */}
-                {!item.isSelf && (
-                  <View className='pt-1'>
+                {/* 创建者信息与操作按钮 */}
+                <View className='flex flex-row items-center justify-between pt-1'>
+                  <View className='flex flex-row items-center flex-1'>
+                    <Image isAvatar src={item.authorAvatar} className='w-[52px] h-[52px] text-[22px] rounded-full' />
+                    <Text className='text-[26px] text-stone-500 ml-1.5 truncate'>{item.authorName}</Text>
+                  </View>
+
+                  {!item.isSelf && (
                     <View
-                      className='w-full bg-[#F97316] active:bg-[#EA580C] text-white text-center py-2.5 rounded-xl font-bold text-[28px] shadow-sm transition-all active:scale-[0.98]'
+                      className={`shrink-0 px-4 py-2 rounded-xl font-bold text-[26px] shadow-sm transition-all active:scale-[0.98] ${
+                        item.isApplied
+                          ? 'bg-gray-100 text-gray-400'
+                          : 'bg-[#F97316] active:bg-[#EA580C] text-white'
+                      }`}
                       onClick={(e) => {
+                        if (item.isApplied) return
                         e.stopPropagation()
                         setApplyPartnerId(item.id)
                         setApplyRemark('')
                         setApplyVisible(true)
                       }}
                     >
-                      申请加入
+                      {item.isApplied ? '已申请' : '申请加入'}
                     </View>
-                  </View>
-                )}
+                  )}
+                </View>
               </View>
             </View>
           )

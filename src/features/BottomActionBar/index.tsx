@@ -18,6 +18,10 @@ interface BottomActionBarProps {
     onCommentIconClick?: () => void;
     guideId: string;
     onCommentSuccess?: () => void;
+    /** 自定义点赞函数（不传则使用默认 guide 点赞 API） */
+    onLike?: (id: string) => Promise<void>;
+    /** 自定义取消点赞函数 */
+    onUnlike?: (id: string) => Promise<void>;
     /** 回复目标（点回复时传入） */
     replyTo?: { parentId: string; nickname: string } | null;
     /** 清除回复目标 */
@@ -36,6 +40,8 @@ export default memo(function BottomActionBar({
     onCommentIconClick,
     guideId,
     onCommentSuccess,
+    onLike,
+    onUnlike,
     replyTo,
     onClearReply
 }: BottomActionBarProps) {
@@ -82,9 +88,11 @@ export default memo(function BottomActionBar({
     const handleLike = async () => {
         try {
             if (!isLiked) {
-                await likeTravelGuide(guideId);
+                if (onLike) await onLike(guideId);
+                else await likeTravelGuide(guideId);
             } else {
-                await unlikeTravelGuide(guideId);
+                if (onUnlike) await onUnlike(guideId);
+                else await unlikeTravelGuide(guideId);
             }
             update();
             onLikeToggle();
@@ -96,9 +104,9 @@ export default memo(function BottomActionBar({
     const handleCollect = async () => {
         try {
             if (!isCollected) {
-                await addFavorite({ targetId: guideId, targetType: 'guide' });
+                await addFavorite({ targetId: guideId, targetType });
             } else {
-                await deleteFavorite(guideId, 'guide');
+                await deleteFavorite(guideId, targetType);
             }
             update();
             onCollectToggle();

@@ -13,7 +13,7 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/personal/index',
     'pages/profile/index',
-    'pages/accounting/list',
+    'pages/accounting/list/index',
     'pages/checklist/list/index',
     'pages/checklist/edit/index',
     'pages/footprint/index',

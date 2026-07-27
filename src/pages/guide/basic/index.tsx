@@ -133,7 +133,7 @@ export default function BasicInfoPage() {
             setTimeout(() => {
                 Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
             }, 500)
-            Taro.navigateBack({ delta: 2 });
+            Taro.switchTab({ url: '/pages/publish/index' })
         }, 1500);
     };
 

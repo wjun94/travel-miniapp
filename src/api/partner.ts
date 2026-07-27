@@ -1,4 +1,5 @@
 import request, { PageResult } from './request'; // 确保路径正确指向你的 request 实例
+import type { Trip } from './trip';
 
 // --- 类型定义 (基于你提供的 JSON 结构) ---
 
@@ -88,8 +89,147 @@ export interface HandleApplicationParams {
   status: number; // 1: 同意, 2: 拒绝
 }
 
-/** 搭子/结伴游条目 */
+/** 搭子详情（GET /partner/{id} 完整响应） */
+export interface PartnerDetail {
+  /** 唯一标识 */
+  id: string;
+  /** 发布者用户 ID */
+  userId: string;
+  /** 标题 */
+  title: string;
+  /** 描述/介绍 */
+  desc: string;
+  /** 详细地址 */
+  address: string;
+  /** 目的地名称 */
+  destination: string;
+  /** 活动分类（旅游/美食/运动等） */
+  category: string;
+  /** 封面图 URL */
+  cover: string;
+  /** 多张图片（逗号分隔或 JSON 数组） */
+  images: string;
+  /** 标签（逗号分隔） */
+  tags: string;
+  /** 出行标签（逗号分隔，如：自驾,徒步,美食） */
+  travelTags: string;
+  /** 出行类型: 0 不限 / 1 自由行 / 2 跟团游 / 3 自驾游 */
+  type: number;
+  /** 开始日期 */
+  startDate: string;
+  /** 结束日期 */
+  endDate: string;
+  /** 行程天数 */
+  days: number;
+  /** 创建时间 */
+  createdAt: string;
+  /** 更新时间 */
+  updatedAt: string;
+
+  // --- 人数 & 年龄 ---
+  /** 当前已加入人数 */
+  currentMembers: number;
+  /** 最大人数限制 */
+  maxMembers: number;
+  /** 最少成行人数 */
+  minMembers: number;
+  /** 男性名额 */
+  maleCount: number;
+  /** 女性名额 */
+  femaleCount: number;
+  /** 最小年龄限制 */
+  minAge: number;
+  /** 最大年龄限制 */
+  maxAge: number;
+  /** 性别限制: 0 不限 / 1 仅男生 / 2 仅女生 */
+  genderLimit: number;
+
+  // --- 费用 ---
+  /** 费用模式: 0 免费 / 1 AA / 2 组织者全包 / 3 人均预算 */
+  feeMode: number;
+  /** 人均预算（分） */
+  budgetPerPerson: number;
+  /** 官方参考价（分） */
+  officialPrice: number;
+  /** 预估总费用（分） */
+  estTotal: number;
+  /** 费用包含说明 */
+  feeInclude: string;
+  /** 费用不含说明 */
+  feeExclude: string;
+
+  // --- 权限 & 配置 ---
+  /** 加入方式: 0 自由加入 / 1 需审核 */
+  joinMode: number;
+  /** 成团后自动关闭报名: 0 关闭 / 1 开启 */
+  autoClose: number;
+  /** 允许他人转发: 0 禁止 / 1 允许 */
+  allowShare: number;
+  /** 允许他人收藏: 0 禁止 / 1 允许 */
+  allowCollect: number;
+  /** 可见性: 0 全部可见 / 1 仅粉丝 / 2 仅互关 */
+  visibility: number;
+  /** 草稿状态: 0 非草稿 / 1 草稿 */
+  isDraft: number;
+  /** 是否公开: 0 私密 / 1 公开 */
+  isPublic: 0 | 1;
+  /** 状态: 0 招募中 / 1 已满员 / 2 已结束 */
+  status: number;
+  /** 排序权重 */
+  sortWeight: number;
+
+  // --- 位置 ---
+  /** 纬度 */
+  latitude: number;
+  /** 经度 */
+  longitude: number;
+  /** 位置类型 */
+  locationType: number;
+
+  // --- 作者 ---
+  /** 发布者头像 URL */
+  authorAvatar: string;
+  /** 发布者昵称 */
+  authorName: string;
+
+  // --- 线上 & 要求 ---
+  /** 线上链接（腾讯会议等） */
+  onlineLink: string;
+  /** 报名要求/条件 */
+  requirement: string;
+  /** 富文本描述（HTML/Markdown） */
+  richDesc: string;
+
+  // --- 社交状态 ---
+  /** 是否为自己发布的 */
+  isSelf: boolean;
+  /** 是否已报名申请 */
+  isApplied: boolean;
+  /** 是否已关注发布者 */
+  isFollowed: boolean;
+  /** 当前登录用户是否已收藏 */
+  isFavorited: boolean;
+  /** 当前登录用户是否已点赞 */
+  isLiked: boolean;
+
+  // --- 统计数据 ---
+  /** 浏览次数 */
+  viewCount: number;
+  /** 点赞数 */
+  likeCount: number;
+  /** 收藏数 */
+  favoriteCount: number;
+  /** 评论数 */
+  commentCount: number;
+
+  // --- 关联行程 ---
+  /** 关联行程详情 */
+  trip: Trip;
+}
+
+/** 搭子/结伴游条目（列表接口响应） */
 export interface PartnerItem {
+  // --- 基础信息 ---
   /** 唯一标识 */
   id: string;
   /** 关联的行程 ID */
@@ -100,60 +240,120 @@ export interface PartnerItem {
   title: string;
   /** 描述/介绍 */
   desc: string;
+  /** 详细地址 */
+  address: string;
   /** 目的地名称 */
   destination: string;
+  /** 活动分类（旅游/美食/运动等） */
+  category: string;
   /** 封面图 URL */
   cover: string;
-  /** 是否已报名申请 */
-  isApplied: boolean;
-  /** 是否为自己发布的 */
-  isSelf: boolean;
-  /** 是否已关注发布者 */
-  isFollowed: boolean;
-  /** 发布者头像 URL */
-  authorAvatar: string;
-  /** 发布者昵称 */
-  authorName: string;
-  /** 发布者用户 ID（同 userId） */
-  authorId: string;
+  /** 多张图片（逗号分隔或 JSON 数组） */
+  images: string;
+  /** 标签（逗号分隔） */
+  tags: string;
+  /** 出行标签（逗号分隔，如：自驾,徒步,美食） */
+  travelTags: string;
+  /** 出行类型: 0 不限 / 1 自由行 / 2 跟团游 / 3 自驾游 */
+  type: number;
+  /** 富文本描述（HTML/Markdown） */
+  richDesc: string;
+
+  // --- 时间 ---
   /** 开始日期 */
   startDate: string;
   /** 结束日期 */
   endDate: string;
+  /** 行程天数 */
+  days: number;
   /** 创建时间 */
   createdAt: string;
   /** 更新时间 */
   updatedAt: string;
+
+  // --- 人数 & 年龄 ---
   /** 当前已加入人数 */
   currentMembers: number;
   /** 最大人数限制 */
   maxMembers: number;
+  /** 最少成行人数 */
+  minMembers: number;
+  /** 男性名额 */
+  maleCount: number;
+  /** 女性名额 */
+  femaleCount: number;
   /** 最小年龄限制 */
   minAge: number;
   /** 最大年龄限制 */
   maxAge: number;
   /** 性别限制: 0 不限 / 1 仅男 / 2 仅女 */
   genderLimit: number;
-  /** 报名要求描述 */
-  requirement: string;
+
+  // --- 费用 ---
+  /** 费用模式: 0 免费 / 1 AA / 2 组织者全包 / 3 人均预算 */
+  feeMode: number;
   /** 人均预算 */
   budgetPerPerson: number;
   /** 官方参考价 */
   officialPrice: number;
-  /** 纬度 */
-  latitude: number;
-  /** 经度 */
-  longitude: number;
-  /** 出行标签，逗号分隔 */
-  travelTags: string;
-  /** 出行类型: 0 不限 / 1 自由行 / 2 跟团游 / 3 自驾游 */
-  type: number;
+  /** 预估总费用 */
+  estTotal: number;
+  /** 费用包含说明 */
+  feeInclude: string;
+  /** 费用不含说明 */
+  feeExclude: string;
+
+  // --- 权限 & 配置 ---
+  /** 加入方式: 0 自由加入 / 1 需审核 */
+  joinMode: number;
+  /** 成团后自动关闭报名: 0 关闭 / 1 开启 */
+  autoClose: number;
+  /** 允许他人转发: 0 禁止 / 1 允许 */
+  allowShare: number;
+  /** 允许他人收藏: 0 禁止 / 1 允许 */
+  allowCollect: number;
+  /** 可见性: 0 全部可见 / 1 仅粉丝 / 2 仅互关 */
+  visibility: number;
+  /** 草稿状态: 0 非草稿 / 1 草稿 */
+  isDraft: number;
   /** 是否公开: 0 私密 / 1 公开 */
   isPublic: 0 | 1;
   /** 状态: 0 招募中 / 1 已满员 / 2 已结束 */
   status: number;
   /** 排序权重 */
   sortWeight: number;
+
+  // --- 位置 ---
+  /** 纬度 */
+  latitude: number;
+  /** 经度 */
+  longitude: number;
+  /** 位置类型 */
+  locationType: number;
+
+  // --- 作者 ---
+  /** 发布者头像 URL */
+  authorAvatar: string;
+  /** 发布者昵称 */
+  authorName: string;
+  /** 发布者用户 ID（同 userId） */
+  authorId: string;
+
+  // --- 线上 & 要求 ---
+  /** 线上链接（腾讯会议等） */
+  onlineLink: string;
+  /** 报名要求描述 */
+  requirement: string;
+
+  // --- 社交状态 ---
+  /** 是否已报名申请 */
+  isApplied: boolean;
+  /** 是否为自己发布的 */
+  isSelf: boolean;
+  /** 是否已关注发布者 */
+  isFollowed: boolean;
+
+  // --- 统计 ---
   /** 浏览次数 */
   viewCount: number;
 }
@@ -228,10 +428,32 @@ export const handlePartnerApplication = (id: string, data: HandleApplicationPara
 * 5. 获取搭子详情
 * GET /partner/{id}
 * @param id 搭子ID
-* @returns 搭子详细信息 (复用 PartnerItem 结构)
+* @returns 搭子详情 (完整 PartnerDetail 结构，含嵌套 trip)
 */
 export const getPartnerDetail = (id: string) =>
-  request<PartnerItem>({
+  request<PartnerDetail>({
     url: `/partner/${id}`,
     method: 'GET'
+  });
+
+/**
+ * 6. 点赞搭子
+ * POST /partner/{id}/like
+ * @param id 搭子ID
+ */
+export const likePartner = (id: string) =>
+  request<string>({
+    url: `/partner/${id}/like`,
+    method: 'POST',
+  });
+
+/**
+ * 7. 取消点赞搭子
+ * DELETE /partner/{id}/like
+ * @param id 搭子ID
+ */
+export const unlikePartner = (id: string) =>
+  request<string>({
+    url: `/partner/${id}/like`,
+    method: 'DELETE',
   });

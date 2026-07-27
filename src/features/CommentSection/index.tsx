@@ -11,11 +11,12 @@ interface CommentSectionProps {
     targetId: string;
     targetType: string;
     refreshKey?: number;
+    className?: string;
     onLikeComment?: (id: string) => void;
     onReplyComment?: (comment: CommentItem) => void;
 }
 
-export default function CommentSection({ targetId, data, targetType, refreshKey, onLikeComment, onReplyComment }: CommentSectionProps) {
+export default function CommentSection({ targetId, data, targetType, refreshKey, className = 'mx-4', onLikeComment, onReplyComment }: CommentSectionProps) {
     const { data: commentRes, loading } = useRequest(
         () => getComments({ target_type: targetType, target_id: targetId, page: 1, pageSize: 20 }),
         { ready: !!targetId, refreshDeps: [targetId, targetType, refreshKey] }
@@ -68,7 +69,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
     };
 
     return (
-        <View className='mt-4 bg-white mx-4 rounded-3xl p-5 shadow-sm'>
+        <View className={`mt-4 bg-white ${className} rounded-3xl p-5 shadow-sm`}>
             {/* 头部标题 */}
             <View className='flex flex-row items-baseline justify-between mb-6 pb-2 border-b border-stone-50'>
                 <Text className='text-[34px] font-black text-stone-700 tracking-wider'>驴友热议</Text>
