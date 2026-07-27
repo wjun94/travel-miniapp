@@ -6,13 +6,14 @@ interface Props {
   title?: string
   className?: string
   style?: React.CSSProperties
+  children?: React.ReactNode
 }
 
-/** 封面图片组件：有图展示图片，无图显示标题占位 */
-export default function CoverImage({ src, title, className = '', style }: Props) {
+/** 封面图片组件：有图展示图片，无图显示标题占位，children 作为顶层遮罩渲染 */
+export default function CoverImage({ src, title, className = '', style, children }: Props) {
   return (
     <View
-      className={`w-full h-full relative ${className}`}
+      className={`w-full h-full relative overflow-hidden ${className}`}
       style={{ backgroundColor: src ? undefined : '#ffedd5', ...style }}
     >
       {src ? (
@@ -33,6 +34,7 @@ export default function CoverImage({ src, title, className = '', style }: Props)
           </Text>
         </View>
       )}
+      {children && <View className='absolute inset-0'>{children}</View>}
     </View>
   )
 }

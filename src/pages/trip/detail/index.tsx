@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image } from '@/components';
+import { NavBar, Image, CoverImage } from '@/components';
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { getTripDetail, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -150,9 +150,10 @@ export default function TripDetail() {
                     className='w-full flex-1 box-border'
                 >
                     {/* 顶部沉浸式大图封面 */}
-                    <View className='relative w-full h-[520px] bg-stone-200'>
-                        {guide.coverImage && <Image src={guide.coverImage} mode='aspectFill' className='w-full h-full' />}
-                        <View className='absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent' />
+                    <View className='relative w-full h-[520px]'>
+                        <CoverImage src={guide.coverImage} title={guide.title}>
+                            <View className='w-full h-full bg-gradient-to-t from-black/20 via-transparent to-transparent' />
+                        </CoverImage>
                     </View>
 
                     {/* 基本信息大卡片 */}
