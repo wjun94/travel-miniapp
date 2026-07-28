@@ -7,8 +7,9 @@ const dotenv = require('dotenv');
 const path = require('path');
 const variableExpansion = require('dotenv-expand');
 
-// 读取.env配置文件
-const env = dotenv.config();
+// 读取.env配置文件（根据 NODE_ENV 切换环境变量）
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const env = dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
 variableExpansion.expand(env);
 
 const targetEnv = {};
