@@ -165,6 +165,14 @@ export default function PublishForm() {
         }
     }, []);
 
+    // 页面显示时重新读取 storage（从 where 页返回后更新）
+    Taro.useDidShow(() => {
+        const dest = Taro.getStorageSync('TEMP_PARTNER_DESTINATION');
+        if (dest) {
+            handleInputChange('destination', dest);
+        }
+    });
+
     // 将 itinerary 页面存储的 dayPlans 映射为 API 所需的 DayItem[]
     const getDaysData = (): ApiDayItem[] => {
         try {
@@ -354,13 +362,15 @@ export default function PublishForm() {
                     <View className="space-y-3">
                         <View>
                             <Text className="text-xs font-semibold text-gray-700 block mb-1.5">目的地 <Text className="text-red-500">*</Text></Text>
-                            <View className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 box-border h-11 flex items-center">
-                                <Text className="text-gray-500 text-xs">
-                                    {formData.destination || '请先在「目的地」页面选择'}
+                            <View
+                              className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 box-border h-11 flex items-center active:border-orange-400 active:bg-orange-50"
+                              onClick={() => Taro.navigateTo({ url: '/pages/partner/where/index?from=basic' })}
+                            >
+                                <Text className={`${formData.destination ? 'text-gray-800' : 'text-gray-500'} text-xs`}>
+                                    {formData.destination || '请选择目的地'}
                                 </Text>
-                                <Text className="text-gray-300 ml-auto text-xs">已选择</Text>
+                                <Text className="text-gray-300 ml-auto text-xs">去选择 →</Text>
                             </View>
-                            <Text className="text-gray-400 text-[20px] mt-1">如需修改请返回上一步</Text>
                         </View>
                         <View>
                             <Text className="text-xs font-semibold text-gray-700 block mb-1.5">集合地点</Text>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Input } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import { searchDestinations, DestinationItem } from '@/api/common';
 
 export default function SearchPage() {
+    const router = useRouter();
+    const from = router.params?.from || '';
     const [keyword, setKeyword] = useState('');
     const [results, setResults] = useState<DestinationItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -40,7 +42,11 @@ export default function SearchPage() {
     // 点击选择目的地
     const handleSelect = (item: DestinationItem) => {
         Taro.setStorageSync('TEMP_PARTNER_DESTINATION', item.name);
-        Taro.navigateTo({ url: `../itinerary/index?destination=${encodeURIComponent(JSON.stringify(item))}` });
+        if (from === 'basic') {
+            Taro.navigateBack();
+        } else {
+            Taro.navigateTo({ url: `../itinerary/index?destination=${encodeURIComponent(JSON.stringify(item))}` });
+        }
     };
 
     // 清空输入框
