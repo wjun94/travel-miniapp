@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -48,7 +48,18 @@ export default function ProfilePage() {
         Taro.navigateTo({ url: '/pages/history/index' })
       }
     },
-    { id: 4, title: '联系客服', icon: 'icon-contact' },
+    {
+      id: 'invite',
+      title: '邀请好友',
+      icon: 'icon-share',
+      openType: 'share' // 使用微信分享
+    },
+    {
+      id: 4,
+      title: '联系客服',
+      icon: 'icon-contact',
+      openType: 'contact'
+    },
   ]
 
   return (
@@ -75,16 +86,11 @@ export default function ProfilePage() {
           {/* 名字与标签 */}
           <View className="flex flex-col ml-4 flex-1">
             <Text className="text-xl font-black text-gray-800 tracking-wide">{profile?.nickname || '驴友'}</Text>
-            {/* 标签 */}
-            <View className="flex flex-row items-center mt-1.5 bg-[#FFEFE6] rounded-full overflow-hidden w-[max-content]">
-              {/* Lv 标签 */}
-              <View className="bg-[#FF7A38] px-2 py-1 rounded-full flex flex-row items-center shadow-2xs h-28px leading-28px">
-                <Text className="text-white text-[24px] font-black">📍 Lv.6</Text>
-              </View>
-              {/* 达人标签 */}
-              <View className="px-2.5 rounded-full py-1 h-28px leading-28px">
-                <Text className="text-[#FF7A38] text-[24px] font-bold">旅行达人</Text>
-              </View>
+            {/* 标签 - 新增用户ID展示 */}
+            <View className="flex flex-row items-center mt-1.5 overflow-hidden w-[max-content]">
+              <Text className="text-24px">
+                ID: {profile?.id ?? '-'}
+              </Text>
             </View>
           </View>
 
@@ -138,9 +144,10 @@ export default function ProfilePage() {
           <Text className="text-base font-black text-gray-800 tracking-wide block mb-4">更多服务</Text>
           <View className="grid grid-cols-4 gap-2 text-center">
             {services.map((service) => (
-              <View
+              <Button
+                openType={service.openType as any}
                 key={service.id}
-                className="flex flex-col items-center active:opacity-70"
+                className='flex items-center flex-col px-0 text-28px bg-transparent border-0 text-[#333] py-2 transition-colors duration-150'
                 onClick={service.onFn}
               >
                 {/* 底部图标可以直接使用轻量图标或文字符号 */}
@@ -148,7 +155,7 @@ export default function ProfilePage() {
                   <Text className={`text-60px iconfont ${service.icon}`} />
                 </View>
                 <Text className="text-xs font-medium text-gray-600 tracking-wide">{service.title}</Text>
-              </View>
+              </Button>
             ))}
           </View>
         </View>

@@ -40,7 +40,7 @@ export default function SearchPage() {
     // 点击选择目的地
     const handleSelect = (item: DestinationItem) => {
         Taro.setStorageSync('TEMP_GUIDE_DESTINATION', item.name);
-        Taro.navigateTo({ url: `../itinerary/index?destination=${encodeURIComponent(JSON.stringify(item))}` });
+        Taro.navigateBack();
     };
 
     // 清空输入框

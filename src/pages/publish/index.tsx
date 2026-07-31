@@ -43,7 +43,7 @@ export default function PublishPage() {
 
   const handleContinueTripDraft = () => {
     setTripDraftModalVisible(false);
-    Taro.navigateTo({ url: '/pages/trip/where/index' });
+    Taro.navigateTo({ url: '/pages/trip/itinerary/index' });
   };
 
   const handleStartTripFresh = () => {
@@ -155,7 +155,7 @@ export default function PublishPage() {
       </View>
 
       {/* 热门目的地模块 */}
-      <View className="mb-8">
+      {/* <View className="mb-8">
         <View className="flex justify-between items-center mb-4 px-1">
           <Text className="text-base font-bold text-gray-800">热门目的地</Text>
           <Text className="text-xs text-gray-400">更多 {'>'}</Text>
@@ -172,7 +172,7 @@ export default function PublishPage() {
             </View>
           ))}
         </ScrollView>
-      </View>
+      </View> */}
 
       {/* 草稿继续编辑弹窗 */}
       <Modal

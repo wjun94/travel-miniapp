@@ -1,6 +1,5 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { useEffect } from 'react';
+import Taro, { useDidShow } from '@tarojs/taro';
 import { useSetState, useRequest } from 'ahooks';
 import { createTravelGuide } from '@/api/guide'
 import { difficultyOptions } from '@/constants/travel';
@@ -47,13 +46,13 @@ export default function BasicInfoPage() {
         } catch { /* ignore */ }
     };
 
-    // 从 where 页获取已选目的地
-    useEffect(() => {
+    // 从 where 页获取已选目的地（每次页面显示时刷新）
+    useDidShow(() => {
         const saved = Taro.getStorageSync('TEMP_GUIDE_DESTINATION');
         if (saved) {
             setFormState({ destination: saved });
         }
-    }, []);
+    });
 
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTravelGuide, {
         manual: true,
@@ -179,7 +178,7 @@ export default function BasicInfoPage() {
                 {/* 2. 目的地 */}
                 <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'><Text className='text-red-500'>*</Text> 目的地</Text>
-                    <View className='bg-gray-50 rounded-xl px-3 py-3'>
+                    <View className='bg-gray-50 rounded-xl px-3 py-3' onClick={() => Taro.navigateTo({ url: '/pages/guide/where/index' })}>
                         <Text className='text-[28px] text-gray-800'>
                             {formState.destination || '请先在「想去哪儿」选择目的地'}
                         </Text>

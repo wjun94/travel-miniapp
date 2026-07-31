@@ -6,11 +6,12 @@ import ImageUpload from './ImageUpload';
 interface Props {
   item: any;
   updateField: (field: string | Record<string, any>, value?: any) => void;
+  imageLabel?: string;
 }
 
 const cfg = typeConfigMap.hotel;
 
-export default function HotelForm({ item, updateField }: Props) {
+export default function HotelForm({ item, updateField, imageLabel }: Props) {
   return (
     <View className='space-y-4 box-border'>
       {/* 时间 */}
@@ -46,7 +47,7 @@ export default function HotelForm({ item, updateField }: Props) {
       </View>
 
       {/* 图片 */}
-      <ImageUpload images={item.images || []} onChoose={(imgs) => updateField('images', imgs)} onDelete={(idx) => updateField('images', (item.images || []).filter((_: any, i: number) => i !== idx))} />
+      <ImageUpload label={imageLabel} images={item.images || []} onChoose={(imgs) => updateField('images', imgs)} onDelete={(idx) => updateField('images', (item.images || []).filter((_: any, i: number) => i !== idx))} />
     </View>
   );
 }

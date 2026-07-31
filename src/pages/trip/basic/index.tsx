@@ -1,7 +1,7 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useSetState, useRequest } from 'ahooks';
-import { createTrip } from '@/api/trip'
+import { createTrip, AiGenerateTripData } from '@/api/trip'
 import { uploadSingleFile } from '@/utils/upload';
 
 // 定义表单的状态类型
@@ -15,12 +15,25 @@ interface FormState {
 
 export default function BasicInfoPage() {
     // 使用 ahooks 的 useSetState 统一管理复杂的表单字段
-    const [formState, setFormState] = useSetState<FormState>({
-        title: '',
-        summary: '',
-        coverImage: '',
-        totalBudget: '',
-        isPublic: false,
+    // 本地存在 AI 生成数据时自动填充表单
+    const [formState, setFormState] = useSetState<FormState>(() => {
+        const aiData = Taro.getStorageSync('TEMP_TRIP_AI_GENERATED') as AiGenerateTripData | undefined;
+        if (aiData && aiData.id) {
+            return {
+                title: aiData.title || '',
+                summary: aiData.summary || '',
+                coverImage: aiData.coverImage || '',
+                totalBudget: aiData.totalBudget ? String(aiData.totalBudget) : '',
+                isPublic: aiData.isPublic === 1,
+            };
+        }
+        return {
+            title: '',
+            summary: '',
+            coverImage: '',
+            totalBudget: '',
+            isPublic: true,
+        };
     });
 
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTrip, {
@@ -44,12 +57,23 @@ export default function BasicInfoPage() {
             return;
         }
 
+        const aiData = Taro.getStorageSync('TEMP_TRIP_AI_GENERATED') as AiGenerateTripData | undefined;
+
         const cachedItinerary = (() => {
             const raw = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || [];
             return raw.dayPlans ? raw.dayPlans : raw;
         })();
 
+        // 目的地元数据：优先本地选择的，缺失时用 AI 生成数据兜底
         const destinationMeta = Taro.getStorageSync('TEMP_TRIP_DESTINATIONS') || {};
+        const aiMeta = aiData && aiData.id ? {
+            cities: aiData.cities || [],
+            destinations: aiData.destinations || [],
+            provinces: aiData.provinces || [],
+            countries: aiData.countries || [],
+            isOverseas: aiData.isOverseas || 0,
+        } : {};
+        const finalMeta = { ...aiMeta, ...destinationMeta };
 
         const payload = {
             title,
@@ -58,36 +82,38 @@ export default function BasicInfoPage() {
             totalBudget: totalBudget ? parseFloat(totalBudget) : undefined,
             isPublic: formState.isPublic ? 1 : 0,
             status: isPublish ? 2 : 1,
-            ...destinationMeta,
-            days: cachedItinerary.map((day: any, dayIdx: number) => ({
-                dayNumber: dayIdx + 1,
-                date: day.date ? `${day.date}T00:00:00Z` : null,
-                title: day.title,
-                items: day.items.map((item: any) => ({
-                    sectionType: item.sectionType,
-                    title: item.title,
-                    description: item.description,
-                    startTime: item.startTime || null,
-                    endTime: item.endTime || null,
-                    latitude: item.latitude,
-                    longitude: item.longitude,
-                    address: item.address,
-                    // 交通类型专属字段
-                    transportMode: item.transportMode,
-                    startLat: item.startLatitude,
-                    startLng: item.startLongitude,
-                    startPoint: item.startAddress,
-                    endLat: item.endLatitude,
-                    endLng: item.endLongitude,
-                    endPoint: item.endAddress,
-                    // 购票相关字段
-                    needReservation: item.needReservation,
-                    ticketChannel: item.ticketChannel,
-                    ticketPrice: item.ticketPrice,
-                    // 图片
-                    images: item.images
+            ...finalMeta,
+            days: cachedItinerary.length > 0
+                ? cachedItinerary.map((day: any, dayIdx: number) => ({
+                    dayNumber: dayIdx + 1,
+                    date: day.date ? `${day.date}T00:00:00Z` : null,
+                    title: day.title,
+                    items: day.items.map((item: any) => ({
+                        sectionType: item.sectionType,
+                        title: item.title,
+                        description: item.description,
+                        startTime: item.startTime || null,
+                        endTime: item.endTime || null,
+                        latitude: item.latitude,
+                        longitude: item.longitude,
+                        address: item.address,
+                        // 交通类型专属字段
+                        transportMode: item.transportMode,
+                        startLat: item.startLatitude,
+                        startLng: item.startLongitude,
+                        startPoint: item.startAddress,
+                        endLat: item.endLatitude,
+                        endLng: item.endLongitude,
+                        endPoint: item.endAddress,
+                        // 购票相关字段
+                        needReservation: item.needReservation,
+                        ticketChannel: item.ticketChannel,
+                        ticketPrice: item.ticketPrice,
+                        // 图片
+                        images: item.images
+                    }))
                 }))
-            }))
+                : (aiData?.days || [])
         };
 
         await createRunAsync(payload as any);

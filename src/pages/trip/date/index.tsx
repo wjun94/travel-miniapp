@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Taro from '@tarojs/taro';
 import { View, Text, ScrollView, PickerView, PickerViewColumn, Input } from '@tarojs/components';
 import { BottomSheet } from '@/components';
+import { aiGenerateTrip, AiGenerateTripData } from '@/api/trip'
 import { searchDestinations, type DestinationItem } from '@/api/common';
 
 export default function TravelDurationPicker() {
@@ -24,6 +25,18 @@ export default function TravelDurationPicker() {
     const [keyword, setKeyword] = useState('');
     const [searchResults, setSearchResults] = useState<DestinationItem[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
+
+    // AI 生成行程状态（每次进入页面均为未生成状态）
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiData, setAiData] = useState<AiGenerateTripData | null>(null);
+
+    // 生成中动态点点动画：1 个到 3 个来回切换
+    const [dotCount, setDotCount] = useState(1);
+    useEffect(() => {
+        if (!aiLoading) return;
+        const timer = setInterval(() => setDotCount(c => (c % 3) + 1), 400);
+        return () => clearInterval(timer);
+    }, [aiLoading]);
 
     // 从 URL 参数读取已选目的地（数组）
     const [destinations, setDestinations] = useState<DestinationItem[]>(() => {
@@ -61,6 +74,9 @@ export default function TravelDurationPicker() {
             // 保存目的地信息（Trip 格式）
             saveDestinationMeta();
 
+            // AI 数据校验通过则直接使用 AI 生成结果
+            if (useAiDataIfValid()) return;
+
             Taro.navigateTo({ url: `../itinerary/index?startDate=${startDate}&endDate=${end}` });
         } else {
             const days = selectedDayIndex + 1;
@@ -68,7 +84,69 @@ export default function TravelDurationPicker() {
             // 保存目的地信息（Trip 格式）
             saveDestinationMeta();
 
+            // AI 数据校验通过则直接使用 AI 生成结果
+            if (useAiDataIfValid()) return;
+
             Taro.navigateTo({ url: `../itinerary/index?flexDays=${days}` });
+        }
+    };
+
+    // 校验 AI 生成数据，有效则跳转行程详情页使用该数据
+    const useAiDataIfValid = (): boolean => {
+        const data = aiData || Taro.getStorageSync('TEMP_TRIP_AI_GENERATED');
+        if (!data) return false;
+        // 数据完整性校验：必须存在 id 且包含有效天数
+        if (!data?.id || !data?.days || data.days.length === 0) {
+            Taro.showToast({ title: 'AI 生成数据不完整，请重新生成', icon: 'none' });
+            return true;
+        }
+        Taro.navigateTo({ url: `../itinerary/index?aiId=${data.id}` });
+        return true;
+    };
+
+    // AI 智能生成行程
+    const handleAiGenerate = async () => {
+        // 校验：必须先选择目的地
+        if (destinations.length === 0) {
+            Taro.showToast({ title: '请先添加目的地', icon: 'none' });
+            return;
+        }
+        // 校验：具体日期模式必须选择出发日期
+        if (activeTab === 'specific' && !startDate) {
+            Taro.showToast({ title: '请选择出发日期', icon: 'none' });
+            return;
+        }
+
+        const days = activeTab === 'specific'
+            ? (endDate
+                ? Math.ceil((new Date(endDate).getTime() - new Date(startDate!).getTime()) / 86400000) + 1
+                : 1)
+            : selectedDayIndex + 1;
+
+        setAiLoading(true);
+        // 全屏 loading 锁住页面，避免生成期间重复操作
+        Taro.showLoading({ title: 'AI 生成中...', mask: true });
+        try {
+            const res = await aiGenerateTrip({
+                destination: destinations.map(d => d.name).join(','),
+                days,
+            });
+            // 保存 AI 生成数据与目的地信息到本地
+            setAiData(res);
+            Taro.setStorageSync('TEMP_TRIP_AI_GENERATED', res);
+            saveDestinationMeta();
+            // 数据完整性校验：必须存在 id 且包含有效天数
+            if (!res?.id || !res?.days || res.days.length === 0) {
+                Taro.showToast({ title: 'AI 生成数据不完整，请重新生成', icon: 'none' });
+                return;
+            }
+            // 生成成功直接跳转行程编辑页
+            Taro.navigateTo({ url: `../itinerary/index?aiId=${res.id}` });
+        } catch (e: any) {
+            Taro.showToast({ title: e?.message || 'AI 生成失败，请稍后重试', icon: 'none' });
+        } finally {
+            setAiLoading(false);
+            Taro.hideLoading();
         }
     };
 
@@ -333,14 +411,22 @@ export default function TravelDurationPicker() {
                 </ScrollView>
             </View>
 
-            {/* 底部操作区 */}
-            <View className="px-6 py-4 flex items-center justify-between border-t border-gray-50 bg-white">
-                <Text onClick={() => requireDestination(() => Taro.navigateTo({ url: '../itinerary/index' }))} className="text-gray-400 text-base font-medium tracking-wide active:text-gray-600">跳过</Text>
+            {/* 底部操作区：跳过 | AI 生成 | 下一步 */}
+            <View className="px-6 py-4 flex items-center border-t border-gray-50 bg-white">
+                <Text onClick={() => requireDestination(() => Taro.navigateTo({ url: '../itinerary/index' }))} className="text-gray-400 text-base font-medium tracking-wide active:text-gray-600 shrink-0 mr-3">跳过</Text>
+                <View
+                    onClick={handleAiGenerate}
+                    className={`flex-1 text-center py-3.5 rounded-full font-bold text-base tracking-widest transition-colors m-0 mr-3 ${aiData
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                        : 'bg-gray-900 text-white active:bg-gray-800 shadow-sm'}`}
+                >
+                    {aiLoading ? `AI 生成中${'.'.repeat(dotCount)}` : (aiData ? '✨ 已生成' : '✨ AI 生成')}
+                </View>
                 <View
                     onClick={() => requireDestination(() => {
                         handleNext()
                     })}
-                    className="w-2/3 bg-emerald-500 active:bg-emerald-600 text-white text-center py-3.5 rounded-full font-bold text-base shadow-sm tracking-widest transition-colors"
+                    className="flex-1 bg-emerald-500 active:bg-emerald-600 text-white text-center py-3.5 rounded-full font-bold text-base shadow-sm tracking-widest transition-colors"
                 >
                     下一步
                 </View>

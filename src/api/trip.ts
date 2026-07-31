@@ -1,6 +1,12 @@
 import request from './request';
 import type { Guide } from './post'
 
+// AI生成行程请求入参
+export interface AiGenerateTripParams {
+  destination: string;
+  days: number;
+}
+
 interface TripMember {
   /** 创建时间 */
   createdAt: string;
@@ -14,6 +20,31 @@ interface TripMember {
   tripId: string;
   /** 用户 ID */
   userId: string;
+}
+
+// AI生成行程接口返回完整data结构
+export interface AiGenerateTripData {
+  id: string;
+  userId: string;
+  guideId: string;
+  title: string;
+  summary: string;
+  totalBudget: number;
+  isOverseas: 0 | 1;
+  isPublic: 0 | 1;
+  status: number;
+  cities: string[];
+  provinces: string[];
+  countries: string[];
+  destinations: string[];
+  coverImage: string;
+  favoriteCount: number;
+  likeCount: number;
+  viewCount: number;
+  days: TripDay[];
+  members: TripMember[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TripDayItem {
@@ -190,3 +221,16 @@ export const getMyTrips = (page: number, pageSize: number) =>
     method: 'GET',
     data: { page, pageSize },
   });
+
+/**
+* AI根据目的地+天数自动生成完整旅行行程
+* @param params {destination目的地, days出行天数}
+* @returns 生成完毕的完整行程数据（已入库）
+*/
+export const aiGenerateTrip = (params: AiGenerateTripParams) => {
+  return request<AiGenerateTripData>({
+    url: '/trip/ai-generate',
+    method: 'POST',
+    data: params,
+  });
+};

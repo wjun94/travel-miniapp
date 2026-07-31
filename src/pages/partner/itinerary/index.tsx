@@ -273,10 +273,10 @@ export default function ItineraryPage() {
     const uf = (field: string | Record<string, any>, value?: any) => updateItemField(dayIndex, item.id, field, value);
     switch (item.sectionType) {
       case 'transport': return <TransportForm item={item} updateField={uf} />;
-      case 'attraction': return <AttractionForm item={item} updateField={uf} />;
-      case 'food': return <FoodForm item={item} updateField={uf} />;
-      case 'hotel': return <HotelForm item={item} updateField={uf} />;
-      case 'shopping': return <ShoppingForm item={item} updateField={uf} />;
+      case 'attraction': return <AttractionForm item={item} updateField={uf} imageLabel='活动图片' />;
+      case 'food': return <FoodForm item={item} updateField={uf} imageLabel='活动图片' />;
+      case 'hotel': return <HotelForm item={item} updateField={uf} imageLabel='活动图片' />;
+      case 'shopping': return <ShoppingForm item={item} updateField={uf} imageLabel='活动图片' />;
       case 'tips': return <TipsForm item={item} updateField={uf} />;
       default: return null;
     }
@@ -287,7 +287,7 @@ export default function ItineraryPage() {
       {/* 顶部固定栏 */}
       <View className='bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border'>
         <View className='px-4 py-3 flex justify-between items-center box-border'>
-          <Text className='font-bold text-gray-900 text-[28px]'>每日行程编辑</Text>
+          <Text className='font-bold text-gray-900 text-[28px]'>创建搭子</Text>
           <Button onClick={handleAddDay} className='m-0 px-3 py-1 bg-green-500 text-white font-medium rounded-full text-[24px]'>+ 再加一天</Button>
         </View>
         <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
@@ -409,7 +409,7 @@ export default function ItineraryPage() {
 
       {/* 吸底动作栏 */}
       <View className='bg-white border-t border-gray-100 p-3 pb-safe flex-shrink-0 z-50 shadow-lg box-border'>
-        <Button onClick={handleNextStep} className='w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95'>下一步 (配置全局基本信息)</Button>
+        <Button onClick={handleNextStep} className='w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95'>下一步 (配置搭子基本信息)</Button>
       </View>
 
       {/* 删除确认弹窗 */}

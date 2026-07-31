@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
 import Taro, { useDidHide } from '@tarojs/taro';
 import Modal from '@/components/Modal';
+import { AiGenerateTripData } from '@/api/trip';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
 import WeatherWidget from '@/features/weather';
 import TransportForm from '@/features/guide/TransportForm';
@@ -70,6 +71,42 @@ export default function ItineraryPage() {
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
     // 优先从 URL 参数读取日期（从 date 页面跳转过来）
     const params = Taro.getCurrentInstance().router?.params;
+
+    // AI 生成数据：URL 携带 aiId 时，从缓存读取并转换为编辑结构
+    const aiId = params?.aiId as string;
+    if (aiId) {
+      const aiData = Taro.getStorageSync('TEMP_TRIP_AI_GENERATED') as AiGenerateTripData | undefined;
+      if (aiData && aiData.id === aiId && aiData.days && aiData.days.length > 0) {
+        return aiData.days.map((day, idx) => ({
+          dayIndex: day.dayNumber || idx + 1,
+          date: day.date || '',
+          title: day.title || '',
+          items: (day.items || []).map(item => ({
+            id: item.id,
+            sectionType: item.sectionType as SectionType,
+            title: item.title,
+            description: item.description,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            address: item.address,
+            images: item.images || [],
+            needReservation: item.needReservation,
+            ticketChannel: item.ticketChannel,
+            ticketPrice: item.ticketPrice,
+            startAddress: item.startPoint,
+            startLatitude: item.startLat,
+            startLongitude: item.startLng,
+            endAddress: item.endPoint,
+            endLatitude: item.endLat,
+            endLongitude: item.endLng,
+            transportMode: item.transportMode || 'bus',
+          })),
+        }));
+      }
+    }
+
     if (params) {
       const startDate = params.startDate as string;
       const endDate = params.endDate as string;
