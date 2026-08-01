@@ -4,6 +4,7 @@ export default defineAppConfig({
   pages: [
     'pages/home/index',
     'pages/follow/index',
+    'pages/webview/index',
     'pages/fans/index',
     'pages/nearby/index',
     'pages/publish/index',
