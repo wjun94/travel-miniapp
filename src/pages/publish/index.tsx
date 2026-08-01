@@ -31,9 +31,9 @@ export default function PublishPage() {
     Taro.navigateTo({ url: '/pages/guide/where/index' });
   };
 
-  // 行程规划：检查是否有缓存行程草稿
+  // 行程规划：检查是否有缓存行程草稿（编辑草稿或 AI 生成数据任一存在都弹窗）
   const handleCreateTrip = () => {
-    const cached = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS');
+    const cached = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || Taro.getStorageSync('TEMP_TRIP_AI_GENERATED');
     if (cached) {
       setTripDraftModalVisible(true);
     } else {
@@ -49,13 +49,15 @@ export default function PublishPage() {
   const handleStartTripFresh = () => {
     Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
     Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
+    Taro.removeStorageSync('TEMP_TRIP_AI_GENERATED');
     setTripDraftModalVisible(false);
     Taro.navigateTo({ url: '/pages/trip/where/index' });
   };
 
   // 创建搭子：检查是否有缓存草稿
   const handleCreatePartner = () => {
-    const cached = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
+    // 编辑草稿或 AI 生成数据任一存在都弹窗
+    const cached = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS') || Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED');
     if (cached) {
       setPartnerDraftModalVisible(true);
     } else {
@@ -71,6 +73,7 @@ export default function PublishPage() {
   const handleStartPartnerFresh = () => {
     Taro.removeStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
     Taro.removeStorageSync('TEMP_PARTNER_DESTINATION');
+    Taro.removeStorageSync('TEMP_PARTNER_AI_GENERATED');
     setPartnerDraftModalVisible(false);
     Taro.navigateTo({ url: '/pages/partner/where/index' });
   };

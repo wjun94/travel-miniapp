@@ -1,6 +1,6 @@
 // src/components/Modal/index.tsx
 import React, { PropsWithChildren } from 'react'
-import { View } from '@tarojs/components'
+import { View, Button } from '@tarojs/components'
 
 export interface ModalProps {
   /** 是否显示弹窗 */
@@ -26,6 +26,8 @@ export interface ModalProps {
   // --- 新增属性 ---
   /** 确认按钮加载状态 */
   confirmLoading?: boolean
+  /** 确认按钮原生 openType（如 share 触发小程序转发），设置后点击由原生处理 */
+  confirmOpenType?: 'share'
 }
 
 const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
@@ -42,6 +44,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
   contentClassName = '',
   // --- 解构新属性 ---
   confirmLoading = false,
+  confirmOpenType,
 }) => {
   if (!visible) return null
 
@@ -105,19 +108,32 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
             </View>
           )}
           {confirmText && (
-            <View
-              // --- 按钮类名逻辑 ---
-              className={`
-                ${showCancel ? 'w-210px' : 'w-[85%]'} 
-                text-center py-2 rounded-full text-white text-center transition-colors cursor-pointer min-w-[80px]
-                // 根据 loading 状态切换背景色和手指样式
-                ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#10B981] active:bg-blue-600'}
-              `}
-              onClick={handleConfirm}
-            >
-              {/* --- 按钮文字逻辑 --- */}
-              {confirmLoading ? '加载中...' : confirmText}
-            </View>
+            confirmOpenType === 'share' ? (
+              <Button
+                openType="share"
+                className={`
+                  ${showCancel ? 'w-210px' : 'w-[85%]'} 
+                  text-center py-2 rounded-full text-white bg-[#10B981] min-w-[80px] leading-normal
+                `}
+                style={{ border: 'none', margin: 0 }}
+              >
+                {confirmText}
+              </Button>
+            ) : (
+              <View
+                // --- 按钮类名逻辑 ---
+                className={`
+                  ${showCancel ? 'w-210px' : 'w-[85%]'} 
+                  text-center py-2 rounded-full text-white text-center transition-colors cursor-pointer min-w-[80px]
+                  // 根据 loading 状态切换背景色和手指样式
+                  ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#10B981] active:bg-blue-600'}
+                `}
+                onClick={handleConfirm}
+              >
+                {/* --- 按钮文字逻辑 --- */}
+                {confirmLoading ? '加载中...' : confirmText}
+              </View>
+            )
           )}
         </View>
       </View>

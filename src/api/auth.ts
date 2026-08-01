@@ -1,3 +1,4 @@
+import Taro from '@tarojs/taro';
 import request from './request';
 
 /**
@@ -16,14 +17,22 @@ export interface LoginResponse {
 /**
  * 微信登录
  * @param code 微信临时登录凭证
+ * @param inviteCode 邀请码（可选，未传时自动从 URL / 启动参数读取）
  * @returns token 及用户信息
  */
-export const login = (code: string) =>
-  request<LoginResponse>({
+export const login = (code: string, inviteCode?: string) => {
+  // 未显式传入时，从当前页面 URL 参数或小程序启动参数中读取邀请码
+  const urlInviteCode = inviteCode
+    || (Taro.getCurrentInstance().router?.params?.inviteCode as string)
+    || (Taro.getEnterOptionsSync()?.query?.inviteCode as string);
+  const data: { code: string; inviteCode?: string } = { code };
+  if (urlInviteCode) data.inviteCode = urlInviteCode;
+  return request<LoginResponse>({
     url: '/user/login',
     method: 'POST',
-    data: { code },
+    data,
   });
+};
 
 /**
  * 获取当前用户详细信息

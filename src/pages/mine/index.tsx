@@ -1,9 +1,10 @@
 import { View, Text, Button } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import { getImageCdnUrl } from '@/utils'
-import Taro, { useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import { getProfile } from '@/api/auth'
 import { useRequest } from 'ahooks'
+import { useAuthStore } from '@/store/authStore';
 
 export default function ProfilePage() {
   // 每次进入页面都刷新个人资料
@@ -14,6 +15,26 @@ export default function ProfilePage() {
   useDidShow(() => {
     refresh()
   })
+
+  // 分享好友：URL 携带邀请码，新用户注册后邀请者可免费获得 1 次 AI 生成额度
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      path: `/pages/home/index${inviteCode ? `?inviteCode=${inviteCode}` : ''}`,
+      imageUrl: getImageCdnUrl('share.png')
+    };
+  });
+
+  // 分享朋友圈：query 携带邀请码（朋友圈分享自动拼接至当前页面路径）
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      query: inviteCode ? `inviteCode=${inviteCode}` : '',
+      imageUrl: getImageCdnUrl('share.png')
+    };
+  });
 
   // 1. 自由行工具箱数据
   const tools = [

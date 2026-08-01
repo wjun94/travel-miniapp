@@ -9,6 +9,7 @@ import FoodForm from '@/features/guide/FoodForm';
 import HotelForm from '@/features/guide/HotelForm';
 import ShoppingForm from '@/features/guide/ShoppingForm';
 import TipsForm from '@/features/guide/TipsForm';
+import type { AiGenerateTripData } from '@/api/trip';
 
 interface DayItem {
   id: string;
@@ -80,8 +81,50 @@ const buildDayPlansFromDates = (dates: any): DayPlan[] => {
   });
 };
 
+// 将 AI 生成数据（TEMP_PARTNER_AI_GENERATED）转换为编辑页 DayPlan 结构
+const convertAiDays = (aiData: AiGenerateTripData): DayPlan[] => {
+  return aiData.days.map((day, idx) => ({
+    dayIndex: day.dayNumber || idx + 1,
+    date: day.date || '',
+    title: day.title || '',
+    items: (day.items || []).map(item => ({
+      id: item.id,
+      sectionType: item.sectionType as SectionType,
+      title: item.title,
+      description: item.description,
+      startTime: item.startTime,
+      endTime: item.endTime,
+      latitude: item.latitude,
+      longitude: item.longitude,
+      address: item.address,
+      images: item.images || [],
+      needReservation: item.needReservation,
+      ticketChannel: item.ticketChannel,
+      ticketPrice: item.ticketPrice,
+      startAddress: item.startPoint,
+      startLatitude: item.startLat,
+      startLongitude: item.startLng,
+      endAddress: item.endPoint,
+      endLatitude: item.endLat,
+      endLongitude: item.endLng,
+      transportMode: item.transportMode || 'bus',
+    })),
+  }));
+};
+
 export default function ItineraryPage() {
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
+    const params = Taro.getCurrentInstance().router?.params;
+
+    // AI 生成数据：URL 携带 aiId 时，从缓存读取并转换为编辑结构
+    const aiId = params?.aiId as string;
+    if (aiId) {
+      const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+      if (aiData && aiData.id === aiId && aiData.days && aiData.days.length > 0) {
+        return convertAiDays(aiData);
+      }
+    }
+
     const saved = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
     const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
     // 已选择日期时：校验已保存行程是否与最新日期匹配（天数/具体日期），不匹配则按新日期重新生成
@@ -103,6 +146,11 @@ export default function ItineraryPage() {
     // 从日期页读取天数与具体日期，初始化行程计划
     if (dates && (dates.flexDays || dates.totalDays)) {
       return buildDayPlansFromDates(dates);
+    }
+    // 兜底：AI 生成数据（仅生成未编辑时直接恢复）
+    const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+    if (aiData && aiData.id && aiData.days && aiData.days.length > 0) {
+      return convertAiDays(aiData);
     }
     return [
       { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }

@@ -1,6 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
-import Taro from '@tarojs/taro';
+import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro';
 import { View, Text, ScrollView, PickerView, PickerViewColumn } from '@tarojs/components';
+import Modal from '@/components/Modal';
+import { aiGeneratePartner } from '@/api/partner';
+import type { AiGenerateTripData } from '@/api/trip';
+import { getAiQuota } from '@/api/common';
+import { useAuthStore } from '@/store/authStore';
+import { getImageCdnUrl } from '@/utils'
 
 interface DateMeta {
   startDate: string;
@@ -29,6 +35,93 @@ export default function PartnerDatePicker() {
 
   // 目的地（来自 partner/where 已选目的地）
   const [destination, setDestination] = useState<string>('');
+
+  // AI 生成搭子行程状态
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiData, setAiData] = useState<AiGenerateTripData | null>(null);
+
+  // AI 额度不足弹窗
+  const [quotaModalVisible, setQuotaModalVisible] = useState(false);
+
+  // 分享好友：URL 携带邀请码，新用户注册后邀请者可免费获得 1 次 AI 生成额度
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      path: `/pages/home/index${inviteCode ? `?inviteCode=${inviteCode}` : ''}`,
+      imageUrl: getImageCdnUrl('share.png')
+    };
+  });
+
+  // 分享朋友圈：query 携带邀请码（朋友圈分享自动拼接至当前页面路径）
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      query: inviteCode ? `inviteCode=${inviteCode}` : '',
+      imageUrl: getImageCdnUrl('share.png')
+    };
+  });
+
+  // 生成中文案动态点点动画：1 个到 3 个来回切换
+  const [dotCount, setDotCount] = useState(1);
+  useEffect(() => {
+    if (!aiLoading) return;
+    const timer = setInterval(() => setDotCount(c => (c % 3) + 1), 400);
+    return () => clearInterval(timer);
+  }, [aiLoading]);
+
+  // AI 智能生成搭子行程
+  const handleAiGenerate = async () => {
+    if (!destination) {
+      Taro.showToast({ title: '请先添加目的地', icon: 'none' });
+      return;
+    }
+    if (activeTab === 'specific' && !startDate) {
+      Taro.showToast({ title: '请选择出发日期', icon: 'none' });
+      return;
+    }
+    // 计算出行天数
+    const days = activeTab === 'specific'
+      ? (endDate
+        ? Math.ceil((new Date(endDate).getTime() - new Date(startDate!).getTime()) / 86400000) + 1
+        : 1)
+      : selectedDayIndex + 1;
+
+    // 检查 AI 使用额度，不足则弹窗引导分享获取
+    try {
+      const quota = await getAiQuota();
+      if (!quota || quota.partner.remain <= 0) {
+        setQuotaModalVisible(true);
+        return;
+      }
+    } catch (e) {
+      // 额度查询失败不阻塞生成
+      console.warn('获取 AI 额度失败', e);
+    }
+
+    setAiLoading(true);
+    // 全屏 loading 锁住页面，避免生成期间重复操作
+    Taro.showLoading({ title: 'AI 生成中...', mask: true });
+    try {
+      const res = await aiGeneratePartner({ destination, days });
+      // 保存 AI 生成数据到本地
+      setAiData(res);
+      Taro.setStorageSync('TEMP_PARTNER_AI_GENERATED', res);
+      // 数据完整性校验：必须存在 id 且包含有效天数
+      if (!res?.id || !res?.days || res.days.length === 0) {
+        Taro.showToast({ title: 'AI 生成数据不完整，请重新生成', icon: 'none' });
+        return;
+      }
+      // 生成成功直接跳转搭子行程编辑页
+      Taro.navigateTo({ url: `../itinerary/index?aiId=${res.id}` });
+    } catch (e: any) {
+      Taro.showToast({ title: e?.message || 'AI 生成失败，请稍后重试', icon: 'none' });
+    } finally {
+      setAiLoading(false);
+      Taro.hideLoading();
+    }
+  };
 
   useEffect(() => {
     const dest = Taro.getStorageSync('TEMP_PARTNER_DESTINATION');
@@ -269,9 +362,17 @@ export default function PartnerDatePicker() {
         </ScrollView>
       </View>
 
-      {/* 底部操作区：跳过 | 下一步 */}
+      {/* 底部操作区：跳过 | AI 生成 | 下一步 */}
       <View className="px-6 py-4 flex items-center border-t border-gray-50 bg-white">
         <Text onClick={jumpNext} className="text-gray-400 text-base font-medium tracking-wide active:text-gray-600 shrink-0 mr-3">跳过</Text>
+        <View
+          onClick={handleAiGenerate}
+          className={`flex-1 text-center py-3.5 rounded-full font-bold text-base tracking-widest transition-colors mr-3 ${aiData
+            ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+            : 'bg-gray-900 text-white active:bg-gray-800 shadow-sm'}`}
+        >
+          {aiLoading ? `AI 生成中${'.'.repeat(dotCount)}` : (aiData ? '✨ 已生成' : '✨ AI 生成')}
+        </View>
         <View
           onClick={handleNext}
           className="flex-1 bg-emerald-500 active:bg-emerald-600 text-white text-center py-3.5 rounded-full font-bold text-base shadow-sm tracking-widest transition-colors"
@@ -279,6 +380,22 @@ export default function PartnerDatePicker() {
           下一步
         </View>
       </View>
+
+      {/* AI 额度不足弹窗：邀请新用户免费获得 1 次使用额度 */}
+      <Modal
+        visible={quotaModalVisible}
+        title="AI 使用额度不足"
+        confirmText="分享"
+        showCancel={false}
+        confirmOpenType="share"
+        onMaskClick={() => setQuotaModalVisible(false)}
+      >
+        <View className="py-2 text-center">
+          <Text className="text-gray-600 text-[28px] leading-relaxed">
+            邀请新用户，即可免费获得 1 次使用额度
+          </Text>
+        </View>
+      </Modal>
     </View>
   );
 }

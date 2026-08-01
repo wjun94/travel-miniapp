@@ -82,6 +82,19 @@ export interface QweatherData {
     updateTime: string;
 }
 
+// AI调用额度子项：区分搭子partner、行程trip两类额度
+export interface QuotaSubItem {
+    remain: number;  // 剩余次数
+    total: number;    // 今日总次数
+    used: number;     // 今日已使用次数
+}
+
+// AI额度整体data结构
+export interface AiQuotaData {
+    partner: QuotaSubItem;
+    trip: QuotaSubItem;
+}
+
 // --- API 接口 ---
 
 /**
@@ -136,4 +149,15 @@ export const getQweather = (params: { city: string }) =>
         url: '/weather/qweather',
         method: 'GET',
         data: params
+    });
+
+/**
+* 获取AI每日调用剩余额度
+* 规则：每日基础1次，邀请好友成功1人额外+1次，返回当日剩余次数
+* @returns 搭子/行程两类AI额度统计
+*/
+export const getAiQuota = () =>
+    request<AiQuotaData>({
+        url: '/ai/quota',
+        method: 'GET'
     });

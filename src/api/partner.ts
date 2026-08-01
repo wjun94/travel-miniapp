@@ -1,5 +1,5 @@
 import request, { PageResult } from './request'; // 确保路径正确指向你的 request 实例
-import type { Trip } from './trip';
+import type { Trip, AiGenerateTripData } from './trip';
 
 // --- 类型定义 (基于你提供的 JSON 结构) ---
 
@@ -358,6 +358,12 @@ export interface PartnerItem {
   viewCount: number;
 }
 
+// AI生成搭子行程请求入参
+export interface AiGeneratePartnerParams {
+  destination: string;
+  days: number;
+}
+
 // --- API 函数 ---
 
 /**
@@ -456,4 +462,16 @@ export const unlikePartner = (id: string) =>
   request<string>({
     url: `/partner/${id}/like`,
     method: 'DELETE',
+  });
+
+/**
+* AI根据目的地+天数自动生成完整搭子行程
+* @param params {destination目的地, days出行天数}
+* @returns 生成完毕的完整搭子行程数据（已入库）
+*/
+export const aiGeneratePartner = (params: AiGeneratePartnerParams) =>
+  request<AiGenerateTripData>({
+    url: '/partner/ai-generate',
+    method: 'POST',
+    data: params,
   });

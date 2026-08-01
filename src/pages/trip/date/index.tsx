@@ -1,9 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
-import Taro from '@tarojs/taro';
+import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro';
 import { View, Text, ScrollView, PickerView, PickerViewColumn, Input } from '@tarojs/components';
 import { BottomSheet } from '@/components';
+import Modal from '@/components/Modal';
 import { aiGenerateTrip, AiGenerateTripData } from '@/api/trip'
-import { searchDestinations, type DestinationItem } from '@/api/common';
+import { searchDestinations, type DestinationItem, getAiQuota } from '@/api/common';
+import { useAuthStore } from '@/store/authStore';
+import { getImageCdnUrl } from '@/utils'
 
 export default function TravelDurationPicker() {
     const [activeTab, setActiveTab] = useState<'specific' | 'flexible'>('flexible');
@@ -29,6 +32,29 @@ export default function TravelDurationPicker() {
     // AI 生成行程状态（每次进入页面均为未生成状态）
     const [aiLoading, setAiLoading] = useState(false);
     const [aiData, setAiData] = useState<AiGenerateTripData | null>(null);
+
+    // AI 额度不足弹窗
+    const [quotaModalVisible, setQuotaModalVisible] = useState(false);
+
+    // 分享好友：URL 携带邀请码，新用户注册后邀请者可免费获得 1 次 AI 生成额度
+    useShareAppMessage(() => {
+        const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+        return {
+            title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+            path: `/pages/home/index${inviteCode ? `?inviteCode=${inviteCode}` : ''}`,
+            imageUrl: getImageCdnUrl('share.png')
+        };
+    });
+
+    // 分享朋友圈：query 携带邀请码（朋友圈分享自动拼接至当前页面路径）
+    useShareTimeline(() => {
+        const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+        return {
+            title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+            query: inviteCode ? `inviteCode=${inviteCode}` : '',
+            imageUrl: getImageCdnUrl('share.png')
+        };
+    });
 
     // 生成中动态点点动画：1 个到 3 个来回切换
     const [dotCount, setDotCount] = useState(1);
@@ -122,6 +148,18 @@ export default function TravelDurationPicker() {
                 ? Math.ceil((new Date(endDate).getTime() - new Date(startDate!).getTime()) / 86400000) + 1
                 : 1)
             : selectedDayIndex + 1;
+
+        // 检查 AI 使用额度，不足则弹窗引导分享获取
+        try {
+            const quota = await getAiQuota();
+            if (!quota || quota.trip.remain <= 0) {
+                setQuotaModalVisible(true);
+                return;
+            }
+        } catch (e) {
+            // 额度查询失败不阻塞生成
+            console.warn('获取 AI 额度失败', e);
+        }
 
         setAiLoading(true);
         // 全屏 loading 锁住页面，避免生成期间重复操作
@@ -494,6 +532,22 @@ export default function TravelDurationPicker() {
                     </ScrollView>
                 </View>
             </BottomSheet>
+
+            {/* AI 额度不足弹窗：邀请新用户免费获得 1 次使用额度 */}
+            <Modal
+                visible={quotaModalVisible}
+                title="AI 使用额度不足"
+                confirmText="分享"
+                showCancel={false}
+                confirmOpenType="share"
+                onMaskClick={() => setQuotaModalVisible(false)}
+            >
+                <View className="py-2 text-center">
+                    <Text className="text-gray-600 text-[28px] leading-relaxed">
+                        邀请新用户，即可免费获得 1 次使用额度
+                    </Text>
+                </View>
+            </Modal>
         </View>
     );
 }

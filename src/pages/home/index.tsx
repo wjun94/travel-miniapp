@@ -1,12 +1,13 @@
 import { useState, useCallback, useRef } from 'react'
 import { View, Text, Input, ScrollView } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import { getHeaderHeight } from '@/utils'
+import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro'
+import { getHeaderHeight, getImageCdnUrl } from '@/utils'
 import { NavBar, ScrollLoadList, GuideCard, Image } from '@/components'
 import { getGuides } from '@/api/post'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 import { useUpdate } from 'ahooks'
+import { useAuthStore } from '@/store/authStore'
 
 // 1. 将静态数组移到组件外部，避免不必要的 renderHeader 依赖重绘
 const TABS = [
@@ -21,6 +22,27 @@ export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0)
   const headerHeight = getHeaderHeight()
   const update = useUpdate()
+
+  // 分享好友：URL 携带邀请码，新用户注册后邀请者可免费获得 1 次 AI 生成额度
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      path: `/pages/home/index${inviteCode ? `?inviteCode=${inviteCode}` : ''}`,
+      imageUrl: getImageCdnUrl('share.png')
+    }
+  })
+
+  // 分享朋友圈：query 携带邀请码（朋友圈分享自动拼接至当前页面路径）
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode
+    return {
+      title: '规划行程、找旅行搭子，AI 一键搞定出游计划',
+      query: inviteCode ? `inviteCode=${inviteCode}` : '',
+      imageUrl: getImageCdnUrl('share.png')
+    }
+  })
+
   const likeStateMap = useRef<Record<string, { isLiked: boolean; likeCount: number }>>({})
   const handleLikeRef = useRef<(e: any, item: Guide) => void>(async (e, item) => {
     e.stopPropagation()
