@@ -45,7 +45,7 @@ export default function SearchPage() {
         if (from === 'basic') {
             Taro.navigateBack();
         } else {
-            Taro.navigateTo({ url: `../itinerary/index?destination=${encodeURIComponent(JSON.stringify(item))}` });
+            Taro.navigateTo({ url: '../date/index' });
         }
     };
 

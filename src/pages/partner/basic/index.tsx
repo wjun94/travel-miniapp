@@ -135,41 +135,33 @@ export default function PublishForm() {
         }
     };
 
-    const currentDate = new Date().toISOString().slice(0, 10);
-
-    const handleStartDateChange = (e: any) => {
-        const start = e.detail.value;
-        setFormData(prev => ({
-            ...prev,
-            startDate: start,
-            totalDays: prev.endDate ? Math.max(1, Math.ceil((new Date(prev.endDate).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 1
-        }));
-    };
-
-    const handleEndDateChange = (e: any) => {
-        const end = e.detail.value;
-        setFormData(prev => ({
-            ...prev,
-            endDate: end,
-            totalDays: prev.startDate ? Math.max(1, Math.ceil((new Date(end).getTime() - new Date(prev.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1) : 1,
-        }));
-    };
-
     const ageOptions = Array.from({ length: 53 }, (_, i) => i + 18);
 
-    // 从 partner/where 和 partner/itinerary 读取数据
+    // 从 partner/where、partner/date 和 partner/itinerary 读取数据
     useEffect(() => {
         const dest = Taro.getStorageSync('TEMP_PARTNER_DESTINATION');
         if (dest) {
             handleInputChange('destination', dest);
         }
+        const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
+        if (dates) {
+            handleInputChange('startDate', dates.startDate || '');
+            handleInputChange('endDate', dates.endDate || '');
+            handleInputChange('totalDays', dates.totalDays || dates.flexDays || 0);
+        }
     }, []);
 
-    // 页面显示时重新读取 storage（从 where 页返回后更新）
+    // 页面显示时重新读取 storage（从 where/date 页返回后更新）
     Taro.useDidShow(() => {
         const dest = Taro.getStorageSync('TEMP_PARTNER_DESTINATION');
         if (dest) {
             handleInputChange('destination', dest);
+        }
+        const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
+        if (dates) {
+            handleInputChange('startDate', dates.startDate || '');
+            handleInputChange('endDate', dates.endDate || '');
+            handleInputChange('totalDays', dates.totalDays || dates.flexDays || 0);
         }
     });
 
@@ -211,6 +203,7 @@ export default function PublishForm() {
 
     const clearTempStorage = () => {
         Taro.removeStorageSync('TEMP_PARTNER_DESTINATION');
+        Taro.removeStorageSync('TEMP_PARTNER_DATES');
         Taro.removeStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
     };
 
@@ -326,21 +319,16 @@ export default function PublishForm() {
                 {/* 2. 时间设置 */}
                 <Section title="时间设置">
                     <View className="space-y-3">
-                        <View className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <Text className="text-gray-600">开始日期</Text>
-                            <Picker mode="date" value={formData.startDate || currentDate} start={currentDate} onChange={handleStartDateChange}>
-                                <Text className={`font-medium ${formData.startDate ? 'text-gray-800' : 'text-gray-400'}`}>
-                                    {formData.startDate || '选择开始时间'}
-                                </Text>
-                            </Picker>
-                        </View>
-                        <View className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <Text className="text-gray-600">结束日期</Text>
-                            <Picker mode="date" value={formData.endDate || formData.startDate || currentDate} start={formData.startDate || currentDate} onChange={handleEndDateChange}>
-                                <Text className={`font-medium ${formData.endDate ? 'text-gray-800' : 'text-gray-400'}`}>
-                                    {formData.endDate || '选择结束时间'}
-                                </Text>
-                            </Picker>
+                        <View
+                            className="flex justify-between items-center py-2 border-b border-gray-100 active:opacity-70"
+                            onClick={() => Taro.navigateTo({ url: '/pages/partner/date/index?from=basic' })}
+                        >
+                            <Text className="text-gray-600">活动日期</Text>
+                            <Text className={`font-medium ${formData.startDate || formData.totalDays > 0 ? 'text-gray-800' : 'text-gray-400'}`}>
+                                {formData.startDate
+                                    ? `${formData.startDate}${formData.endDate && formData.endDate !== formData.startDate ? ` 至 ${formData.endDate}` : ''}`
+                                    : formData.totalDays > 0 ? `灵活 ${formData.totalDays}天` : '去选择日期 →'}
+                            </Text>
                         </View>
                         <View className="flex justify-between items-center py-1">
                             <Text className="text-gray-600">行程时长</Text>

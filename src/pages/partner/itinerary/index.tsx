@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
-import Taro, { useDidHide } from '@tarojs/taro';
+import Taro, { useDidHide, useDidShow } from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
 import TransportForm from '@/features/guide/TransportForm';
@@ -65,10 +65,45 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
   transportMode: 'bus',
 });
 
+// 根据日期页选择的数据生成行程计划（天数 + 具体日期）
+const buildDayPlansFromDates = (dates: any): DayPlan[] => {
+  const count = dates.flexDays || dates.totalDays || 1;
+  const start = dates.startDate ? new Date(dates.startDate) : null;
+  return Array.from({ length: count }, (_, i) => {
+    let date = '';
+    if (start) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    return { dayIndex: i + 1, date, title: '', items: [createEmptyItem(i + 1, 'attraction')] };
+  });
+};
+
 export default function ItineraryPage() {
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
     const saved = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
+    const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
+    // 已选择日期时：校验已保存行程是否与最新日期匹配（天数/具体日期），不匹配则按新日期重新生成
+    if (saved && dates && (dates.flexDays || dates.totalDays)) {
+      const expectedDays = dates.flexDays || dates.totalDays || 1;
+      const savedDays = Array.isArray(saved) ? saved.length : 0;
+      if (savedDays === expectedDays) {
+        if (dates.startDate) {
+          const plans = buildDayPlansFromDates(dates);
+          const dateMatch = plans.every((p, i) => saved[i] && saved[i].date === p.date);
+          if (dateMatch) return saved;
+          return plans;
+        }
+        return saved;
+      }
+      return buildDayPlansFromDates(dates);
+    }
     if (saved) return saved;
+    // 从日期页读取天数与具体日期，初始化行程计划
+    if (dates && (dates.flexDays || dates.totalDays)) {
+      return buildDayPlansFromDates(dates);
+    }
     return [
       { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
     ];
@@ -95,6 +130,27 @@ export default function ItineraryPage() {
   useEffect(() => {
     return saveIfModified;
   }, []);
+
+  // 页面重新显示时（从 basic/date 返回）：若日期已变化，按最新选择重建行程
+  useDidShow(() => {
+    const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
+    if (!dates || !(dates.flexDays || dates.totalDays)) return;
+    const expectedDays = dates.flexDays || dates.totalDays || 1;
+    const current = dayPlansRef.current;
+    if (current.length !== expectedDays) {
+      setDayPlans(buildDayPlansFromDates(dates));
+      setActiveTab(1);
+      return;
+    }
+    if (dates.startDate) {
+      const plans = buildDayPlansFromDates(dates);
+      const dateMatch = plans.every((p, i) => current[i] && current[i].date === p.date);
+      if (!dateMatch) {
+        setDayPlans(plans);
+        setActiveTab(1);
+      }
+    }
+  });
 
   const [activeTab, setActiveTab] = useState<number>(1);
   const [toViewId, setToViewId] = useState<string>('');

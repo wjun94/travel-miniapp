@@ -33,6 +33,7 @@ export default defineAppConfig({
     'pages/trip/where/index',
     'pages/trip/date/index',
     'pages/partner/where/index',
+    'pages/partner/date/index',
     'pages/partner/itinerary/index',
     'pages/partner/basic/index',
     'pages/partner/list/index',
