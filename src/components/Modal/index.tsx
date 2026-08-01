@@ -101,7 +101,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
         <View className='flex flex-row justify-center gap-3 px-5 pb-5 pt-2'>
           {showCancel && (
             <View
-              className='w-210px text-center py-2 bg-gray-100 rounded-full text-gray-700 text-center active:bg-gray-200 transition-colors cursor-pointer min-w-[80px]'
+              className='w-210px text-30px h-9 flex items-center justify-center bg-gray-100 rounded-full text-gray-700 text-center active:bg-gray-200 transition-colors cursor-pointer min-w-[80px]'
               onClick={handleCancel}
             >
               {cancelText}
@@ -110,12 +110,13 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
           {confirmText && (
             confirmOpenType === 'share' ? (
               <Button
+                onClick={handleConfirm}
                 openType="share"
                 className={`
                   ${showCancel ? 'w-210px' : 'w-[85%]'} 
-                  text-center py-2 rounded-full text-white bg-[#10B981] min-w-[80px] leading-normal
+                  h-9 text-30px flex items-center justify-center rounded-full text-white min-w-[80px] leading-normal
                 `}
-                style={{ border: 'none', margin: 0 }}
+                style={{ border: 'none', margin: 0, lineHeight: 'normal', backgroundColor: '#F97316' }}
               >
                 {confirmText}
               </Button>
@@ -124,9 +125,9 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
                 // --- 按钮类名逻辑 ---
                 className={`
                   ${showCancel ? 'w-210px' : 'w-[85%]'} 
-                  text-center py-2 rounded-full text-white text-center transition-colors cursor-pointer min-w-[80px]
+                  h-9 flex items-center justify-center rounded-full text-30px text-white transition-colors cursor-pointer min-w-[80px]
                   // 根据 loading 状态切换背景色和手指样式
-                  ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#10B981] active:bg-blue-600'}
+                  ${confirmLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#F97316] active:bg-[#EA580C]'}
                 `}
                 onClick={handleConfirm}
               >

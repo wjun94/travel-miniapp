@@ -538,8 +538,10 @@ export default function TravelDurationPicker() {
                 visible={quotaModalVisible}
                 title="AI 使用额度不足"
                 confirmText="分享"
-                showCancel={false}
+                showCancel
                 confirmOpenType="share"
+                onCancel={() => setQuotaModalVisible(false)}
+                onConfirm={() => setQuotaModalVisible(false)}
                 onMaskClick={() => setQuotaModalVisible(false)}
             >
                 <View className="py-2 text-center">

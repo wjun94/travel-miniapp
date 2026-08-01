@@ -4,6 +4,7 @@ import { Image } from '@/components'
 import Taro from '@tarojs/taro';
 import { useRequest } from 'ahooks';
 import { createPartner, DayItem as ApiDayItem } from '@/api/partner';
+import type { AiGenerateTripData } from '@/api/trip';
 import { uploadSingleFile, uploadMultiImages } from '@/utils/upload';
 import LocationPicker from '@/features/guide/LocationPicker';
 
@@ -149,6 +150,20 @@ export default function PublishForm() {
             handleInputChange('endDate', dates.endDate || '');
             handleInputChange('totalDays', dates.totalDays || dates.flexDays || 0);
         }
+        // AI 生成数据自动填充（本地已选优先，无则用 AI 数据兜底）
+        const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+        if (aiData && aiData.id) {
+            if (aiData.title) handleInputChange('title', aiData.title);
+            if (aiData.coverImage) handleInputChange('cover', aiData.coverImage);
+            if (!dest && aiData.cities && aiData.cities.length > 0) {
+                handleInputChange('destination', aiData.cities[0]);
+            }
+            if (!dates && aiData.days && aiData.days.length > 0) {
+                handleInputChange('startDate', aiData.days[0].date || '');
+                handleInputChange('endDate', aiData.days[aiData.days.length - 1].date || '');
+                handleInputChange('totalDays', aiData.days.length);
+            }
+        }
     }, []);
 
     // 页面显示时重新读取 storage（从 where/date 页返回后更新）
@@ -169,7 +184,39 @@ export default function PublishForm() {
     const getDaysData = (): ApiDayItem[] => {
         try {
             const plans: any[] = Taro.getStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
-            if (!plans || !Array.isArray(plans)) return [];
+            if (!plans || !Array.isArray(plans)) {
+                // AI 生成数据兜底：未编辑行程时直接使用 AI 生成的行程
+                const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+                if (aiData && aiData.days && aiData.days.length > 0) {
+                    return aiData.days.map(day => ({
+                        date: day.date || '',
+                        dayNumber: day.dayNumber || 0,
+                        title: day.title || '',
+                        items: (day.items || []).map((item: any) => ({
+                            title: item.title || '',
+                            description: item.description || '',
+                            sectionType: item.sectionType || 'attraction',
+                            address: item.address || '',
+                            startPoint: item.startPoint || '',
+                            endPoint: item.endPoint || '',
+                            startLat: item.startLat ?? undefined,
+                            startLng: item.startLng ?? undefined,
+                            endLat: item.endLat ?? undefined,
+                            endLng: item.endLng ?? undefined,
+                            latitude: item.latitude ?? undefined,
+                            longitude: item.longitude ?? undefined,
+                            startTime: item.startTime || '',
+                            endTime: item.endTime || '',
+                            images: item.images || [],
+                            needReservation: item.needReservation || false,
+                            ticketChannel: item.ticketChannel || '',
+                            ticketPrice: item.ticketPrice ?? undefined,
+                            transportMode: item.transportMode || '',
+                        })),
+                    }));
+                }
+                return [];
+            }
             return plans.map(day => ({
                 date: day.date || '',
                 dayNumber: day.dayIndex || 0,
@@ -205,6 +252,7 @@ export default function PublishForm() {
         Taro.removeStorageSync('TEMP_PARTNER_DESTINATION');
         Taro.removeStorageSync('TEMP_PARTNER_DATES');
         Taro.removeStorageSync('TEMP_PARTNER_ITINERARY_PLANS');
+        Taro.removeStorageSync('TEMP_PARTNER_AI_GENERATED');
     };
 
     // 输入框样式：聚焦仅变边框+阴影，背景色不变，消除抖动
