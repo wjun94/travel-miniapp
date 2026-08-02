@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, Textarea, Input, Button, ScrollView } from '@tarojs/components'
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro'
 import { useRequest } from 'ahooks'
-import { NavBar, Image, Modal } from '@/components'
+import { NavBar, Image, Modal, Avatar } from '@/components'
 import { CommentSection } from '@/features'
 import { getPartnerDetail, applyPartner, likePartner, unlikePartner } from '@/api/partner'
 import { followUser, unfollowUser } from '@/api/follow'
@@ -149,7 +149,7 @@ export default function PartnerDetail() {
             className='flex flex-row items-center flex-1'
             onClick={() => Taro.navigateTo({ url: `/pages/personal/index?userId=${partner.userId}` })}
           >
-            <Image isAvatar src={partner.authorAvatar} className='w-[40px] h-[40px] text-[20px] rounded-full border-2 border-white/80' />
+            <Avatar name={partner.authorName} src={partner.authorAvatar} className='w-[40px] h-[40px] text-[20px] rounded-full border-2 border-white/80' />
             <Text className='ml-2 text-[26px] font-bold text-gray-800'>{partner.authorName || ''}</Text>
             {!isSelf && (
               <View

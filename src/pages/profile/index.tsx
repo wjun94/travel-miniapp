@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { View, Text, Input, Button } from '@tarojs/components';
-import { Image } from '@/components'
+import { Avatar } from '@/components'
 import Modal from '@/components/Modal';
 import Taro from '@tarojs/taro';
 import { useRequest } from 'ahooks';
@@ -131,9 +131,9 @@ export default function ProfilePage() {
                     onChooseAvatar={onChooseAvatar}
                     className='p-0 bg-transparent after:border-none w-[96px] h-[96px] rounded-full overflow-hidden mb-3 shadow-sm'
                 >
-                    <Image
+                    <Avatar
+                        name={nickname}
                         className='w-full h-full'
-                        isAvatar
                         src={avatar}
                         mode='aspectFill'
                     />

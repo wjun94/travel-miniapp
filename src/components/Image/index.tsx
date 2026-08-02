@@ -1,17 +1,14 @@
-import { Image, View } from '@tarojs/components';
+import { Image } from '@tarojs/components';
 import type { ImageProps } from '@tarojs/components/types/Image';
 import { previewImage } from '@tarojs/taro';
 import { getImageUrl, getImageCdnUrl } from '@/utils';
 import { useState } from 'react'
-import { useAuthStore } from '@/store/authStore';
 import NonePng from '@/assets/none.png';
 
 type P = {
   /** 预览 */
   preview?: boolean;
   cdn?: boolean;
-  /** 是否为头像 */
-  isAvatar?: boolean;
   /** 图片预览多张 */
   urls?: string[];
   current?: string;
@@ -25,12 +22,10 @@ export default ({
   preview,
   current,
   urls,
-  isAvatar,
   mode = 'aspectFill',
   errorSrc = NonePng,
   ...props
 }: Omit<ImageProps, 'preview' | 'onError'> & P) => {
-  const { userInfo } = useAuthStore();
   const [errImg, setErrImg] = useState('')
   // 处理图片地址
   const finallySrc = src ? cdn
@@ -46,10 +41,7 @@ export default ({
   };
 
   return (
-    isAvatar && !src ? <View
-      className={`bg-orange-500 flex items-center justify-center text-sm text-white font-semibold flex-shrink-0 ${props.className}`}>
-      {userInfo?.nickname?.slice(0, 2) || '驴友'}
-    </View> : <Image
+    <Image
       onClick={() =>
         preview && previewImage({
           urls: urls?.map(item => getImageUrl(item)) || [finallySrc],

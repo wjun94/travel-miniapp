@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Input, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { Image } from '@/components'
+import { Avatar } from '@/components'
 import { useAuthStore } from '@/store/authStore';
 import { getMessageList, sendMessage as sendMessageApi, Message } from '@/api/message'
 
@@ -245,7 +245,7 @@ export default function ChatView() {
 
                 <View className='flex items-start max-w-[75%]'>
                   {!isRight && (
-                    <Image isAvatar src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full mr-1' /> 
+                    <Avatar name={userInfo?.nickname} src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full mr-1' /> 
                   )}
 
                   <View
@@ -257,7 +257,7 @@ export default function ChatView() {
                     <Text className='break-all whitespace-pre-wrap'>{msg.content}</Text>
                   </View>
 
-                  {isRight ? <Image isAvatar src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full ml-1' /> : null}
+                  {isRight ? <Avatar name={userInfo?.nickname} src={userInfo?.avatarUrl || ''} mode='aspectFill' className='w-9 h-9 rounded-full ml-1' /> : null}
                 </View>
               </View>
             );

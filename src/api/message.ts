@@ -28,21 +28,42 @@ export interface Conversation {
 
 // 新增：通知单条项类型
 export interface NotificationItem {
+  /** 评论/回复内容（评论通知时展示） */
   commentContent: string;
+  /** 通知正文 */
   content: string;
+  /** 通知创建时间 */
   createdAt: string;
+  /** 处理状态：0待审核 1通过 2拒绝 3主动退出 */
+  status: number;
+  /** 发送方（触发通知的用户）信息 */
   fromUser: {
+    /** 发送方头像 */
     avatarUrl: string;
+    /** 发送方用户ID */
     id: string;
+    /** 发送方昵称 */
     nickname: string;
   };
+  /** 发送方用户ID */
   fromUserId: string;
+  /** 申请备注（搭子申请时的留言） */
+  remark: string;
+  /** 拒绝原因 */
+  reason: string;
+  /** 通知ID */
   id: string;
+  /** 已读状态：0未读 1已读 */
   isRead: number;
+  /** 关联ID（如搭子申请记录ID） */
   relatedId: string;
+  /** 目标ID（如搭子ID、攻略ID、行程ID） */
   targetId: string
+  /** 目标类型：guide攻略 trip行程 partner搭子 follow关注 */
   targetType: string
+  /** 通知类型：1搭子申请 2点赞 3新增关注 4系统通知 5评论 */
   type: number;
+  /** 接收方（当前用户）ID */
   userId: string;
 }
 
@@ -107,14 +128,15 @@ export const getUnreadNotificationCount = () =>
   });
 
 /**
- * 标记指定通知为已读
- * @param id 通知ID (路径参数)
- * @returns 操作结果
+ * 标记通知已读/未读
+ * @param id 通知ID（路径参数）
+ * @param isRead 0未读、1已读，默认1（query传参）
  */
-export const markNotificationAsRead = (id: string) =>
+export const markNotificationRead = (id: string, isRead: number = 1) =>
   request<string>({
     url: `/notification/read/${id}`,
     method: 'PUT',
+    data: { isRead }
   });
 
 /**
@@ -137,4 +159,16 @@ export const getConversationList = () =>
   request<Conversation[]>({
     url: '/message/conversations',
     method: 'GET',
+  });
+
+/**
+* PUT /api/v1/notification/type-read 按通知类型批量标记已读
+* @param type query必填，通知类型：1搭子申请 2点赞 3新增关注 4系统通知 5评论
+* @returns CommonRes 通用响应
+*/
+export const markNotificationTypeAllRead = (type: number) =>
+  request<string>({
+    url: '/notification/type-read',
+    method: 'PUT',
+    data: { type }
   });

@@ -81,6 +81,8 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
 
   const isMounted = useRef(true)
   const isLoadingMoreRef = useRef(false)
+  // 标记是否首次渲染，避免 params effect 与初始加载 effect 重复请求
+  const isFirstRender = useRef(true)
 
   // 加载数据（通用）
   const loadData = useCallback(async (currentPage: number, isRefresh = false) => {
@@ -122,8 +124,12 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     }
   }, [request, pageSize, loadingMore, params])
 
-  // params 变化时自动刷新列表
+  // params 变化时自动刷新列表（首次挂载由初始加载 effect 负责，避免重复请求）
   useEffect(() => {
+    if (immediate && isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     refresh()
   }, [JSON.stringify(params)])
 

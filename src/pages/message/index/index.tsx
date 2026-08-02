@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
-import { NavBar, Image } from '@/components'
+import { NavBar, Avatar } from '@/components'
 import { useRequest } from 'ahooks'
-import { getUnreadNotificationCount, markNotificationAsRead, getConversationList, type Conversation } from '@/api/message'
+import { getUnreadNotificationCount, markNotificationTypeAllRead, getConversationList, type Conversation } from '@/api/message'
 import { formatTime } from '@/utils'
 
 export default function MessagePage() {
@@ -31,8 +31,22 @@ export default function MessagePage() {
   ], [unreadData])
 
   const handleClickItem = async (item: Conversation) => {
-    await markNotificationAsRead(item.userId)
+    // 有未读消息才调用标记已读接口
+    if (item.unreadCount > 0) {
+      try {
+        await markNotificationTypeAllRead(Number(item.userId))
+      } catch { /* ignore */ }
+    }
     Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.userId}` })
+  }
+
+  // 点击分类：按类型批量标记已读后进入列表
+  const handleCategoryClick = async (item: (typeof categories)[number]) => {
+    try {
+      await markNotificationTypeAllRead(item.id)
+      refreshUnread()
+    } catch { /* ignore */ }
+    Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })
   }
 
   return (
@@ -43,7 +57,7 @@ export default function MessagePage() {
       <View className='mt-2 mb-6 bg-white rounded-2xl px-3 py-5 shadow-sm'>
         <View className='grid grid-cols-4 gap-1 text-center'>
           {categories.map((item) => (
-            <View key={item.id} onClick={() => Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })} className='flex flex-col items-center active:scale-95 transition-transform'>
+            <View key={item.id} onClick={() => handleCategoryClick(item)} className='flex flex-col items-center active:scale-95 transition-transform'>
               <View style={{ backgroundColor: item.bgColor }} className='w-14 h-14 rounded-full flex items-center justify-center relative mb-2 shadow-sm'>
                 <Text style={{ color: item.textColor }} className={`iconfont ${item.icon} text-52px`} />
                 {item.badge > 0 && (
@@ -78,8 +92,8 @@ export default function MessagePage() {
             >
               {/* 左侧头像 */}
               <View className='relative w-[62px] h-[62px] flex-shrink-0'>
-                <Image
-                  isAvatar
+                <Avatar
+                  name={item.nickname}
                   src={item.avatarUrl || ''}
                   mode='aspectFill'
                   className='w-full h-full rounded-full text-24px'

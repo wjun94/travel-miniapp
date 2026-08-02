@@ -1,5 +1,5 @@
 import { View, Text, Button } from '@tarojs/components'
-import { NavBar, Image } from '@/components'
+import { NavBar, Avatar } from '@/components'
 import { getImageCdnUrl } from '@/utils'
 import Taro, { useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import { getProfile } from '@/api/auth'
@@ -97,10 +97,10 @@ export default function ProfilePage() {
         {/* 2. 用户个人信息区域 */}
         <View className="flex flex-row items-center px-1 mb-6">
           {/* 头像 */}
-          <Image
+          <Avatar
+            name={profile?.nickname}
             src={profile?.avatarUrl!}
             mode="aspectFill"
-            isAvatar
             className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm"
           />
 

@@ -1,4 +1,5 @@
 export { default as Image } from './Image'
+export { default as Avatar } from './Avatar'
 export { default as ScrollLoadList } from './ScrollLoadList'
 export * from './ScrollLoadList'
 export { default as Modal } from './Modal'

@@ -2,7 +2,7 @@ import { View, Text, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRef, useState } from 'react'
 import { usePullDownRefresh } from '@tarojs/taro'
-import { ScrollLoadList, Image, Modal } from '@/components'
+import { ScrollLoadList, Image, Modal, Avatar } from '@/components'
 import { getPartnerList, applyPartner } from '@/api/partner'
 import type { PartnerItem } from '@/api/partner'
 
@@ -184,7 +184,7 @@ export default function PartnerList() {
                 {/* 创建者信息与操作按钮 */}
                 <View className='flex flex-row items-center justify-between pt-1'>
                   <View className='flex flex-row items-center flex-1'>
-                    <Image isAvatar src={item.authorAvatar} className='w-[52px] h-[52px] text-[22px] rounded-full' />
+                    <Avatar name={item.authorName} src={item.authorAvatar} className='w-[52px] h-[52px] text-[22px] rounded-full' />
                     <Text className='text-[26px] text-stone-500 ml-1.5 truncate'>{item.authorName}</Text>
                   </View>
 

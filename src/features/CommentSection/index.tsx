@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { Image } from '@/components';
+import { Avatar } from '@/components';
 import { useRequest } from 'ahooks';
 import { getComments, getCommentReplies, type CommentItem } from '@/api/comment';
 import { formatTime } from '@/utils';
@@ -93,7 +93,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                         <View key={item.id} className='flex flex-row space-x-3 pb-6 border-b border-stone-100 last:border-0 last:pb-0'>
                             {/* 主头像 - 增加立体阴影与白色描边 */}
                             <View className='w-[80px] h-[80px] rounded-full overflow-hidden bg-stone-100 flex-shrink-0 shadow-sm border border-white ring-1 ring-stone-100'>
-                                <Image isAvatar src={item.avatarUrl} mode='aspectFill' className='w-full h-full' />
+                                <Avatar name={item.nickname} src={item.avatarUrl} mode='aspectFill' className='w-full h-full' />
                             </View>
 
                             {/* 评论主体 */}
@@ -173,7 +173,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                             <View key={reply.id} className='flex flex-row items-start space-x-2.5 last:border-0'>
                                                 {/* 子回复头像 - 微描边 */}
                                                 <View className='w-[52px] h-[52px] rounded-full overflow-hidden bg-stone-200 flex-shrink-0 border border-white shadow-sm'>
-                                                    <Image isAvatar src={reply.avatarUrl} mode='aspectFill' className='w-full h-full text-[20px]' />
+                                                    <Avatar name={reply.nickname} src={reply.avatarUrl} mode='aspectFill' className='w-full h-full text-[20px]' />
                                                 </View>
                                                 {/* 子回复内容 */}
                                                 <View className='flex-1 min-w-0 flex flex-col'>

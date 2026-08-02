@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { NavBar, Image, ScrollLoadList, GuideCard } from '@/components';
+import { NavBar, Avatar, ScrollLoadList, GuideCard } from '@/components';
 import { useRequest } from 'ahooks';
 import { getProfile, getUserFeed, getUserFavorites } from '@/api/personal';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -45,8 +45,8 @@ export default function PersonalPage() {
                 <View className="flex items-center space-x-4">
                     {/* 头像 */}
                     <View className="relative">
-                        <Image
-                            isAvatar
+                        <Avatar
+                            name={profile?.nickname}
                             src={profile?.avatarUrl || ''}
                             className="w-20 h-20 rounded-full border-2 border-white object-cover"
                         />

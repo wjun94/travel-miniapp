@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image, CoverImage } from '@/components';
+import { NavBar, Image, CoverImage, Avatar } from '@/components';
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
@@ -110,7 +110,7 @@ export default function TravelGuideDetail() {
                     className='flex flex-row items-center flex-1'
                     onClick={() => Taro.navigateTo({ url: `/pages/personal/index?userId=${guide.userId}&id${guide.id}` })}
                 >
-                    <Image isAvatar src={guide.authorAvatar} className='w-[48px] h-[48px] text-[20px] rounded-full border-2 border-white/80' />
+                    <Avatar name={guide.authorName} src={guide.authorAvatar} className='w-[48px] h-[48px] text-[20px] rounded-full border-2 border-white/80' />
                     <Text className='ml-2 text-[24px] font-bold drop-shadow-md'>{guide.authorName || ''}</Text>
                     {!guide.isSelf && (
                         <View

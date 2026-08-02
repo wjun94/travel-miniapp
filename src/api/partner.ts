@@ -86,6 +86,7 @@ export interface ApplyPartnerParams {
 /** 处理申请的参数 */
 export interface HandleApplicationParams {
   applicationId: string;
+  reason: string; // 拒绝理由
   status: number; // 1: 同意, 2: 拒绝
 }
 
@@ -424,7 +425,7 @@ export const applyPartner = (id: string, data: ApplyPartnerParams) =>
  * @param data 申请ID和处理状态
  */
 export const handlePartnerApplication = (id: string, data: HandleApplicationParams) =>
-  request<any>({
+  request<null>({
     url: `/partner/${id}/application`,
     method: 'PUT',
     data

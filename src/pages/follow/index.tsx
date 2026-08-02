@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { ScrollLoadList, Image } from '@/components'
+import { ScrollLoadList, Avatar } from '@/components'
 import { getMyFollowing, followUser, unfollowUser } from '@/api/follow'
 import type { UserFollowInfo } from '@/api/follow'
 
@@ -41,7 +41,7 @@ export default function FollowPage() {
                 onClick={() => handleClickItem(item.userId)}
             >
                 <View className='flex items-center flex-1 min-w-0 space-x-3'>
-                    <Image isAvatar src={item.avatarUrl} className='w-[76px] h-[76px] rounded-full flex-shrink-0 shadow-sm' />
+                    <Avatar name={item.nickname} src={item.avatarUrl} className='w-[76px] h-[76px] rounded-full flex-shrink-0 shadow-sm' />
                     <View className='flex-1 min-w-0'>
                         <View className='flex flex-row items-center space-x-2'>
                             <Text className='text-[28px] font-bold text-stone-800 truncate max-w-[200px]'>{item.nickname}</Text>

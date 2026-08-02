@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Image, CoverImage } from '@/components'
+import { Avatar, CoverImage } from '@/components'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 
@@ -110,7 +110,7 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
         <View className='flex flex-row items-center justify-between mt-auto'>
           {(item.authorAvatar || item.authorName) && (
             <View className='flex flex-row items-center flex-1 min-w-0 mr-2'>
-              <Image isAvatar src={item.authorAvatar} className='w-[32px] h-[32px] text-16px rounded-full flex-shrink-0' />
+              <Avatar name={item.authorName} src={item.authorAvatar} className='w-[32px] h-[32px] text-16px rounded-full flex-shrink-0' />
               <Text className='text-[22px] text-stone-500 ml-1 truncate flex-1'>{item.authorName}</Text>
             </View>
           )}
