@@ -80,3 +80,16 @@ export const getProfile = () =>
     url: '/profile',
     method: 'GET',
   });
+
+/**
+ * 绑定微信手机号
+ * @param code 小程序 button open-type="getPhoneNumber" 拿到的授权code
+ * @returns 接口返回，包含脱敏手机号
+ */
+export const bindWxPhone = (code: string) => {
+  return request<{ phone: string; }>({
+    url: '/bind/phone',
+    method: 'POST',
+    data: { code },
+  });
+};

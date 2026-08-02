@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, Input, Button } from '@tarojs/components';
 import { Image } from '@/components'
+import Modal from '@/components/Modal';
 import Taro from '@tarojs/taro';
 import { useRequest } from 'ahooks';
-import { getUserInfo, updateProfile } from '@/api/auth';
+import { getUserInfo, updateProfile, bindWxPhone } from '@/api/auth';
 import { uploadSingleFile } from '@/utils/upload';
 import { useAuthStore } from '@/store/authStore';
 
@@ -13,7 +14,11 @@ export default function ProfilePage() {
     const [avatar, setAvatar] = useState('');
     const [nickname, setNickname] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [saving, setSaving] = useState(false);
+    // 记录初始昵称，弹窗确定时仅在改动后才提交
+    const initialNicknameRef = useRef('');
+    // 昵称编辑弹窗
+    const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
+    const [nicknameInput, setNicknameInput] = useState('');
 
     // 加载当前用户信息
     const { loading } = useRequest(getUserInfo, {
@@ -22,6 +27,7 @@ export default function ProfilePage() {
             if (info) {
                 setAvatar(info.avatarUrl || '');
                 setNickname(info.nickname || '');
+                initialNicknameRef.current = info.nickname || '';
                 setPhoneNumber(info.phone || '');
             }
         },
@@ -30,55 +36,81 @@ export default function ProfilePage() {
         },
     });
 
-    // 1. 头像选择 — 上传并更新
+    // 1. 头像选择 — 上传后直接更新头像
     const onChooseAvatar = async (e: any) => {
         const tempPath = e.detail.avatarUrl;
         if (!tempPath) return;
         // 先显示选中
         setAvatar(tempPath);
+        // 全屏 loading 锁住页面，避免重复操作
+        Taro.showLoading({ title: '上传中...', mask: true });
         try {
             const uploaded = await uploadSingleFile(tempPath);
             const url = uploaded?.url || uploaded;
             setAvatar(url);
+            // 上传成功直接更新头像
+            await updateProfile({ avatarUrl: url });
+            setUserInfo({ avatarUrl: url } as any);
+            Taro.showToast({ title: '头像已更新', icon: 'success' });
         } catch {
             Taro.showToast({ title: '头像上传失败', icon: 'none' });
+        } finally {
+            Taro.hideLoading();
         }
     };
 
     // 2. 绑定手机号
-    const onGetPhoneNumber = (e: any) => {
+    const onGetPhoneNumber = async (e: any) => {
         const { code, errMsg } = e.detail;
-        if (errMsg === 'getPhoneNumber:ok' && code) {
-            Taro.showLoading({ title: '绑定中...' });
-            setTimeout(() => {
-                Taro.hideLoading();
-                setPhoneNumber('138****8888');
-                Taro.showToast({ title: '绑定成功', icon: 'success' });
-            }, 1000);
-        } else {
+        if (errMsg !== 'getPhoneNumber:ok' || !code) {
             Taro.showToast({ title: '授权失败', icon: 'none' });
+            return;
+        }
+        // 全屏 loading 锁住页面，避免重复操作
+        Taro.showLoading({ title: '绑定中...', mask: true });
+        try {
+            const res = await bindWxPhone(code);
+            setPhoneNumber(res?.phone || '已绑定');
+            Taro.showToast({ title: '绑定成功', icon: 'success' });
+        } catch (e: any) {
+            Taro.showToast({ title: e?.message || '绑定失败，请重试', icon: 'none' });
+        } finally {
+            Taro.hideLoading();
         }
     };
 
-    // 3. 保存资料
-    const handleSave = async () => {
-        if (!nickname.trim()) {
+    // 3. 打开昵称编辑弹窗
+    const openNicknameModal = () => {
+        setNicknameInput(nickname);
+        setNicknameModalVisible(true);
+    };
+
+    // 4. 昵称弹窗确定：调用更新用户信息接口
+    const handleNicknameConfirm = async () => {
+        const value = nicknameInput.trim();
+        if (!value) {
             Taro.showToast({ title: '昵称不能为空', icon: 'none' });
             return;
         }
-        setSaving(true);
-        Taro.showLoading({ title: '保存中...' });
+        // 未改动则直接关闭
+        if (value === initialNicknameRef.current) {
+            setNicknameModalVisible(false);
+            return;
+        }
+        // 全屏 loading 锁住页面，避免重复操作
+        Taro.showLoading({ title: '更新中...', mask: true });
         try {
-            await updateProfile({ nickname: nickname.trim(), avatarUrl: avatar });
+            await updateProfile({ nickname: value });
+            setNickname(value);
+            initialNicknameRef.current = value;
             // 同步更新 store
-            setUserInfo({ nickname: nickname.trim(), avatarUrl: avatar } as any);
-            Taro.hideLoading();
-            Taro.showToast({ title: '保存成功', icon: 'success' });
+            setUserInfo({ nickname: value } as any);
+            setNicknameModalVisible(false);
+            Taro.showToast({ title: '昵称已更新', icon: 'success' });
         } catch {
-            Taro.hideLoading();
-            Taro.showToast({ title: '保存失败', icon: 'none' });
+            Taro.showToast({ title: '昵称更新失败', icon: 'none' });
         } finally {
-            setSaving(false);
+            Taro.hideLoading();
         }
     };
 
@@ -112,16 +144,15 @@ export default function ProfilePage() {
             {/* 表单区域 */}
             <View className='bg-white px-5 mx-4 rounded-3xl shadow-sm border border-stone-100'>
                 {/* 昵称 */}
-                <View className='flex items-center py-4 border-b border-stone-100'>
+                <View
+                    className='flex items-center py-4 border-b border-stone-100 active:bg-stone-50'
+                    onClick={openNicknameModal}
+                >
                     <Text className='w-[100px] text-[26px] text-stone-700 font-bold'>昵称</Text>
-                    <Input
-                        type='nickname'
-                        className='flex-1 text-[26px] text-stone-800 h-9'
-                        placeholder='请输入昵称'
-                        value={nickname}
-                        onInput={(e) => setNickname(e.detail.value)}
-                        onBlur={(e) => setNickname(e.detail.value)}
-                    />
+                    <View className='flex-1 flex items-center justify-between'>
+                        <Text className='text-[26px] text-stone-800 font-medium'>{nickname || '未设置昵称'}</Text>
+                        <Text className='iconfont icon-next text-[24px]' />
+                    </View>
                 </View>
 
                 {/* 手机号 */}
@@ -144,17 +175,27 @@ export default function ProfilePage() {
                 </View>
             </View>
 
-            {/* 底部保存按钮 */}
-            <View className='px-4 mt-8'>
-                <View
-                    onClick={handleSave}
-                    className={`w-full h-88px rounded-2xl flex items-center justify-center transition-all active:scale-[0.98] ${saving ? 'bg-stone-300' : 'bg-[#F97316] shadow-[0_6px_20px_rgba(249,115,22,0.25)]'}`}
-                >
-                    <Text className='text-[28px] text-white font-bold tracking-wider'>
-                        {saving ? '保存中...' : '保存修改'}
-                    </Text>
+            {/* 昵称编辑弹窗 */}
+            <Modal
+                visible={nicknameModalVisible}
+                title="修改昵称"
+                confirmText="确定"
+                onConfirm={handleNicknameConfirm}
+                onCancel={() => setNicknameModalVisible(false)}
+                onMaskClick={() => setNicknameModalVisible(false)}
+            >
+                <View className="py-2">
+                    <Input
+                        type='nickname'
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-800 box-border h-11"
+                        placeholder="请输入昵称"
+                        placeholderClass="text-gray-400"
+                        value={nicknameInput}
+                        onInput={(e) => setNicknameInput(e.detail.value)}
+                        focus
+                    />
                 </View>
-            </View>
+            </Modal>
         </View>
     );
 }
