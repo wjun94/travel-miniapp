@@ -23,7 +23,7 @@ export const getNearby = (lat: number, lng: number) =>
   request<NearbyPOI[]>({
     url: '/nearby',
     method: 'GET',
-    data: { lat, lng },
+    params: { lat, lng },
   });
 
 /**
@@ -35,5 +35,5 @@ export const getTopRecommend = (city?: string) =>
   request<any[]>({ // 可根据实际模型定义类型
     url: '/nearby/recommend',
     method: 'GET',
-    data: { city },
+    params: { city },
   });

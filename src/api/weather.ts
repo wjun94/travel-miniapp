@@ -9,5 +9,5 @@ export const getWeather = (city: string) =>
   request<any>({
     url: '/weather',
     method: 'GET',
-    data: { city },
+    params: { city },
   });

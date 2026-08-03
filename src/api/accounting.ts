@@ -31,7 +31,7 @@ export const getAccounts = (tripId: number) =>
  * @param data 记账数据
  * @returns void
  */
-export const addAccount = (data: {
+export const addAccount = (params: {
   tripId: number;
   category: string;
   amount: number;
@@ -41,7 +41,7 @@ export const addAccount = (data: {
   request({
     url: '/account',
     method: 'POST',
-    data,
+    params,
   });
 
 /**
@@ -54,5 +54,5 @@ export const importWechatPay = (tripId: number, transactions: string[]) =>
   request({
     url: '/account/import',
     method: 'POST',
-    data: { trip_id: tripId, transactions },
+    params: { trip_id: tripId, transactions },
   });

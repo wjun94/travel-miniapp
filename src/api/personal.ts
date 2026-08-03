@@ -113,7 +113,7 @@ export const getUserFeed = ({ id, page = 1, pageSize = 10 }: GetFeedParams) =>
     request<PageResult<FeedListData>>({
         url: `/profile/${id}/feed`,
         method: 'GET',
-        data: {
+        params: {
             page,
             pageSize
         }
@@ -136,7 +136,7 @@ export const getUserFavorites = ({
     request<PageResult<FavoriteListData>>({
         url: `/profile/${id}/favorites`,
         method: 'GET',
-        data: {
+        params: {
             target_type,
             page,
             pageSize

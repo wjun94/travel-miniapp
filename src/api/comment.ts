@@ -67,7 +67,7 @@ export const getComments = (params: GetCommentsParams) =>
     request<PageResult<CommentItem>>({
         url: '/comments',
         method: 'GET',
-        data: params // GET 请求通常使用 params 传参，若底层的 request 支持 data 自动转换也可保持原样
+        params: params
     });
 
 /**
@@ -98,16 +98,16 @@ export const getCommentReplies = (params: { parent_id: string }) =>
     request<CommentItem[]>({
         url: '/comment/replies',
         method: 'GET',
-        data: params
+        params: params
     });
 
 /**
  * 5. 发表评论
  * @param data 评论表单内容
  */
-export const createComment = (data: CreateCommentBody) =>
+export const createComment = (params: CreateCommentBody) =>
     request<string>({
         url: '/comment',
         method: 'POST',
-        data
+        params
     });

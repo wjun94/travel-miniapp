@@ -28,7 +28,7 @@ export const getFootprints = () =>
  * @param data 城市信息
  * @returns void
  */
-export const syncFootprint = (data: {
+export const syncFootprint = (params: {
   city: string;
   province: string;
   lat: number;
@@ -37,7 +37,7 @@ export const syncFootprint = (data: {
   request({
     url: '/footprint/sync',
     method: 'POST',
-    data,
+    params,
   });
 
 /**

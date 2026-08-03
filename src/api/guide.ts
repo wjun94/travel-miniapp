@@ -93,11 +93,11 @@ export interface CreateTravelGuideParams {
  * @param data 攻略表单提交参数
  * @returns 请求返回值
  */
-export const createTravelGuide = (data: CreateTravelGuideParams) => {
+export const createTravelGuide = (params: CreateTravelGuideParams) => {
   return request<ApiResponse<null>>({
     url: '/guide',
     method: 'POST',
-    data,
+    params,
   });
 };
 
@@ -144,5 +144,5 @@ export const getMyGuides = (page: number, pageSize: number) =>
   request<{ list: Guide[]; total: number }>({
     url: '/my/guides',
     method: 'GET',
-    data: { page, pageSize },
+    params: { page, pageSize },
   });

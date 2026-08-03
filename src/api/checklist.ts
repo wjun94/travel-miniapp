@@ -82,11 +82,11 @@ export interface ChecklistDetail {
  * 获取用户的所有备忘清单
  * @returns 清单列表
  */
-export const getChecklists = (data) =>
+export const getChecklists = (params) =>
   request<Checklist[]>({
     url: '/checklist',
     method: 'GET',
-    data
+    params
   });
 
 /**
@@ -94,11 +94,11 @@ export const getChecklists = (data) =>
  * @param data 完整的清单创建信息
  * @returns 创建成功的清单对象
  */
-export const createChecklist = (data: Partial<Checklist>) =>
+export const createChecklist = (params: Partial<Checklist>) =>
   request<Checklist>({
     url: '/checklist',
     method: 'POST',
-    data,
+    params,
   });
 
 /**
@@ -120,7 +120,7 @@ export const updateChecklistItem = (itemId: string, checked: number) =>
   request<string>({
     url: `/checklist/${itemId}/item`,
     method: 'PUT',
-    data: { checked },
+    params: { checked },
   });
 
 /**
@@ -139,11 +139,11 @@ export const deleteChecklist = (id: string) =>
 * @param id 清单ID (路径参数)
 * @param data 包含名称和条目的更新数据 (请求体)
 */
-export const updateChecklist = (id: string, data: UpdateChecklistRequest) =>
+export const updateChecklist = (id: string, params: UpdateChecklistRequest) =>
   request<any>({
     url: `/checklist/${id}`,
     method: 'PUT',
-    data,
+    params,
   });
 
 /**

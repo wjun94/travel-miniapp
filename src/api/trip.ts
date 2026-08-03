@@ -168,11 +168,11 @@ export interface Trip {
  * @param data 行程表单提交参数
  * @returns 请求返回值
  */
-export const createTrip = (data: Trip) => {
+export const createTrip = (params: Trip) => {
   return request<null>({
     url: '/trip',
     method: 'POST',
-    data,
+    params,
   });
 };
 
@@ -219,7 +219,7 @@ export const getMyTrips = (page: number, pageSize: number) =>
   request<{ list: Guide[]; total: number }>({
     url: '/my/trips',
     method: 'GET',
-    data: { page, pageSize },
+    params: { page, pageSize },
   });
 
 /**
@@ -231,6 +231,6 @@ export const aiGenerateTrip = (params: AiGenerateTripParams) => {
   return request<AiGenerateTripData>({
     url: '/trip/ai-generate',
     method: 'POST',
-    data: params,
+    params: params,
   });
 };

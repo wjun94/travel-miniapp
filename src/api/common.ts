@@ -136,7 +136,7 @@ export const searchDestinations = (params: { keyword: string }) =>
     request<DestinationItem[]>({
         url: '/destinations/search',
         method: 'GET',
-        data: params
+        params: params
     });
 
 /**
@@ -148,7 +148,7 @@ export const getQweather = (params: { city: string }) =>
     request<QweatherData>({
         url: '/weather/qweather',
         method: 'GET',
-        data: params
+        params: params
     });
 
 /**

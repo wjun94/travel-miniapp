@@ -82,7 +82,7 @@ export const getNotificationList = (params: {
   request<PageResult<NotificationItem>>({
     url: '/notification/list',
     method: 'GET',
-    data: params,
+    params: params,
   });
 
 /**
@@ -94,7 +94,7 @@ export const getMessageList = (targetUserId: number) =>
   request<Message[]>({
     url: '/message/list',
     method: 'GET',
-    data: { targetUserId: targetUserId },
+    params: { targetUserId: targetUserId },
   });
 
 /**
@@ -107,7 +107,7 @@ export const sendMessage = (toUserId: string, content: string) =>
   request({
     url: '/message/send',
     method: 'POST',
-    data: { toUserId, content },
+    params: { toUserId, content },
   });
 
 /**
@@ -136,7 +136,7 @@ export const markNotificationRead = (id: string, isRead: number = 1) =>
   request<string>({
     url: `/notification/read/${id}`,
     method: 'PUT',
-    data: { isRead }
+    params: { isRead }
   });
 
 /**
@@ -170,5 +170,5 @@ export const markNotificationTypeAllRead = (type: number) =>
   request<string>({
     url: '/notification/type-read',
     method: 'PUT',
-    data: { type }
+    params: { type }
   });

@@ -25,12 +25,12 @@ export const login = (code: string, inviteCode?: string) => {
   const urlInviteCode = inviteCode
     || (Taro.getCurrentInstance().router?.params?.inviteCode as string)
     || (Taro.getEnterOptionsSync()?.query?.inviteCode as string);
-  const data: { code: string; inviteCode?: string } = { code };
-  if (urlInviteCode) data.inviteCode = urlInviteCode;
+  const params: { code: string; inviteCode?: string } = { code };
+  if (urlInviteCode) params.inviteCode = urlInviteCode;
   return request<LoginResponse>({
     url: '/user/login',
     method: 'POST',
-    data,
+    params,
   });
 };
 
@@ -50,11 +50,11 @@ export const getUserInfo = () =>
  * @param data 可更新昵称和头像
  * @returns void
  */
-export const updateProfile = (data: { nickname?: string; avatarUrl?: string }) =>
+export const updateProfile = (params: { nickname?: string; avatarUrl?: string }) =>
   request({
     url: '/user/profile',
     method: 'PUT',
-    data,
+    params,
   });
 
 /**
@@ -90,6 +90,6 @@ export const bindWxPhone = (code: string) => {
   return request<{ phone: string; }>({
     url: '/bind/phone',
     method: 'POST',
-    data: { code },
+    params: { code },
   });
 };

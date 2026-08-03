@@ -25,7 +25,7 @@ export const getFeed = (page: number) =>
   request<{ list: Post[]; total: number }>({
     url: '/feed',
     method: 'GET',
-    data: { page },
+    params: { page },
   });
 
 /** 攻略参数 */
@@ -80,7 +80,7 @@ export const getGuides = (
   request<{ list: Guide[]; total: number }>({
     url: '/guide/feed',
     method: 'GET',
-    data: { page, pageSize, destination, keyword, category },
+    params: { page, pageSize, destination, keyword, category },
   });
 
 /**
@@ -88,7 +88,7 @@ export const getGuides = (
  * @param data 攻略内容
  * @returns 创建的攻略对象
  */
-export const createPost = (data: {
+export const createPost = (params: {
   content: string;
   location?: string;
   city?: string;
@@ -97,7 +97,7 @@ export const createPost = (data: {
   request<Post>({
     url: '/post',
     method: 'POST',
-    data,
+    params,
   });
 
 /**

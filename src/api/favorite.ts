@@ -21,7 +21,7 @@ export const deleteFavorite = (id: string, targetType: string) => {
     return request<string>({
         url: `/favorite/remove`,
         method: 'POST',
-        data: { targetType, id },
+        params: { targetType, id },
     });
 };
 
@@ -37,11 +37,11 @@ export interface AddFavoriteParams {
  * 添加收藏
  * @param data 收藏信息
  */
-export const addFavorite = (data: AddFavoriteParams) => {
+export const addFavorite = (params: AddFavoriteParams) => {
     return request<string>({
         url: '/favorite',
         method: 'POST',
-        data,
+        params,
     });
 };
 
@@ -59,6 +59,6 @@ export const getFavorites = (params: GetFavoritesParams) => {
     return request<PageResult<FavoriteItem>>({
         url: '/favorites',
         method: 'GET',
-        data: params,
+        params: params,
     });
 };

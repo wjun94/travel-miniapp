@@ -16,7 +16,7 @@ export interface PageResult<T> {
 interface RequestOptions {
   url: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  data?: any;
+  params?: any;
   header?: any;
   showLoading?: boolean;
   showErrorToast?: boolean; // 👈 新增：是否显示错误弹窗，默认为 true
@@ -26,18 +26,18 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
   const {
     url,
     method = 'GET',
-    data,
+    params,
     header = {},
     showErrorToast = true, // 👈 新增：解构并设置默认值
   } = options;
 
   // 过滤值为 undefined 的请求参数，避免携带无效字段（null/0/'' 等合法值保留）
   // 注意：不使用 Object.fromEntries（ES2019），微信小程序基础库不支持会导致白屏
-  let cleanData: any = data;
-  if (data && typeof data === 'object' && !Array.isArray(data)) {
+  let cleanData: any = params;
+  if (params && typeof params === 'object' && !Array.isArray(params)) {
     const clean: Record<string, any> = {};
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined) clean[key] = data[key];
+    Object.keys(params).forEach((key) => {
+      if (params[key] !== undefined) clean[key] = params[key];
     });
     cleanData = Object.keys(clean).length > 0 ? clean : undefined;
   }

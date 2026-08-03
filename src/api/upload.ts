@@ -9,5 +9,5 @@ export const deleteImage = (url: string) =>
     request<null>({
         url: `/image/delete`,
         method: 'DELETE',
-        data: { url }
+        params: { url }
     });

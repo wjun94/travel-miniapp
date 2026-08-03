@@ -42,18 +42,18 @@ export const getHistoryList = (params) =>
     request<{ list: HistoryRecord[]; total: number }>({
         url: '/browse/history',
         method: 'GET',
-        data: params,
+        params: params,
     });
 
 /**
  * 添加浏览记录 (对应 POST /browse/history)
  * @param data 浏览记录信息
  */
-export const createHistoryRecord = (data: CreateHistoryRequest) =>
+export const createHistoryRecord = (params: CreateHistoryRequest) =>
     request<HistoryRecord>({
         url: '/browse/history',
         method: 'POST',
-        data,
+        params,
     });
 
 /**

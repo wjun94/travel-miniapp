@@ -22,11 +22,11 @@ export interface UserFollowInfo {
 /**
  * 获取我的黑名单
  */
-export const getBlacklist = (data: PageParams) =>
+export const getBlacklist = (params: PageParams) =>
     request<PageResult<UserFollowInfo>>({
         url: '/follow/blacklist',
         method: 'GET',
-        data,
+        params,
     });
 
 /**
@@ -81,22 +81,22 @@ export const getUserFollowCounts = (id: string | number) =>
 /**
  * 获取我的粉丝列表
  */
-export const getMyFollowers = (data: PageParams) =>
+export const getMyFollowers = (params: PageParams) =>
     request<PageResult<UserFollowInfo>>({
         url: '/follow/followers',
         method: 'GET',
-        data,
+        params,
     });
 
 /**
  * 获取他人的粉丝列表
  * @param id 用户ID
  */
-export const getUserFollowers = (id: string | number, data: PageParams) =>
+export const getUserFollowers = (id: string | number, params: PageParams) =>
     request<PageResult<UserFollowInfo>>({
         url: `/follow/followers/${id}`,
         method: 'GET',
-        data,
+        params,
     });
 
 /**
@@ -112,11 +112,11 @@ export const removeFollower = (id: string | number) =>
 /**
  * 获取我的关注列表
  */
-export const getMyFollowing = (data: PageParams) =>
+export const getMyFollowing = (params: PageParams) =>
     request<PageResult<UserFollowInfo>>({
         url: '/follow/following',
         method: 'GET',
-        data,
+        params,
     });
 
 /* ==================== 以下为本次新增图片接口 ==================== */
@@ -125,11 +125,11 @@ export const getMyFollowing = (data: PageParams) =>
  * 获取他人的关注列表
  * @param id 用户ID
  */
-export const getUserFollowing = (id: string | number, data: PageParams) =>
+export const getUserFollowing = (id: string | number, params: PageParams) =>
     request<PageResult<UserFollowInfo>>({
         url: `/follow/following/${id}`,
         method: 'GET',
-        data,
+        params,
     });
 
 /**

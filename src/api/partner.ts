@@ -382,7 +382,7 @@ export const getPartnerList = (
   request<PageResult<PartnerItem>>({
     url: '/partner/list',
     method: 'GET',
-    data: { page, pageSize, keyword },
+    params: { page, pageSize, keyword },
   });
 
 /**
@@ -394,7 +394,7 @@ export const getMyPartners = (params?: any) =>
   request<PageResult<PartnerItem>>({
     url: `/my/partners`,
     method: 'GET',
-    data: params // GET 请求通常使用 params
+    params: params // GET 请求通常使用 params
   });
 
 /**
@@ -402,11 +402,11 @@ export const getMyPartners = (params?: any) =>
  * POST /partner
  * @param data 搭子详细信息
  */
-export const createPartner = (data: CreatePartnerParams) =>
+export const createPartner = (params: CreatePartnerParams) =>
   request<any>({
     url: `/partner`,
     method: 'POST',
-    data
+    params
   });
 
 
@@ -417,11 +417,11 @@ export const createPartner = (data: CreatePartnerParams) =>
  * @param id 搭子ID
  * @param data 申请信息 (remark)
  */
-export const applyPartner = (id: string, data: ApplyPartnerParams) =>
+export const applyPartner = (id: string, params: ApplyPartnerParams) =>
   request<any>({
     url: `/partner/${id}/apply`,
     method: 'POST',
-    data
+    params
   });
 
 /**
@@ -430,11 +430,11 @@ export const applyPartner = (id: string, data: ApplyPartnerParams) =>
  * @param id 搭子ID (路由参数)
  * @param data 申请ID和处理状态
  */
-export const handlePartnerApplication = (id: string, data: HandleApplicationParams) =>
+export const handlePartnerApplication = (id: string, params: HandleApplicationParams) =>
   request<null>({
     url: `/partner/${id}/application`,
     method: 'PUT',
-    data
+    params
   });
 
 /**
@@ -480,5 +480,5 @@ export const aiGeneratePartner = (params: AiGeneratePartnerParams) =>
   request<AiGenerateTripData>({
     url: '/partner/ai-generate',
     method: 'POST',
-    data: params,
+    params: params,
   });
