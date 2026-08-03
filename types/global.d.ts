@@ -17,6 +17,8 @@ declare const API_BASE: string;
 /** websocket接口请求地址 */
 declare const SOCKET_BASE: string;
 declare const STATIC_BASE_URL: string;
+/** H5页面地址 */
+declare const H5_BASE_URL: string;
 
 declare namespace NodeJS {
   interface ProcessEnv {

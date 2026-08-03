@@ -48,7 +48,14 @@ export default function ProfilePage() {
         Taro.navigateTo({ url: '/pages/checklist/list/index' })
       }
     },
-    { id: 4, title: '汇率换算', icon: 'icon-rates' },
+    {
+      id: 4,
+      title: '汇率换算',
+      icon: 'icon-rates',
+      onFn: () => {
+        Taro.navigateTo({ url: `/pages/webview/index?src=${encodeURIComponent(`${H5_BASE_URL}/convert`)}` })
+      }
+    },
   ]
 
   // 2. 更多服务数据
