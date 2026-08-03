@@ -368,15 +368,21 @@ export interface AiGeneratePartnerParams {
 // --- API 函数 ---
 
 /**
- * 1. 获取搭子列表
+ * 获取搭子列表（分页）
  * GET /partner/list
- * @param params 查询参数 (如 page, pageSize, destination 等)
+ * @param page     页码
+ * @param pageSize 每页数量
+ * @param keyword  关键词搜索（标题/目的地/简述/标签），可选
  */
-export const getPartnerList = (params?: any) =>
+export const getPartnerList = (
+  page: number,
+  pageSize: number,
+  keyword?: string,
+) =>
   request<PageResult<PartnerItem>>({
-    url: `/partner/list`,
+    url: '/partner/list',
     method: 'GET',
-    data: params // GET 请求通常使用 params
+    data: { page, pageSize, keyword },
   });
 
 /**
