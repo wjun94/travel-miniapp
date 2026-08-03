@@ -84,7 +84,8 @@ export default function HomePage() {
       {/* 2. "寻找搭子" Banner 区域 */}
       <View className="relative w-full h-40 rounded-2xl overflow-hidden my-3 shadow-sm">
         <Image
-          src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=600&q=80"
+          src="home-banner.jfif"
+          cdn
           mode="aspectFill"
           className="w-full h-full absolute inset-0"
         />
