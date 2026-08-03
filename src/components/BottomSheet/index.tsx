@@ -82,7 +82,7 @@ export default function BottomSheet(props: BottomSheetProps) {
     // 仅允许向下拖拽（正值表示向下移动）
     if (deltaY > 0) {
       // 限制最大拖拽距离为屏幕高度的50%
-      const maxDrag = Taro.getSystemInfoSync().windowHeight * 0.5
+      const maxDrag = Taro.getWindowInfo().windowHeight * 0.5
       setDragOffset(Math.min(deltaY, maxDrag))
     }
   }

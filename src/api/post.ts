@@ -63,16 +63,24 @@ export interface Guide {
 }
 
 /**
- * 获取攻略列表（ScrollLoadList 分页）
- * @param page 页码
- * @param pageSize 每页条数
- * @param extra 额外筛选参数（如 category）
+ * 获取攻略列表（分页）
+ * @param page         页码
+ * @param pageSize     每页条数
+ * @param destination  目的地筛选（可选）
+ * @param keyword      关键词搜索（标题/目的地/简介，可选）
+ * @param category     筛选：recommend(推荐) hot(热门) latest(最新) domestic(国内) overseas(国外)（可选）
  */
-export const getGuides = (page: number, pageSize: number, extra?: Record<string, any>) =>
+export const getGuides = (
+  page: number,
+  pageSize: number,
+  destination?: string,
+  keyword?: string,
+  category?: string,
+) =>
   request<{ list: Guide[]; total: number }>({
     url: '/guide/feed',
     method: 'GET',
-    data: { page, pageSize, ...extra },
+    data: { page, pageSize, destination, keyword, category },
   });
 
 /**

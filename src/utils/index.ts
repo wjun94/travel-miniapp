@@ -1,4 +1,4 @@
-import { getSystemInfoSync, getMenuButtonBoundingClientRect } from '@tarojs/taro'
+import { getWindowInfo, getMenuButtonBoundingClientRect } from '@tarojs/taro'
 import dayjs from 'dayjs'
 
 /** cdn图片域名地址 */
@@ -66,7 +66,7 @@ export function formatTime(originTime) {
 /** 获取状态栏 + 导航栏（含胶囊按钮）高度，避开右上角胶囊按钮 */
 export function getHeaderHeight(): number {
   try {
-    const info = getSystemInfoSync()
+    const info = getWindowInfo()
     const statusBarHeight = info.statusBarHeight || 20
     const menuButton = getMenuButtonBoundingClientRect()
     const navBarHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height

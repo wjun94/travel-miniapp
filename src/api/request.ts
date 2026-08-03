@@ -30,6 +30,18 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
     header = {},
     showErrorToast = true, // 👈 新增：解构并设置默认值
   } = options;
+
+  // 过滤值为 undefined 的请求参数，避免携带无效字段（null/0/'' 等合法值保留）
+  // 注意：不使用 Object.fromEntries（ES2019），微信小程序基础库不支持会导致白屏
+  let cleanData: any = data;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const clean: Record<string, any> = {};
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== undefined) clean[key] = data[key];
+    });
+    cleanData = Object.keys(clean).length > 0 ? clean : undefined;
+  }
+
   const fullUrl = url.startsWith('http') ? url : API_BASE + url;
 
   const token = useAuthStore.getState().token;
@@ -38,7 +50,7 @@ async function request<T = any>(options: RequestOptions): Promise<T> {
     const res = await Taro.request({
       url: fullUrl,
       method,
-      data,
+      data: cleanData,
       header: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

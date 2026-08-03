@@ -20,8 +20,15 @@ const TABS = [
 
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0)
+  const [searchKeyword, setSearchKeyword] = useState('')
   const headerHeight = getHeaderHeight()
   const update = useUpdate()
+
+  // 点击搜索：跳转搜索页并携带关键词
+  const handleSearch = useCallback(() => {
+    const keyword = searchKeyword.trim()
+    Taro.navigateTo({ url: `/pages/search/index${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}` })
+  }, [searchKeyword])
 
   // 分享好友：URL 携带邀请码，新用户注册后邀请者可免费获得 1 次 AI 生成额度
   useShareAppMessage(() => {
@@ -72,13 +79,29 @@ export default function HomePage() {
       {/* 1. 顶部搜索栏 */}
       <View className="flex flex-row items-center justify-between my-3 px-0.5">
         <View className="flex-1 flex flex-row items-center bg-white rounded-full px-4 py-2.5 shadow-sm border border-gray-100">
-          <Text className="text-gray-400 mr-2 text-base leading-none">🔍</Text>
+          <Text className="iconfont icon-search text-gray-400 mr-2 text-base leading-none" />
           <Input
-            placeholder="搜索目的地 / 攻略 / 用户"
+            placeholder="搜索标题/目的地/简介"
             placeholderClass="text-gray-300 text-sm"
             className="text-sm text-gray-700 flex-1 h-5 min-h-5"
+            value={searchKeyword}
+            onInput={(e) => setSearchKeyword(e.detail.value)}
+            confirmType="search"
+            onConfirm={handleSearch}
           />
+          {searchKeyword && (
+            <Text
+              className="iconfont icon-close text-gray-300 text-base leading-none ml-1 active:opacity-60"
+              onClick={() => setSearchKeyword('')}
+            />
+          )}
         </View>
+        <Text
+          className="text-[#e97442] text-sm font-bold ml-3 flex-shrink-0 active:opacity-70"
+          onClick={handleSearch}
+        >
+          搜索
+        </Text>
       </View>
 
       {/* 2. "寻找搭子" Banner 区域 */}
@@ -135,7 +158,7 @@ export default function HomePage() {
         </ScrollView>
       </View>
     </>
-  ), [headerHeight, currentTab])
+  ), [headerHeight, currentTab, searchKeyword, handleSearch])
 
   // 卡片渲染
   const renderCard = useCallback((item: Guide) => {
@@ -149,7 +172,7 @@ export default function HomePage() {
         {renderHeader()}
       </View>
       <ScrollLoadList
-        request={getGuides}
+        request={(page, pageSize, params) => getGuides(page, pageSize, undefined, undefined, params?.category)}
         params={{ category: TABS[currentTab].value }}
         renderItem={renderCard}
         numColumns={2}

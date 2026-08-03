@@ -150,12 +150,10 @@ export const typeOptions = Object.entries(typeConfigMap)
   .map(([value, cfg]) => ({ label: cfg.label, value, icon: cfg.icon }));
 
 /** 类型映射配置（兼容旧代码，从 typeConfigMap 派生） */
-export const SECTION_MAP = Object.fromEntries(
-  Object.entries(typeConfigMap).map(([key, cfg]) => [
-    key,
-    { label: cfg.label, icon: cfg.icon, dotColor: cfg.dotColor, ringColor: cfg.ringColor, color: cfg.color, bg: cfg.bg }
-  ])
-) as Record<SectionType, { label: string; icon: string; dotColor: string; ringColor: string; color: string; bg: string }>;
+export const SECTION_MAP = (Object.entries(typeConfigMap).reduce((acc, [key, cfg]) => {
+  acc[key] = { label: cfg.label, icon: cfg.icon, dotColor: cfg.dotColor, ringColor: cfg.ringColor, color: cfg.color, bg: cfg.bg };
+  return acc;
+}, {} as Record<string, any>)) as Record<SectionType, { label: string; icon: string; dotColor: string; ringColor: string; color: string; bg: string }>;
 
 /** 交通方式列表（值对应后端常量） */
 export const transportMethods = [
