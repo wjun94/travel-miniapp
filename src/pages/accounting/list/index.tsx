@@ -48,7 +48,7 @@ export default function AccountingListPage() {
   })
 
   // 添加表单状态
-  const [category, setCategory] = useState(ACCOUNT_CATEGORIES[0])
+  const [category, setCategory] = useState<(typeof ACCOUNT_CATEGORIES)[number]>(ACCOUNT_CATEGORIES[0])
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
