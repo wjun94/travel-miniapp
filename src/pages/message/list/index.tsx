@@ -100,8 +100,9 @@ export default function MessageList() {
     };
 
     return (
-        <View className='min-h-screen bg-gray-50 flex flex-col'>
+        <>
             <NavBar showBack title='消息中心' />
+            <View className='min-h-screen bg-gray-50 flex flex-col'>
 
             {/* 通知列表 */}
             <ScrollLoadList
@@ -249,6 +250,7 @@ export default function MessageList() {
                     />
                 </View>
             </Modal>
-        </View>
+            </View>
+        </>
     );
 }

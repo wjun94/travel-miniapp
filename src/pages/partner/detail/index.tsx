@@ -141,7 +141,7 @@ export default function PartnerDetail() {
   if (!partner) return null
 
   return (
-    <View className='min-h-screen bg-gray-100/70 pb-100px flex flex-col'>
+    <>
       {/* ===== NavBar ===== */}
       <NavBar showBack backgroundColor='white'>
         {partner?.userId ? (
@@ -170,8 +170,9 @@ export default function PartnerDetail() {
                     <Text className='iconfont icon-notepad text-orange-500 text-30px' />
                     <Text className='ml-1 text-[24px] text-orange-500 font-bold'>记账</Text>
                 </View>
-</NavBar>
+      </NavBar>
 
+      <View className='min-h-screen bg-gray-100/70 pb-100px flex flex-col'>
       {/* ===== Scrollable Content ===== */}
       <ScrollView scrollY className='flex-1 pb-[130px]'>
         {/* ---- Cover Header ---- */}
@@ -493,7 +494,8 @@ export default function PartnerDetail() {
           </View>
         </View>
       </View>
-    </View>
+      </View>
+    </>
   )
 }
 

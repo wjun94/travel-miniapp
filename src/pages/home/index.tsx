@@ -166,8 +166,9 @@ export default function HomePage() {
   }, [])
 
   return (
-    <View className="min-h-screen bg-[#FCFBF7] font-sans box-border pb-20px">
+    <>
       <NavBar />
+      <View className="min-h-screen bg-[#FCFBF7] font-sans box-border pb-20px">
       <View className='px-4'>
         {renderHeader()}
       </View>
@@ -185,6 +186,7 @@ export default function HomePage() {
           className: 'px-4 box-border',
         }}
       />
-    </View>
+      </View>
+    </>
   )
 }

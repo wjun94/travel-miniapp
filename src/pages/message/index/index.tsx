@@ -69,8 +69,9 @@ export default function MessagePage() {
   }
 
   return (
-    <View className='min-h-screen bg-[#FAFAF9] px-4 pb-4 font-sans'>
+    <>
       <NavBar title='消息中心' />
+      <View className='min-h-screen bg-[#FAFAF9] px-4 pb-4 font-sans'>
 
       {/* 1. 顶部功能区 */}
       <View className='mt-2 mb-6 bg-white rounded-2xl px-3 py-5 shadow-sm'>
@@ -155,6 +156,7 @@ export default function MessagePage() {
           ))}
         </View>
       )}
-    </View>
+      </View>
+    </>
   )
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Input, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { NavBar, Avatar } from '@/components'
+import { Avatar } from '@/components'
 import { useAuthStore } from '@/store/authStore';
 import { getMessageList, sendMessage as sendMessageApi, Message } from '@/api/message'
 import { getProfile } from '@/api/personal'
@@ -265,13 +265,11 @@ export default function ChatView() {
 
   return (
     <View className='flex flex-col h-screen overflow-hidden bg-gray-50 text-gray-800'>
-      {/* 顶部导航栏：右侧更多进入用户详情 */}
-      <NavBar showBack>
-        <View className='flex-1 flex flex-row items-center'>
-          <Text className='text-[34px] font-semibold text-gray-700 truncate max-w-[320px]'>{nickname}</Text>
-          <Text className='iconfont icon-more text-40px text-black ml-1 active:opacity-60' onClick={goProfile} />
-        </View>
-      </NavBar>
+      {/* 顶部信息栏：左侧名称，右侧更多进入用户详情 */}
+      <View className='bg-white flex flex-row items-center px-4 py-3 flex-shrink-0'>
+        <Text className='text-[30px] font-semibold text-gray-700 truncate flex-1'>{nickname}</Text>
+        <Text className='iconfont icon-more text-40px text-black ml-2 active:opacity-60' onClick={goProfile} />
+      </View>
 
       {/* 聊天内容区域 */}
       <View className='flex-1 h-0 p-4'>

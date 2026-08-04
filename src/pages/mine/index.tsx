@@ -98,15 +98,16 @@ export default function ProfilePage() {
   ]
 
   return (
-    <View
-      className="min-h-screen bg-[#FCFBF7] pt-2 pb-10 font-sans"
-      style={{
-        backgroundImage: `url(${getImageCdnUrl('mine-bg3.png')})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <>
       <NavBar className="bg-transparent" />
+      <View
+        className="min-h-screen bg-[#FCFBF7] pt-2 pb-10 font-sans"
+        style={{
+          backgroundImage: `url(${getImageCdnUrl('mine-bg3.png')})`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
       <View className="px-4">
         {/* 2. 用户个人信息区域 */}
         <View className="flex flex-row items-center px-1 mb-6">
@@ -196,6 +197,7 @@ export default function ProfilePage() {
         </View>
       </View>
 
-    </View>
+      </View>
+    </>
   )
 }

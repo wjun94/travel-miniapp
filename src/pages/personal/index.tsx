@@ -36,9 +36,9 @@ export default function PersonalPage() {
     };
 
     return (
-        <View className="min-h-screen bg-slate-800 text-white flex flex-col font-sans pb-10">
-
+        <>
             <NavBar showBack backgroundColor='#1e293b' />
+            <View className="min-h-screen bg-slate-800 text-white flex flex-col font-sans pb-10">
 
             {/* 2. 个人信息区域 */}
             <View className="px-5 pb-4 pt-2">
@@ -207,6 +207,7 @@ export default function PersonalPage() {
                     />
                 )}
             </View>
-        </View>
+            </View>
+        </>
     );
 }

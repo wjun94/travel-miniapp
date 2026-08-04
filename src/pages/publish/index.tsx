@@ -130,9 +130,9 @@ export default function PublishPage() {
   ]
 
   return (
-    <View className="min-h-screen px-4 font-sans">
-
+    <>
       <NavBar />
+      <View className="min-h-screen px-4 font-sans">
 
       {/*  功能区（2x2 网格） - 使用 Grid */}
       <View className="grid grid-cols-2 gap-3 mb-5 mt-2">
@@ -226,6 +226,7 @@ export default function PublishPage() {
           </Text>
         </View>
       </Modal>
-    </View>
+      </View>
+    </>
   )
 }
