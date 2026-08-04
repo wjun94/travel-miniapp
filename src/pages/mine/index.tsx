@@ -38,7 +38,14 @@ export default function ProfilePage() {
 
   // 1. 自由行工具箱数据
   const tools = [
-    { id: 1, title: '记账本', icon: 'icon-notepad' },
+    {
+      id: 1,
+      title: '记账本',
+      icon: 'icon-notepad',
+      onFn: () => {
+        Taro.navigateTo({ url: '/pages/accounting/index/index' })
+      }
+    },
     // { id: 2, title: '备忘录', icon: 'icon-checklists' },
     {
       id: 3,

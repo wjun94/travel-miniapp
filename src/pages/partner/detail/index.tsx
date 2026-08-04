@@ -163,7 +163,14 @@ export default function PartnerDetail() {
         ) : (
           <Text className='text-[34px] font-semibold text-gray-700'>搭子详情</Text>
         )}
-      </NavBar>
+                      <View
+                    className='ml-auto flex flex-row items-center px-2 flex-shrink-0'
+                    onClick={() => Taro.navigateTo({ url: `/pages/accounting/list/index?targetType=partner&targetId=${id}&name=${encodeURIComponent(partner?.title || '')}` })}
+                >
+                    <Text className='iconfont icon-notepad text-orange-500 text-30px' />
+                    <Text className='ml-1 text-[24px] text-orange-500 font-bold'>记账</Text>
+                </View>
+</NavBar>
 
       {/* ===== Scrollable Content ===== */}
       <ScrollView scrollY className='flex-1 pb-[130px]'>
