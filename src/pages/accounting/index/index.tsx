@@ -29,7 +29,7 @@ export default function AccountingIndexPage() {
 
   return (
     <View className='min-h-screen bg-[#FAFAF9] px-4 pb-8 font-sans'>
-      <NavBar title='记账本' />
+      <NavBar title='记账本' showBack />
 
       {/* 顶部统计卡 */}
       <View className='bg-white rounded-2xl px-5 py-4 shadow-sm mb-4 flex flex-row items-center'>

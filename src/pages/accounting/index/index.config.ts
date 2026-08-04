@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '记账本'
+  navigationStyle: 'custom',
 })
