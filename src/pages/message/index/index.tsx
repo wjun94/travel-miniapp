@@ -3,15 +3,16 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 import { NavBar, Avatar } from '@/components'
 import { useRequest } from 'ahooks'
-import { getUnreadNotificationCount, markNotificationTypeAllRead, getConversationList, type Conversation } from '@/api/message'
+import { getUnreadNotificationCount, markNotificationTypeAllRead } from '@/api/message'
+import { getMyConversations, clearSystemMessages, type ConversationItem } from '@/api/conversation'
 import { formatTime } from '@/utils'
 
 export default function MessagePage() {
   // 1. 获取未读统计
   const { data: unreadData, refresh: refreshUnread } = useRequest(getUnreadNotificationCount)
 
-  // 2. 获取会话列表
-  const { data: conversationList = [], loading, refresh: refreshList } = useRequest(getConversationList)
+  // 2. 获取统一会话列表（系统消息+私聊+群聊，按最后消息时间倒序）
+  const { data: chatList = [], loading, refresh: refreshList } = useRequest(getMyConversations)
 
   // 下拉刷新
   usePullDownRefresh(async () => {
@@ -30,14 +31,32 @@ export default function MessagePage() {
     { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#EBF2FC', textColor: '#5C94E0', badge: unreadData?.commentCount || 0 },
   ], [unreadData])
 
-  const handleClickItem = async (item: Conversation) => {
-    // 有未读消息才调用标记已读接口
-    if (item.unreadCount > 0) {
-      try {
-        await markNotificationTypeAllRead(Number(item.userId))
-      } catch { /* ignore */ }
+  // 点击会话：系统消息清空，群聊进群聊页，私聊进聊天页
+  const handleClickItem = (item: ConversationItem) => {
+    if (item.type === 'system') {
+      // 点击系统消息：确认后清空
+      Taro.showModal({
+        title: '系统消息',
+        content: '点击"确定"后清空全部系统消息',
+        confirmText: '清空',
+        success: async (res) => {
+          if (res.confirm) {
+            try {
+              await clearSystemMessages()
+              refreshList()
+              refreshUnread()
+            } catch { /* ignore */ }
+          }
+        },
+      })
+      return
     }
-    Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.userId}` })
+    if (item.type === 'group') {
+      Taro.navigateTo({ url: `/pages/message/group-chat/index?id=${item.id}&name=${encodeURIComponent(item.name)}` })
+      return
+    }
+    // 私聊已读由进入聊天页时接口自动处理
+    Taro.navigateTo({ url: `/pages/message/chat/index?userId=${item.id}` })
   }
 
   // 点击分类：按类型批量标记已读后进入列表
@@ -72,54 +91,65 @@ export default function MessagePage() {
         </View>
       </View>
 
-      {/* 2. 会话列表区 */}
+      {/* 2. 会话列表区（系统消息+私聊+群聊统一展示） */}
       {loading ? (
         <View className='py-20 flex items-center justify-center'>
           <Text className='text-[28px] text-stone-400'>加载中...</Text>
         </View>
-      ) : conversationList.length === 0 ? (
+      ) : chatList.length === 0 ? (
         <View className='py-20 flex flex-col items-center justify-center space-y-2 text-stone-400'>
           <Text className='iconfont icon-message text-72px' />
           <Text className='text-[26px]'>暂无消息</Text>
         </View>
       ) : (
-        <View className='flex flex-col'>
-          {conversationList.map((item) => (
+        <View className='bg-white rounded-2xl overflow-hidden shadow-sm'>
+          {chatList.map((item, index) => (
             <View
-              key={item.userId}
-              className='flex flex-row items-center py-3.5 border-b border-stone-100 last:border-0 active:bg-stone-50 transition-colors'
+              key={item.id}
+              className={`flex flex-row items-center px-3 py-3.5 active:bg-stone-50 transition-colors ${index > 0 ? 'border-t border-stone-100' : ''}`}
               onClick={() => handleClickItem(item)}
             >
-              {/* 左侧头像 */}
-              <View className='relative w-[62px] h-[62px] flex-shrink-0'>
-                <Avatar
-                  name={item.nickname}
-                  src={item.avatarUrl || ''}
-                  mode='aspectFill'
-                  className='w-full h-full rounded-full text-24px'
-                />
-              </View>
-
-              {/* 中间文本区 */}
-              <View className='flex-1 ml-3.5 overflow-hidden flex flex-col justify-center'>
-                <Text className='font-bold text-stone-800 text-[28px] leading-snug tracking-wide'>
-                  {item.nickname}
-                </Text>
-                <Text className='text-[24px] text-stone-400 mt-1 truncate tracking-normal'>
-                  {item.lastContent}
-                </Text>
-              </View>
-
-              {/* 右侧时间与未读状态 */}
-              <View className='ml-3 flex flex-col items-end justify-between h-10 flex-shrink-0'>
-                <Text className='text-[22px] text-stone-400'>{formatTime(item.lastTime)}</Text>
-                {item.unreadCount > 0 ? (
-                  <View className='bg-[#FF3B30] text-white text-[20px] font-bold min-w-[18px] h-[28px] rounded-full flex items-center justify-center px-1'>
-                    {item.unreadCount > 99 ? '99+' : item.unreadCount}
+              {/* 左侧头像：系统消息用系统图标，群聊用方头像+人数，私聊用圆头像 */}
+              <View className='relative w-[64px] h-[64px] flex-shrink-0'>
+                {item.type === 'system' ? (
+                  <View className='w-full h-full rounded-2xl bg-blue-50 flex items-center justify-center'>
+                    <Text className='iconfont icon-msg text-blue-500 text-40px' />
                   </View>
                 ) : (
-                  <View className='h-[18px]' />
+                  <Avatar
+                    name={item.name}
+                    src={item.avatarUrl || ''}
+                    mode='aspectFill'
+                    className={`w-full h-full ${item.type === 'group' ? 'rounded-2xl' : 'rounded-full'} text-24px`}
+                  />
                 )}
+                {item.type === 'group' && (
+                  <View className='absolute -bottom-1 -right-1 bg-orange-500 text-white text-[18px] rounded-full px-1 border border-white'>
+                    {item.memberCount}
+                  </View>
+                )}
+              </View>
+
+              {/* 中间文本区：标题+时间 与 消息+未读 两行对齐 */}
+              <View className='flex-1 ml-3 overflow-hidden flex flex-col justify-center'>
+                <View className='flex flex-row items-center'>
+                  <Text className='font-bold text-stone-800 text-[28px] leading-snug tracking-wide truncate flex-1'>
+                    {item.name}
+                  </Text>
+                  <Text className='text-[20px] text-stone-300 flex-shrink-0 ml-2'>
+                    {item.lastTime ? formatTime(item.lastTime) : ''}
+                  </Text>
+                </View>
+                <View className='flex flex-row items-center mt-1'>
+                  <Text className='text-[24px] text-stone-400 truncate flex-1'>
+                    {item.lastContent || '暂无消息'}
+                  </Text>
+                  {item.unreadCount > 0 && (
+                    <View className='bg-[#FF3B30] text-white text-[20px] font-bold min-w-[18px] h-[28px] rounded-full flex items-center justify-center px-1 ml-2 flex-shrink-0'>
+                      {item.unreadCount > 99 ? '99+' : item.unreadCount}
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
           ))}

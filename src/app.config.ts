@@ -11,6 +11,8 @@ export default defineAppConfig({
     'pages/message/index/index',
     'pages/message/chat/index',
     'pages/message/list/index',
+    'pages/message/group-chat/index',
+    'pages/message/group-detail/index',
     'pages/mine/index',
     'pages/personal/index',
     'pages/profile/index',
