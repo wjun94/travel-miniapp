@@ -18,6 +18,8 @@ export default defineAppConfig({
     'pages/profile/index',
     'pages/accounting/index/index',
     'pages/accounting/list/index',
+    'pages/notes/index',
+    'pages/blacklist/index',
     'pages/checklist/list/index',
     'pages/checklist/edit/index',
     'pages/footprint/index',

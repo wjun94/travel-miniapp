@@ -11,12 +11,14 @@ export interface ProfileData {
     followerCount: number;
     guideCount: number;
     id: string;
+    isBlocked: boolean;  // 我是否已拉黑对方
     isFollowed: boolean;
     isSelf: boolean;
     nickname: string;
     totalFavs: number;
     totalLikes: number;
     tripCount: number;
+    partnerCount: number;
 }
 
 /**
