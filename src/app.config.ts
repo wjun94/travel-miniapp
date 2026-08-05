@@ -27,6 +27,7 @@ export default defineAppConfig({
     'pages/footprint/index',
     'pages/history/index',
     'pages/favorite/index',
+    'pages/complaint/index/index',
     'pages/search/index',
     'pages/guide/list/index',
     'pages/guide/where/index',

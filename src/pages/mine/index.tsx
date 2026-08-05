@@ -95,6 +95,14 @@ export default function ProfilePage() {
       icon: 'icon-contact',
       openType: 'contact'
     },
+    {
+      id: 5,
+      title: '投诉',
+      icon: 'icon-complaint',
+      onFn: () => {
+        Taro.navigateTo({ url: '/pages/complaint/index/index' })
+      }
+    },
   ]
 
   return (
