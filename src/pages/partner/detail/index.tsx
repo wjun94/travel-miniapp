@@ -180,8 +180,8 @@ export default function PartnerDetail() {
           {partner.cover ? (
             <Image src={partner.cover} mode='aspectFill' className='w-full h-full opacity-90' />
           ) : (
-            <View className='w-full h-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center'>
-              <Text className='text-white/40 text-4xl font-bold'>TRAVEL</Text>
+            <View className='w-full h-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center px-6'>
+              <Text className='text-white/70 text-4xl font-bold text-center line-clamp-2'>{partner.title || partner.destination}</Text>
             </View>
           )}
 
@@ -193,12 +193,7 @@ export default function PartnerDetail() {
 
           <View className='absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent' />
 
-          <View className='absolute bottom-3 left-4 right-4 flex items-end justify-between z-10'>
-            <View className='flex-1 mr-3'>
-              <Text className='text-white text-2xl font-bold leading-tight line-clamp-2 drop-shadow-md'>
-                {partner.title || partner.destination}
-              </Text>
-            </View>
+          <View className='absolute bottom-3 right-4 z-10'>
             <View className='bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center'>
               <Text className='text-white/90 text-[22px] font-medium'>👁 {partner.viewCount ?? 0}</Text>
             </View>

@@ -6,6 +6,7 @@ import { getMyGuides } from '@/api/guide'
 import { getMyTrips } from '@/api/trip'
 import { getMyPartners } from '@/api/partner'
 import type { Guide } from '@/api/post'
+import { getHeaderHeight } from '@/utils'
 
 type TabKey = 'guide' | 'trip' | 'partner'
 
@@ -56,10 +57,14 @@ const renderPartnerCard = (item: any) => (
       {item.cover ? (
         <Image src={item.cover} mode="aspectFill" className="w-full h-full" />
       ) : (
-        <View className="w-full h-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center">
-          <Text className="text-white/40 text-3xl font-bold">TRAVEL</Text>
+        <View className="w-full h-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center px-3">
+          <Text className="text-white/70 text-[30px] font-bold text-center line-clamp-2">
+            {item.title || item.destination}
+          </Text>
         </View>
       )}
+      {/* 底部黑 gradient 渐变 */}
+      <View className='absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent' />
       {item.destination && (
         <View className="absolute bottom-2.5 left-3 z-10 flex items-center">
           <Text className="text-white text-[22px] font-medium drop-shadow-sm">📍 {item.destination}</Text>
@@ -84,13 +89,17 @@ const renderPartnerCard = (item: any) => (
 
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('guide')
+  const headerHeight = getHeaderHeight()
 
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans flex flex-col">
       <NavBar title="我的笔记" showBack />
 
-      {/* 顶部 Tab 切换 */}
-      <View className="flex border-b border-gray-100 bg-[#FCFBF7]">
+      {/* 顶部 Tab 切换（吸顶） */}
+      <View
+        className="flex border-b border-gray-100 bg-[#FCFBF7] sticky z-20"
+        style={{ top: headerHeight }}
+      >
         {TABS.map((tab) => (
           <View
             key={tab.key}
