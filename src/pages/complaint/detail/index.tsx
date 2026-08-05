@@ -1,7 +1,6 @@
 import { View, Text, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
-import { NavBar } from '@/components'
 import {
   getComplaintDetail,
   ComplaintItem,
@@ -35,7 +34,6 @@ export default function ComplaintDetailPage() {
   if (loading) {
     return (
       <View className='min-h-screen bg-[#FAFAF9] px-4 font-sans'>
-        <NavBar title='投诉详情' showBack />
         <View className='flex flex-col items-center py-20'>
           <Text className='iconfont icon-loading text-[40px] text-stone-300 animate-spin' />
           <Text className='text-[24px] text-stone-400 mt-3'>加载中...</Text>
@@ -47,7 +45,6 @@ export default function ComplaintDetailPage() {
   if (!item) {
     return (
       <View className='min-h-screen bg-[#FAFAF9] px-4 font-sans'>
-        <NavBar title='投诉详情' showBack />
         <View className='flex flex-col items-center py-20'>
           <Text className='text-[24px] text-stone-400'>投诉不存在或已删除</Text>
         </View>
@@ -59,8 +56,6 @@ export default function ComplaintDetailPage() {
 
   return (
     <View className='min-h-screen bg-[#FAFAF9] px-4 pb-10 font-sans'>
-      <NavBar title='投诉详情' showBack />
-
       {/* 状态卡片 */}
       <View className='bg-white rounded-2xl p-4 mb-3 shadow-sm'>
         <View className='flex flex-row items-center justify-between'>

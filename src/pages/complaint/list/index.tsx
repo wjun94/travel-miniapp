@@ -1,6 +1,6 @@
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { NavBar, ScrollLoadList } from '@/components'
+import { ScrollLoadList } from '@/components'
 import { getComplaintList, ComplaintItem, COMPLAINT_TARGET_NAMES } from '@/api/complaint'
 import { formatTime } from '@/utils'
 
@@ -12,16 +12,7 @@ const STATUS_STYLE = [
 
 export default function ComplaintListPage() {
   return (
-    <View className='min-h-screen bg-[#FAFAF9] px-4 pb-10 font-sans'>
-      <NavBar title='我的投诉' showBack />
-
-      {/* 我要投诉 */}
-      <View
-        className='bg-orange-500 text-white text-center text-[30px] font-bold rounded-full py-3.5 mb-4 active:opacity-80'
-        onClick={() => Taro.navigateTo({ url: '/pages/complaint/index/index' })}
-      >
-        我要投诉
-      </View>
+    <View className='min-h-screen bg-[#FAFAF9] p-4 pb-10 font-sans'>
 
       <ScrollLoadList
         request={(page, pageSize) => getComplaintList({ page, pageSize })}

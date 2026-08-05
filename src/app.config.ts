@@ -28,6 +28,8 @@ export default defineAppConfig({
     'pages/history/index',
     'pages/favorite/index',
     'pages/complaint/index/index',
+    'pages/complaint/list/index',
+    'pages/complaint/detail/index',
     'pages/search/index',
     'pages/guide/list/index',
     'pages/guide/where/index',

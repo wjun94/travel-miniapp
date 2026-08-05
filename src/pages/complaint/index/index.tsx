@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { View, Text, Picker, Input, Textarea, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { NavBar } from '@/components'
 import { submitComplaint } from '@/api/complaint'
 import { uploadMultiImages } from '@/utils/upload'
 
