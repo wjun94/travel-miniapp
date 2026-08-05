@@ -167,7 +167,12 @@ export default function HomePage() {
 
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans box-border pb-20px">
-      <NavBar />
+      <NavBar>
+        <View className='flex flex-col leading-none ml-4'>
+          <Text className='text-[26px] font-bold text-[#e97442] tracking-wide'>觅途游</Text>
+          <Text className='text-[18px] text-black tracking-widest mt-1'>Meetogo</Text>
+        </View>
+      </NavBar>
       <View className='px-4'>
         {renderHeader()}
       </View>

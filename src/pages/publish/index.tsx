@@ -185,6 +185,7 @@ export default function PublishPage() {
         cancelText="重新开始"
         onConfirm={handleContinueDraft}
         onCancel={handleStartFresh}
+        onMaskClick={() => setDraftModalVisible(false)}
       >
         <View className="py-2 text-center">
           <Text className="text-gray-600 text-[28px] leading-relaxed">

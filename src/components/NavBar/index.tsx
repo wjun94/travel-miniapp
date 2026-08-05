@@ -27,7 +27,7 @@ export default function NavBar({ backgroundColor = '#FCFBF7', isDefault = true, 
   return (
     <>
       <View
-        className={`sticky top-0 z-30 flex flex-row items-end box-border ${className}`}
+        className={`sticky top-0 z-40 flex flex-row items-end box-border ${className}`}
         style={{
           height: headerHeight,
           backgroundImage: bgImg ? `url(${getImageCdnUrl(bgImg)})` : undefined,

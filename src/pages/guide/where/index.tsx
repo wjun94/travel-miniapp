@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Input } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import { searchDestinations, DestinationItem } from '@/api/common';
 
 export default function SearchPage() {
+    const router = useRouter();
+    const from = router.params?.from || '';
     const [keyword, setKeyword] = useState('');
     const [results, setResults] = useState<DestinationItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -37,10 +39,14 @@ export default function SearchPage() {
         return () => clearTimeout(timer);
     }, [keyword]);
 
-    // 点击选择目的地
+    // 点击选择目的地：新建流程跳转下一个页面（行程安排），从 basic 进入时返回上一页
     const handleSelect = (item: DestinationItem) => {
         Taro.setStorageSync('TEMP_GUIDE_DESTINATION', item.name);
-        Taro.navigateBack();
+        if (from === 'basic') {
+            Taro.navigateBack();
+        } else {
+            Taro.navigateTo({ url: '../itinerary/index' });
+        }
     };
 
     // 清空输入框

@@ -178,7 +178,7 @@ export default function BasicInfoPage() {
                 {/* 2. 目的地 */}
                 <View className='space-y-1.5'>
                     <Text className='text-sm font-medium text-gray-700'><Text className='text-red-500'>*</Text> 目的地</Text>
-                    <View className='bg-gray-50 rounded-xl px-3 py-3' onClick={() => Taro.navigateTo({ url: '/pages/guide/where/index' })}>
+                    <View className='bg-gray-50 rounded-xl px-3 py-3' onClick={() => Taro.navigateTo({ url: '/pages/guide/where/index?from=basic' })}>
                         <Text className='text-[28px] text-gray-800'>
                             {formState.destination || '请先在「想去哪儿」选择目的地'}
                         </Text>
