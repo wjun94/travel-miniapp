@@ -30,13 +30,15 @@ export default function GroupChatPage() {
   const { userInfo } = useAuthStore(state => state);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [scrollTop, setScrollTop] = useState(9999);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [withAnimation, setWithAnimation] = useState(false); // 首次定位后开启滚动动画（新消息/加载更早时平滑滚动）
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);           // 当前已加载到第几页（1为最新一页）
   const [hasMore, setHasMore] = useState(true);  // 是否还有更早消息
   const [loadingMore, setLoadingMore] = useState(false);
   const [anchor, setAnchor] = useState('');      // 加载更早后定位锚点
   const refreshTimer = useRef<any>(null);
+  const firstLoadRef = useRef(true);             // 首次加载标记（轮询刷新时保持滚动位置）
 
   // 从路由参数获取群聊ID和群名
   const router = Taro.getCurrentInstance().router;
@@ -52,7 +54,12 @@ export default function GroupChatPage() {
       setMessages(formatted);
       setPage(1);
       setHasMore((res?.total || 0) > formatted.length);
-      setTimeout(() => setScrollTop(prev => prev + 9999), 300);
+      if (firstLoadRef.current) {
+        firstLoadRef.current = false;
+        // 无动画直达底部，避免进入页面出现滚动效果
+        setScrollTop(9999);
+        setTimeout(() => setWithAnimation(true), 400);
+      }
     } catch (err) {
       console.error('加载群消息失败', err);
     } finally {
@@ -140,7 +147,7 @@ export default function GroupChatPage() {
           scrollY
           scrollTop={scrollTop}
           scrollIntoView={anchor}
-          scrollWithAnimation
+          scrollWithAnimation={withAnimation}
           onScrollToUpper={loadOlder}
           className='h-full'
         >

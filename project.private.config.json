@@ -21,8 +21,8 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/message/index/index",
-          "pathName": "pages/message/index/index",
+          "name": "pages/accounting/index/index",
+          "pathName": "pages/accounting/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"

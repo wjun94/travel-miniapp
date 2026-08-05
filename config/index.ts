@@ -7,8 +7,10 @@ const dotenv = require('dotenv');
 const path = require('path');
 const variableExpansion = require('dotenv-expand');
 
-// 读取.env配置文件（根据 NODE_ENV 切换环境变量）
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+// 读取.env配置文件（根据构建命令是否为 watch 切换环境变量）
+// 注意：不依赖外部 NODE_ENV（终端残留/IDE 注入会导致 dev 误用线上环境），只看 --watch 参数
+const isWatch = process.argv.includes('--watch');
+const envFile = isWatch ? '.env.development' : '.env.production';
 const env = dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
 variableExpansion.expand(env);
 

@@ -8,6 +8,8 @@ import {
   getAccountSummary,
   addAccount,
   deleteAccount,
+  deleteAccountBook,
+  updateAccount,
   ACCOUNT_CATEGORIES,
   TARGET_TYPE_NAMES,
   type Accounting,
@@ -31,7 +33,9 @@ export default function AccountingListPage() {
   const targetId = router.params.targetId || ''
   const name = decodeURIComponent(router.params.name || '')
   const [showAdd, setShowAdd] = useState(false)
+  const [editTarget, setEditTarget] = useState<Accounting | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Accounting | null>(null)
+  const [deleteBookVisible, setDeleteBookVisible] = useState(false)
 
   // 动态设置原生导航栏标题
   useEffect(() => {
@@ -61,15 +65,21 @@ export default function AccountingListPage() {
     }
     setSubmitting(true)
     try {
-      await addAccount({
-        targetType,
-        targetId,
-        category,
-        amount: value,
-        note: note.trim(),
-      })
-      Taro.showToast({ title: '记好了', icon: 'success' })
+      if (editTarget) {
+        await updateAccount(editTarget.id, { category, amount: value, note: note.trim() })
+      } else {
+        await addAccount({
+          targetType,
+          targetId,
+          targetName: targetType === 'custom' ? name : undefined,
+          category,
+          amount: value,
+          note: note.trim(),
+        })
+      }
+      Taro.showToast({ title: '已保存', icon: 'success' })
       setShowAdd(false)
+      setEditTarget(null)
       setAmount('')
       setNote('')
       refresh()
@@ -77,6 +87,23 @@ export default function AccountingListPage() {
     } catch { /* ignore */ } finally {
       setSubmitting(false)
     }
+  }
+
+  // 打开编辑表单（预填该条记录）
+  const handleEdit = (item: Accounting) => {
+    setCategory(item.category as (typeof ACCOUNT_CATEGORIES)[number])
+    setAmount(String(item.amount))
+    setNote(item.note || '')
+    setEditTarget(item)
+    setShowAdd(true)
+  }
+
+  // 打开新增表单
+  const handleOpenAdd = () => {
+    setEditTarget(null)
+    setAmount('')
+    setNote('')
+    setShowAdd(true)
   }
 
   const handleDeleteConfirm = async () => {
@@ -87,6 +114,21 @@ export default function AccountingListPage() {
       refresh()
       refreshSummary()
     } catch { /* ignore */ }
+  }
+
+  // 删除整本账本（含全部记账记录），删除后返回账本列表
+  const handleDeleteBook = () => {
+    setDeleteBookVisible(true)
+  }
+  const handleDeleteBookConfirm = async () => {
+    try {
+      await deleteAccountBook(targetType, targetId)
+      setDeleteBookVisible(false)
+      Taro.showToast({ title: '已删除', icon: 'success' })
+      setTimeout(() => Taro.navigateBack(), 400)
+    } catch {
+      Taro.showToast({ title: '删除失败', icon: 'none' })
+    }
   }
 
   return (
@@ -100,9 +142,11 @@ export default function AccountingListPage() {
           </View>
           <View className='text-right flex flex-col items-end'>
             <Text className='text-[26px] text-stone-400 mb-1.5'>共 {summary?.count || 0} 笔</Text>
-            <Text className='text-[22px] px-2.5 py-1 rounded-full inline-block bg-orange-100 text-orange-600'>
-              {TARGET_TYPE_NAMES[targetType] || targetType}
-            </Text>
+            <View className='flex flex-row items-center'>
+              <Text className='text-[22px] px-2.5 py-1 rounded-full inline-block bg-orange-100 text-orange-600'>
+                {TARGET_TYPE_NAMES[targetType] || targetType}
+              </Text>
+            </View>
           </View>
         </View>
         {/* 分类金额 */}
@@ -134,8 +178,7 @@ export default function AccountingListPage() {
             return (
               <View
                 key={item.id}
-                className='bg-white rounded-2xl px-4 py-3 mb-3 shadow-sm flex flex-row items-center active:bg-stone-50 transition-colors'
-                onClick={() => setDeleteTarget(item)}
+                className='bg-white rounded-2xl px-4 py-3 mb-3 shadow-sm flex flex-row items-center transition-colors'
               >
                 <View className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${style.cls}`}>
                   <Text className={`iconfont ${style.icon} text-32px`} />
@@ -148,23 +191,36 @@ export default function AccountingListPage() {
                   <Text className='text-[22px] text-stone-400 mt-0.5'>{formatTime(item.consumedAt)}</Text>
                 </View>
                 <Text className='ml-2 font-black text-stone-800 text-[28px] flex-shrink-0'>-¥{item.amount.toFixed(2)}</Text>
+                <View className='ml-3 flex flex-col items-center justify-center flex-shrink-0'>
+                  <Text className='iconfont icon-edit text-[32px] text-stone-400 active:opacity-60' onClick={() => handleEdit(item)} />
+                  <Text className='iconfont icon-remove text-[32px] text-red-400 mt-2 active:opacity-60' onClick={() => setDeleteTarget(item)} />
+                </View>
               </View>
             )
           })}
         </View>
       )}
 
-      {/* 记一笔悬浮按钮 */}
-      <View
-        className='fixed bottom-8 left-1/2 -translate-x-1/2 bg-orange-500 text-white rounded-full px-10 py-3 shadow-lg flex flex-row items-center active:opacity-80'
-        onClick={() => setShowAdd(true)}
-      >
-        <Text className='iconfont icon-plus text-32px mr-1' />
-        <Text className='text-[28px] font-bold'>记一笔</Text>
+      {/* 底部操作栏：左侧删除账本，右侧记一笔 */}
+      <View className='fixed bottom-8 inset-x-4 flex flex-row items-center gap-3'>
+        <View
+          className='flex-1 bg-white text-red-500 rounded-full py-3 shadow-lg flex flex-row items-center justify-center active:opacity-80 border border-red-100'
+          onClick={handleDeleteBook}
+        >
+          <Text className='iconfont icon-remove text-28px mr-1' />
+          <Text className='text-[26px] font-bold'>删除账本</Text>
+        </View>
+        <View
+          className='flex-1 bg-orange-500 text-white rounded-full py-3 shadow-lg flex flex-row items-center justify-center active:opacity-80'
+          onClick={handleOpenAdd}
+        >
+          <Text className='iconfont icon-plus text-32px mr-1' />
+          <Text className='text-[28px] font-bold'>记一笔</Text>
+        </View>
       </View>
 
       {/* 添加表单 */}
-      <BottomSheet visible={showAdd} title='记一笔' onClose={() => setShowAdd(false)}>
+      <BottomSheet visible={showAdd} title={editTarget ? '编辑记账' : '记一笔'} onClose={() => { setShowAdd(false); setEditTarget(null) }}>
         <View className='px-6 pb-8 pt-2'>
           {/* 分类选择 */}
           <View className='flex flex-row flex-wrap gap-3 mb-5'>
@@ -217,6 +273,19 @@ export default function AccountingListPage() {
         <Text className='text-[26px] text-stone-500'>
           {deleteTarget?.category} ¥{deleteTarget?.amount.toFixed(2)}
           {deleteTarget?.note ? ` · ${deleteTarget.note}` : ''}
+        </Text>
+      </Modal>
+
+      {/* 删除整本账本确认 */}
+      <Modal
+        visible={deleteBookVisible}
+        title='删除账本'
+        confirmText='删除'
+        onCancel={() => setDeleteBookVisible(false)}
+        onConfirm={handleDeleteBookConfirm}
+      >
+        <Text className='text-[26px] text-stone-500 leading-relaxed'>
+          将删除"{name || '该账本'}"及其全部记账记录，确定删除吗？
         </Text>
       </Modal>
     </View>

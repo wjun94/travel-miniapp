@@ -33,7 +33,8 @@ export default function ChatView() {
   const { userInfo } = useAuthStore(state => state);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [scrollTop, setScrollTop] = useState(9999);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [withAnimation, setWithAnimation] = useState(false); // 首次定位后开启滚动动画（新消息/加载更早时平滑滚动）
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);           // 当前已加载到第几页（1为最新一页）
   const [hasMore, setHasMore] = useState(true);  // 是否还有更早消息
@@ -89,7 +90,9 @@ export default function ChatView() {
       setHasMore((res?.total || 0) > formatted.length);
       // 消息加载完毕后再连 WS，保证消息顺序
       connectWS();
-      setTimeout(() => setScrollTop(prev => prev + 9999), 300);
+      // 无动画直达底部，避免进入页面出现滚动效果
+      setScrollTop(9999);
+      setTimeout(() => setWithAnimation(true), 400);
     } catch (err) {
       console.error('加载历史消息失败', err);
       connectWS();
@@ -277,7 +280,7 @@ export default function ChatView() {
           scrollY
           scrollTop={scrollTop}
           scrollIntoView={anchor}
-          scrollWithAnimation
+          scrollWithAnimation={withAnimation}
           onScrollToUpper={loadOlder}
           className='h-full'
         >
