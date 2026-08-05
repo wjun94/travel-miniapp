@@ -214,12 +214,36 @@ export const unlikeTrip = (id: string) => {
  * 获取我的行程列表
  * @param page 页码
  * @param pageSize 每页条数
+ * @param status 状态筛选（1草稿 2已发布，-1或不传为全部）
  */
-export const getMyTrips = (page: number, pageSize: number) =>
+export const getMyTrips = (page: number, pageSize: number, status?: number) =>
   request<{ list: Guide[]; total: number }>({
     url: '/my/trips',
     method: 'GET',
-    params: { page, pageSize },
+    // 仅当 status 为数字时才携带，避免 ScrollLoadList 传入的 params 对象被误当 status 参数
+    params: { page, pageSize, ...(typeof status === 'number' ? { status } : {}) },
+  });
+
+/**
+ * 更新行程（编辑草稿/已发布，支持全量替换行程日）
+ * @param id 行程ID
+ * @param params 更新数据
+ */
+export const updateTrip = (id: string, params: Partial<Trip>) =>
+  request<null>({
+    url: `/trip/${id}`,
+    method: 'PUT',
+    params,
+  });
+
+/**
+ * 删除行程（仅作者）
+ * @param id 行程ID
+ */
+export const deleteTrip = (id: string) =>
+  request<null>({
+    url: `/trip/${id}`,
+    method: 'DELETE',
   });
 
 /**

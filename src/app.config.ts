@@ -8,6 +8,8 @@ export default defineAppConfig({
     'pages/fans/index',
     'pages/nearby/index',
     'pages/publish/index',
+    'pages/publish/drafts/index',
+    'pages/publish/share-trip/index',
     'pages/message/index/index',
     'pages/message/chat/index',
     'pages/message/list/index',

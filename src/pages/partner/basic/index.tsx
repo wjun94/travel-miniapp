@@ -3,7 +3,7 @@ import { View, Text, Input, Textarea, Switch, ScrollView, Picker } from '@tarojs
 import { Image } from '@/components'
 import Taro from '@tarojs/taro';
 import { useRequest } from 'ahooks';
-import { createPartner, DayItem as ApiDayItem } from '@/api/partner';
+import { createPartner, updatePartner, getPartnerDetail, DayItem as ApiDayItem } from '@/api/partner';
 import type { AiGenerateTripData } from '@/api/trip';
 import { uploadSingleFile, uploadMultiImages } from '@/utils/upload';
 import LocationPicker from '@/features/guide/LocationPicker';
@@ -11,6 +11,12 @@ import LocationPicker from '@/features/guide/LocationPicker';
 // 主题色 Sunset Orange: #F97316
 
 export default function PublishForm() {
+    // 编辑模式：URL 携带 draftId 时加载草稿数据
+    const params = Taro.getCurrentInstance().router?.params;
+    const draftId = (params?.draftId as string) || '';
+    // 编辑草稿时保留原关联行程 ID，提交时复用更新行程安排
+    const [tripId, setTripId] = useState('');
+
     const [formData, setFormData] = useState({
         title: '',
         cover: '',
@@ -127,7 +133,14 @@ export default function PublishForm() {
                 }
             });
 
-            await createRun(params);
+            if (draftId) {
+                if (tripId) {
+                    params.tripId = tripId;
+                }
+                await updatePartner(draftId, params);
+            } else {
+                await createRun(params);
+            }
             Taro.showToast({ title: isDraft ? '已保存草稿' : '发布成功', icon: 'success' });
             clearTempStorage();
             setTimeout(() => Taro.switchTab({ url: '/pages/publish/index' }), 1500);
@@ -165,6 +178,109 @@ export default function PublishForm() {
             }
         }
     }, []);
+
+    // 编辑草稿：加载搭子详情填充表单、行程安排与目的地缓存
+    useEffect(() => {
+        if (!draftId) return;
+        getPartnerDetail(draftId)
+            .then((detail: any) => {
+                if (!detail) return;
+                // 多图：后端存 JSON 字符串，兼容逗号分隔
+                let images: string[] = [];
+                try {
+                    const arr = JSON.parse(detail.images || '[]');
+                    if (Array.isArray(arr)) images = arr;
+                } catch {
+                    images = (detail.images || '').split(',').filter(Boolean);
+                }
+                const startDate = (detail.startDate || '').slice(0, 10);
+                const endDate = (detail.endDate || '').slice(0, 10);
+                const totalDays = Number(detail.days) || 0;
+
+                setFormData({
+                    title: detail.title || '',
+                    cover: detail.cover || '',
+                    images,
+                    category: detail.category || '',
+                    startDate,
+                    endDate,
+                    totalDays,
+                    address: detail.address || '',
+                    destination: detail.destination || '',
+                    maxMembers: Number(detail.maxMembers) || 8,
+                    minMembers: Number(detail.minMembers) || 2,
+                    genderLimit: Number(detail.genderLimit) || 0,
+                    maleCount: Number(detail.maleCount) || 4,
+                    femaleCount: Number(detail.femaleCount) || 4,
+                    feeMode: Number(detail.feeMode) || 0,
+                    budgetPerPerson: Number(detail.budgetPerPerson) || 0,
+                    feeInclude: detail.feeInclude || '',
+                    feeExclude: detail.feeExclude || '',
+                    richDesc: detail.richDesc || '',
+                    minAge: Number(detail.minAge) || 18,
+                    maxAge: Number(detail.maxAge) || 40,
+                    requirement: detail.requirement || '',
+                    tags: detail.tags || '',
+                    visibility: Number(detail.visibility) || 0,
+                    joinMode: Number(detail.joinMode) || 1,
+                    autoClose: Number(detail.autoClose) || 1,
+                    allowShare: Number(detail.allowShare) || 1,
+                    allowCollect: Number(detail.allowCollect) || 1,
+                    isPublic: Number(detail.isPublic) || 1,
+                    latitude: Number(detail.latitude) || 0,
+                    longitude: Number(detail.longitude) || 0,
+                });
+
+                // 关联行程：保留 ID 并缓存行程安排（后端 TripDay -> 前端 DayPlan）
+                if (detail.trip?.id) {
+                    setTripId(detail.trip.id);
+                }
+                if (detail.trip && Array.isArray(detail.trip.days) && detail.trip.days.length > 0) {
+                    const plans = detail.trip.days.map((day: any) => ({
+                        dayIndex: day.dayNumber || 1,
+                        date: day.date || '',
+                        title: day.title || '',
+                        items: (day.items || []).map((item: any) => ({
+                            id: item.id || `${Date.now()}-${Math.random()}`,
+                            sectionType: item.sectionType || 'attraction',
+                            title: item.title || '',
+                            description: item.description || '',
+                            startTime: item.startTime || '',
+                            endTime: item.endTime || '',
+                            latitude: item.latitude ?? null,
+                            longitude: item.longitude ?? null,
+                            address: item.address || '',
+                            images: item.images || [],
+                            needReservation: !!item.needReservation,
+                            ticketChannel: item.ticketChannel || '',
+                            ticketPrice: item.ticketPrice ?? null,
+                            startAddress: item.startPoint || '',
+                            startLatitude: item.startLat ?? null,
+                            startLongitude: item.startLng ?? null,
+                            endAddress: item.endPoint || '',
+                            endLatitude: item.endLat ?? null,
+                            endLongitude: item.endLng ?? null,
+                            transportMode: item.transportMode || 'bus',
+                        })),
+                    }));
+                    Taro.setStorageSync('TEMP_PARTNER_ITINERARY_PLANS', plans);
+                }
+
+                // 目的地与日期缓存（useDidShow 回填展示）
+                if (detail.destination) {
+                    Taro.setStorageSync('TEMP_PARTNER_DESTINATION', detail.destination);
+                }
+                if (startDate || totalDays > 0) {
+                    Taro.setStorageSync('TEMP_PARTNER_DATES', {
+                        startDate,
+                        endDate,
+                        totalDays,
+                        flexDays: 0,
+                    });
+                }
+            })
+            .catch(() => { });
+    }, [draftId]);
 
     // 页面显示时重新读取 storage（从 where/date 页返回后更新）
     Taro.useDidShow(() => {
@@ -266,6 +382,20 @@ export default function PublishForm() {
         <View className="min-h-screen bg-[#F9FAFB] pb-10 text-gray-800">
 
             <ScrollView scrollY className="px-4 pt-3 box-border">
+                {/* 行程安排入口（编辑草稿时可直接调整每日行程） */}
+                <View className="mb-3">
+                    <View
+                        className="bg-white rounded-2xl p-4 shadow-xs border border-gray-100 flex flex-row items-center justify-between active:opacity-80"
+                        onClick={() => Taro.navigateTo({ url: '/pages/partner/itinerary/index' })}
+                    >
+                        <View className="flex flex-col">
+                            <Text className="text-sm font-bold text-gray-800">🗓️ 行程安排</Text>
+                            <Text className="text-xs text-gray-400 mt-1">{getDaysData().length > 0 ? `已规划 ${getDaysData().length} 天，点击编辑每日行程` : '尚未规划每日行程，点击前往编辑'}</Text>
+                        </View>
+                        <Text className="text-gray-400 text-sm">编辑 ›</Text>
+                    </View>
+                </View>
+
                 {/* 封面图 */}
                 <Section title="封面图">
                     <View className="relative w-full h-44 bg-gray-100 rounded-xl overflow-hidden shadow-sm active:opacity-95" onClick={handleChooseCover}>

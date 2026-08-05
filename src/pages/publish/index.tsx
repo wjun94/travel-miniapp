@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Image, ScrollView } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import { NavBar, Modal } from '@/components'
 import Taro from '@tarojs/taro'
 
@@ -117,17 +117,12 @@ export default function PublishPage() {
       icon: '🔗',
       bg: 'bg-blue-50',
       color: 'bg-blue-200',
-      textColor: 'text-blue-500'
+      textColor: 'text-blue-500',
+      fn: () => Taro.navigateTo({ url: '/pages/publish/share-trip/index' })
     },
   ]
 
 
-  const destinationList = [
-    { name: '大理', image: 'https://images.unsplash.com/photo-1590076215667-875d4efdb625?w=300&q=80' },
-    { name: '成都', image: 'https://images.unsplash.com/photo-1587474498305-674b62dbd613?w=300&q=80' },
-    { name: '三亚', image: 'https://images.unsplash.com/photo-1540202404-b711e458319c?w=300&q=80' },
-    { name: '西藏', image: 'https://images.unsplash.com/photo-1525049386811-933e144a169b?w=300&q=80' },
-  ]
 
   return (
     <>
@@ -176,6 +171,21 @@ export default function PublishPage() {
           ))}
         </ScrollView>
       </View> */}
+
+      {/* 我的草稿箱入口 */}
+      <View
+        className="flex flex-row items-center bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl p-4 mb-5 shadow-sm active:opacity-90"
+        onClick={() => Taro.navigateTo({ url: '/pages/publish/drafts/index' })}
+      >
+        <View className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-3">
+          <Text className="text-lg">📋</Text>
+        </View>
+        <View className="flex flex-col flex-1">
+          <Text className="font-bold text-white">我的草稿</Text>
+          <Text className="text-[22px] text-white/80 mt-0.5">查看并继续编辑攻略/行程/搭子草稿</Text>
+        </View>
+        <Text className="text-white/90 text-xl">›</Text>
+      </View>
 
       {/* 草稿继续编辑弹窗 */}
       <Modal

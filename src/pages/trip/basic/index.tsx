@@ -1,7 +1,8 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useEffect, useState } from 'react';
 import { useSetState, useRequest } from 'ahooks';
-import { createTrip, AiGenerateTripData } from '@/api/trip'
+import { createTrip, updateTrip, getTripDetail, AiGenerateTripData } from '@/api/trip'
 import { uploadSingleFile } from '@/utils/upload';
 
 // 定义表单的状态类型
@@ -14,6 +15,11 @@ interface FormState {
 }
 
 export default function BasicInfoPage() {
+    // 编辑模式：URL 携带 draftId 时加载草稿数据
+    const params = Taro.getCurrentInstance().router?.params;
+    const draftId = (params?.draftId as string) || '';
+    const [dayCount, setDayCount] = useState(0);
+
     // 使用 ahooks 的 useSetState 统一管理复杂的表单字段
     // 本地存在 AI 生成数据时自动填充表单
     const [formState, setFormState] = useSetState<FormState>(() => {
@@ -47,6 +53,69 @@ export default function BasicInfoPage() {
             if (data?.url) setFormState({ coverImage: data.url });
         } catch { /* ignore */ }
     };
+
+    // 编辑草稿：加载草稿详情填充表单与行程日缓存
+    useEffect(() => {
+        if (!draftId) return;
+        getTripDetail(draftId)
+            .then((detail: any) => {
+                if (!detail) return;
+                setFormState({
+                    title: detail.title || '',
+                    summary: detail.summary || '',
+                    coverImage: detail.coverImage || '',
+                    totalBudget: detail.totalBudget ? String(detail.totalBudget) : '',
+                    isPublic: detail.isPublic === 1,
+                });
+                // 目的地元数据缓存（提交时兜底）
+                Taro.setStorageSync('TEMP_TRIP_DESTINATIONS', {
+                    cities: detail.cities || [],
+                    destinations: detail.destinations || [],
+                    provinces: detail.provinces || [],
+                    countries: detail.countries || [],
+                    isOverseas: detail.isOverseas || 0,
+                });
+                if (Array.isArray(detail.days) && detail.days.length > 0) {
+                    const plans = detail.days.map((day: any) => ({
+                        dayIndex: day.dayNumber || 1,
+                        date: day.date || '',
+                        title: day.title || '',
+                        items: (day.items || []).map((item: any) => ({
+                            id: item.id || `${Date.now()}-${Math.random()}`,
+                            sectionType: item.sectionType || 'attraction',
+                            title: item.title || '',
+                            description: item.description || '',
+                            startTime: item.startTime || '',
+                            endTime: item.endTime || '',
+                            latitude: item.latitude ?? null,
+                            longitude: item.longitude ?? null,
+                            address: item.address || '',
+                            images: item.images || [],
+                            needReservation: !!item.needReservation,
+                            ticketChannel: item.ticketChannel || '',
+                            ticketPrice: item.ticketPrice ?? null,
+                            startAddress: item.startPoint || '',
+                            startLatitude: item.startLat ?? null,
+                            startLongitude: item.startLng ?? null,
+                            endAddress: item.endPoint || '',
+                            endLatitude: item.endLat ?? null,
+                            endLongitude: item.endLng ?? null,
+                            transportMode: item.transportMode || 'bus',
+                        })),
+                    }));
+                    Taro.setStorageSync('TEMP_TRIP_ITINERARY_PLANS', { dayPlans: plans });
+                    setDayCount(plans.length);
+                }
+            })
+            .catch(() => { });
+    }, [draftId]);
+
+    // 页面显示时刷新行程天数
+    Taro.useDidShow(() => {
+        const raw: any = Taro.getStorageSync('TEMP_TRIP_ITINERARY_PLANS') || [];
+        const plans = raw.dayPlans ? raw.dayPlans : raw;
+        setDayCount(Array.isArray(plans) ? plans.length : 0);
+    });
 
     // 最终组装数据并请求后端接口
     const handleSubmit = async (isPublish: boolean) => {
@@ -116,7 +185,11 @@ export default function BasicInfoPage() {
                 : (aiData?.days || [])
         };
 
-        await createRunAsync(payload as any);
+        if (draftId) {
+            await updateTrip(draftId, payload as any);
+        } else {
+            await createRunAsync(payload as any);
+        }
 
         Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
         setTimeout(() => {
@@ -148,6 +221,20 @@ export default function BasicInfoPage() {
                             <Text className='text-gray-400 text-[24px]'>上传封面</Text>
                         </View>
                     )}
+                </View>
+            </View>
+
+            {/* 行程安排入口（编辑草稿时可直接调整每日行程） */}
+            <View className='m-4'>
+                <View
+                    className='bg-white rounded-2xl p-4 shadow-sm flex flex-row items-center justify-between active:opacity-80'
+                    onClick={() => Taro.navigateTo({ url: '/pages/trip/itinerary/index' })}
+                >
+                    <View className='flex flex-col'>
+                        <Text className='text-sm font-bold text-gray-800'>🗓️ 每日行程</Text>
+                        <Text className='text-xs text-gray-400 mt-1'>{dayCount > 0 ? `已规划 ${dayCount} 天，点击编辑每日行程` : '尚未规划每日行程，点击前往编辑'}</Text>
+                    </View>
+                    <Text className='text-gray-400 text-sm'>编辑 ›</Text>
                 </View>
             </View>
 

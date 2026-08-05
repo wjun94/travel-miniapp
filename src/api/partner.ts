@@ -450,7 +450,31 @@ export const getPartnerDetail = (id: string) =>
   });
 
 /**
- * 6. 点赞搭子
+ * 6. 更新搭子（编辑草稿/已发布，支持全量替换行程安排）
+ * PUT /partner/{id}
+ * @param id 搭子ID
+ * @param params 更新数据
+ */
+export const updatePartner = (id: string, params: Partial<CreatePartnerParams>) =>
+  request<any>({
+    url: `/partner/${id}`,
+    method: 'PUT',
+    params,
+  });
+
+/**
+ * 7. 删除搭子（仅作者）
+ * DELETE /partner/{id}
+ * @param id 搭子ID
+ */
+export const deletePartner = (id: string) =>
+  request<any>({
+    url: `/partner/${id}`,
+    method: 'DELETE',
+  });
+
+/**
+ * 8. 点赞搭子
  * POST /partner/{id}/like
  * @param id 搭子ID
  */

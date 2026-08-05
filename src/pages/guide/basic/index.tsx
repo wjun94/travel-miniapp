@@ -1,7 +1,8 @@
 import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
+import { useEffect, useState } from 'react';
 import { useSetState, useRequest } from 'ahooks';
-import { createTravelGuide } from '@/api/guide'
+import { createTravelGuide, updateTravelGuide, getTravelGuideDetail } from '@/api/guide'
 import { difficultyOptions } from '@/constants/travel';
 import { uploadSingleFile } from '@/utils/upload';
 
@@ -21,6 +22,11 @@ interface FormState {
 }
 
 export default function BasicInfoPage() {
+    // 编辑模式：URL 携带 draftId 时加载草稿数据
+    const params = Taro.getCurrentInstance().router?.params;
+    const draftId = (params?.draftId as string) || '';
+    const [dayCount, setDayCount] = useState(0);
+
     // 使用 ahooks 的 useSetState 统一管理复杂的表单字段
     const [formState, setFormState] = useSetState<FormState>({
         title: '',
@@ -52,7 +58,66 @@ export default function BasicInfoPage() {
         if (saved) {
             setFormState({ destination: saved });
         }
+        const plans: any[] = Taro.getStorageSync('TEMP_ITINERARY_PLANS') || [];
+        setDayCount(Array.isArray(plans) ? plans.length : 0);
     });
+
+    // 编辑草稿：加载草稿详情填充表单与行程安排缓存
+    useEffect(() => {
+        if (!draftId) return;
+        getTravelGuideDetail(draftId)
+            .then((detail: any) => {
+                if (!detail) return;
+                setFormState({
+                    title: detail.title || '',
+                    destination: detail.destination || '',
+                    summary: detail.summary || '',
+                    minBudget: detail.budgetMin != null ? String(detail.budgetMin) : '',
+                    maxBudget: detail.budgetMax != null ? String(detail.budgetMax) : '',
+                    bestSeason: detail.bestSeason || '',
+                    days: detail.recommendedDays ? String(detail.recommendedDays) : '',
+                    difficulty: (detail.difficulty as any) || 'easy',
+                    targetGroups: (detail.tags || '').split(',').filter(Boolean),
+                    isOriginal: detail.isOriginal === 1,
+                    coverImage: detail.coverImage || '',
+                });
+                if (detail.destination) {
+                    Taro.setStorageSync('TEMP_GUIDE_DESTINATION', detail.destination);
+                }
+                if (Array.isArray(detail.days) && detail.days.length > 0) {
+                    const plans = detail.days.map((day: any) => ({
+                        dayIndex: day.dayNumber || 1,
+                        date: day.date || '',
+                        title: day.title || '',
+                        items: (day.items || []).map((item: any) => ({
+                            id: item.id || `${Date.now()}-${Math.random()}`,
+                            sectionType: item.sectionType || 'attraction',
+                            title: item.title || '',
+                            description: item.description || '',
+                            startTime: item.startTime || '',
+                            endTime: item.endTime || '',
+                            latitude: item.latitude ?? null,
+                            longitude: item.longitude ?? null,
+                            address: item.address || '',
+                            images: item.images || [],
+                            needReservation: !!item.needReservation,
+                            ticketChannel: item.ticketChannel || '',
+                            ticketPrice: item.ticketPrice ?? null,
+                            startAddress: item.startPoint || '',
+                            startLatitude: item.startLat ?? null,
+                            startLongitude: item.startLng ?? null,
+                            endAddress: item.endPoint || '',
+                            endLatitude: item.endLat ?? null,
+                            endLongitude: item.endLng ?? null,
+                            transportMode: item.transportMode || 'bus',
+                        })),
+                    }));
+                    Taro.setStorageSync('TEMP_ITINERARY_PLANS', plans);
+                    setDayCount(plans.length);
+                }
+            })
+            .catch(() => { });
+    }, [draftId]);
 
     const { runAsync: createRunAsync, loading: createLoading } = useRequest(createTravelGuide, {
         manual: true,
@@ -92,7 +157,7 @@ export default function BasicInfoPage() {
             recommendedDays: days ? parseInt(days, 10) : null,
             tags: targetGroups.join(','),
             difficulty,
-            crowType: targetGroups.join(','), // 保持原代码的拼写
+            crowdType: targetGroups.join(','),
             isOriginal: isOriginal ? 1 : 0,
             status: isPublish ? 1 : 0,
             days: cachedItinerary.map((day: any) => ({
@@ -126,11 +191,16 @@ export default function BasicInfoPage() {
         };
 
 
-        await createRunAsync(payload as any);
+        if (draftId) {
+            await updateTravelGuide(draftId, payload as any);
+        } else {
+            await createRunAsync(payload as any);
+        }
 
         setTimeout(() => {
             setTimeout(() => {
                 Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
+                Taro.removeStorageSync('TEMP_GUIDE_DESTINATION');
             }, 500)
             Taro.switchTab({ url: '/pages/publish/index' })
         }, 1500);
@@ -155,6 +225,20 @@ export default function BasicInfoPage() {
                             <Text className='text-gray-300 text-xs mt-1'>建议尺寸 16:9，展示效果更佳</Text>
                         </View>
                     )}
+                </View>
+            </View>
+
+            {/* 行程安排入口（编辑草稿时可直接调整每日行程） */}
+            <View className='m-4'>
+                <View
+                    className='bg-white rounded-2xl p-4 shadow-sm flex flex-row items-center justify-between active:opacity-80'
+                    onClick={() => Taro.navigateTo({ url: '/pages/guide/itinerary/index' })}
+                >
+                    <View className='flex flex-col'>
+                        <Text className='text-sm font-bold text-gray-800'>🗓️ 行程安排</Text>
+                        <Text className='text-xs text-gray-400 mt-1'>{dayCount > 0 ? `已规划 ${dayCount} 天，点击编辑每日行程` : '尚未规划每日行程，点击前往编辑'}</Text>
+                    </View>
+                    <Text className='text-gray-400 text-sm'>编辑 ›</Text>
                 </View>
             </View>
 
