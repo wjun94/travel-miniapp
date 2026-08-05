@@ -69,6 +69,7 @@ export interface UserProfile {
   partnerCount: number;  // 搭子数
   guideCount: number;  // 已发布的攻略数
   tripCount: number;  // 行程数
+  blockCount: number;  // 拉黑数
 }
 
 /**

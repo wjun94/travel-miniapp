@@ -14,18 +14,6 @@ export interface Message {
   createdAt: string;
 }
 
-/**
- * 会话信息 (新增)
- */
-export interface Conversation {
-  avatarUrl: string;      // 对方头像
-  lastContent: string;    // 最后一条消息内容
-  lastTime: string;       // 最后消息时间
-  nickname: string;       // 对方昵称
-  userId: string;    // 对方用户ID (注意：文档中为string类型)
-  unreadCount: number;    // 未读消息数
-}
-
 // 新增：通知单条项类型
 export interface NotificationItem {
   /** 评论/回复内容（评论通知时展示） */
@@ -86,15 +74,17 @@ export const getNotificationList = (params: {
   });
 
 /**
- * 获取与某用户的聊天记录
+ * 分页获取与某用户的聊天记录（时间正序，从最新一页开始）
  * @param targetUserId 对方用户ID
- * @returns 消息列表
+ * @param page 页码（1为最新一页，越大越早）
+ * @param pageSize 每页数量
+ * @returns 分页消息列表
  */
-export const getMessageList = (targetUserId: number) =>
-  request<Message[]>({
+export const getMessageList = (targetUserId: string, page: number = 1, pageSize: number = 20) =>
+  request<PageResult<Message>>({
     url: '/message/list',
     method: 'GET',
-    params: { targetUserId: targetUserId },
+    params: { targetUserId, page, pageSize },
   });
 
 /**
@@ -148,17 +138,6 @@ export const markAllNotificationsAsRead = () =>
   request<string>({
     url: '/notification/read-all',
     method: 'PUT',
-  });
-
-/**
- * 获取会话列表 (新增)
- * @description 获取当前用户的所有聊天会话，按最后消息时间排序
- * @returns 会话列表数据
- */
-export const getConversationList = () =>
-  request<Conversation[]>({
-    url: '/message/conversations',
-    method: 'GET',
   });
 
 /**

@@ -55,9 +55,9 @@ export default function DiscoverPage() {
   ]
 
   return (
-    <View className="min-h-screen bg-[#FCFBF7] px-4 pb-10 font-sans">
-
+    <>
       <NavBar title="📍 深圳" titleAlign="left" />
+      <View className="min-h-screen bg-[#FCFBF7] px-4 pb-10 font-sans">
 
       {/* 搜索输入框 */}
       <View className="w-full flex flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100/60 mt-2">
@@ -169,6 +169,7 @@ export default function DiscoverPage() {
         ))}
       </View>
 
-    </View>
+      </View>
+    </>
   )
 }

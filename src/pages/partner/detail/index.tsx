@@ -141,7 +141,7 @@ export default function PartnerDetail() {
   if (!partner) return null
 
   return (
-    <View className='min-h-screen bg-gray-100/70 pb-100px flex flex-col'>
+    <>
       {/* ===== NavBar ===== */}
       <NavBar showBack backgroundColor='white'>
         {partner?.userId ? (
@@ -163,8 +163,16 @@ export default function PartnerDetail() {
         ) : (
           <Text className='text-[34px] font-semibold text-gray-700'>搭子详情</Text>
         )}
+                      <View
+                    className='ml-auto flex flex-row items-center px-2 flex-shrink-0'
+                    onClick={() => Taro.navigateTo({ url: `/pages/accounting/list/index?targetType=partner&targetId=${id}&name=${encodeURIComponent(partner?.title || '')}` })}
+                >
+                    <Text className='iconfont icon-notepad text-orange-500 text-30px' />
+                    <Text className='ml-1 text-[24px] text-orange-500 font-bold'>记账</Text>
+                </View>
       </NavBar>
 
+      <View className='min-h-screen bg-gray-100/70 pb-100px flex flex-col'>
       {/* ===== Scrollable Content ===== */}
       <ScrollView scrollY className='flex-1 pb-[130px]'>
         {/* ---- Cover Header ---- */}
@@ -486,7 +494,8 @@ export default function PartnerDetail() {
           </View>
         </View>
       </View>
-    </View>
+      </View>
+    </>
   )
 }
 

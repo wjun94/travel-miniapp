@@ -56,8 +56,7 @@ export default function PartnerList() {
     try {
       await applyPartner(applyPartnerId, { remark: applyRemark })
       Taro.showToast({ title: '申请已发送', icon: 'success' })
-      setApplyVisible(false)
-      setApplyRemark('')
+      closeApplyModal()
       listRef.current?.refresh()
     } catch {
       Taro.showToast({ title: '申请失败', icon: 'none' })
@@ -65,6 +64,16 @@ export default function PartnerList() {
       setApplying(false)
     }
   }
+
+  // 关闭申请弹窗：先收起键盘再关闭，避免键盘收起导致列表滚动位置被重置到顶部
+  const closeApplyModal = useCallback(() => {
+    Taro.hideKeyboard({
+      complete: () => {
+        setApplyVisible(false)
+        setApplyRemark('')
+      },
+    })
+  }, [])
 
   usePullDownRefresh(async () => {
     listRef.current?.refresh()
@@ -107,7 +116,7 @@ export default function PartnerList() {
       <View className='flex-1 min-h-0'>
         <ScrollLoadList
           ref={listRef}
-          request={getPartnerList}
+          request={(page, pageSize, params) => getPartnerList(page, pageSize, params?.keyword || undefined)}
           params={{ keyword }}
           pageSize={10}
           emptyText={keyword ? '未找到相关搭子' : '暂无搭子信息'}
@@ -261,10 +270,7 @@ export default function PartnerList() {
           confirmLoading={applying}
           showCancel
           onConfirm={handleApply}
-          onCancel={() => {
-            setApplyVisible(false)
-            setApplyRemark('')
-          }}
+          onCancel={closeApplyModal}
         >
           <View className='pt-2'>
             <Text className='text-[24px] text-gray-500 mb-2 block'>

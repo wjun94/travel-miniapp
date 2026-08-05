@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '聊天'
+  navigationBarTitleText: '群聊'
 })

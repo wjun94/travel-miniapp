@@ -121,7 +121,14 @@ export default function TravelGuideDetail() {
                         </View>
                     )}
                 </View> : null}
-            </NavBar>
+                            <View
+                    className='ml-auto flex flex-row items-center px-2 flex-shrink-0'
+                    onClick={() => Taro.navigateTo({ url: `/pages/accounting/list/index?targetType=guide&targetId=${id}&name=${encodeURIComponent(guide?.title || '')}` })}
+                >
+                    <Text className='iconfont icon-notepad text-orange-500 text-30px' />
+                    <Text className='ml-1 text-[24px] text-orange-500 font-bold'>记账</Text>
+                </View>
+</NavBar>
             {error || !guide ? <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
                 <Text className='text-[40px]'>⚠️</Text>
                 <Text>行程数据加载失败或不存在</Text>

@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import { NavBar, Avatar, ScrollLoadList, GuideCard } from '@/components';
 import { useRequest } from 'ahooks';
 import { getProfile, getUserFeed, getUserFavorites } from '@/api/personal';
-import { followUser, unfollowUser } from '@/api/follow';
+import { followUser, unfollowUser, blockUser, unblockUser } from '@/api/follow';
 
 export default function PersonalPage() {
     const router = useRouter();
@@ -19,6 +19,30 @@ export default function PersonalPage() {
         () => getProfile(userId),
         { refreshDeps: [userId] }
     );
+
+    // 拉黑/解除拉黑（拉黑前弹窗确认）
+    const handleToggleBlock = async () => {
+        if (!profile) return;
+        const blocked = profile.isBlocked;
+        try {
+            if (!blocked) {
+                const res = await Taro.showModal({
+                    title: '拉黑用户',
+                    content: '拉黑后将无法看到对方的内容，并会自动取消关注，确定拉黑吗？',
+                    confirmText: '拉黑',
+                    confirmColor: '#EF4444',
+                });
+                if (!res.confirm) return;
+                await blockUser(userId);
+            } else {
+                await unblockUser(userId);
+            }
+            setProfile((prev: any) => prev ? { ...prev, isBlocked: !prev.isBlocked, isFollowed: blocked ? prev.isFollowed : false } : prev);
+            Taro.showToast({ title: blocked ? '已解除拉黑' : '已拉黑', icon: 'success' });
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
+        }
+    };
 
     // 关注/取关
     const handleToggleFollow = async () => {
@@ -36,9 +60,9 @@ export default function PersonalPage() {
     };
 
     return (
-        <View className="min-h-screen bg-slate-800 text-white flex flex-col font-sans pb-10">
-
+        <>
             <NavBar showBack backgroundColor='#1e293b' />
+            <View className="min-h-screen bg-slate-800 text-white flex flex-col font-sans pb-10">
 
             {/* 2. 个人信息区域 */}
             <View className="px-5 pb-4 pt-2">
@@ -108,6 +132,12 @@ export default function PersonalPage() {
                             </View>
                             <View className="bg-slate-700 px-3 flex items-center justify-center rounded-full text-lg">
                                 👤+
+                            </View>
+                            <View
+                                onClick={handleToggleBlock}
+                                className={`flex-1 text-center py-2.5 rounded-full font-semibold text-sm active:opacity-90 transition-opacity ${profile?.isBlocked ? 'bg-slate-700 text-white' : 'bg-red-500/90 text-white'}`}
+                            >
+                                {profile?.isBlocked ? '解除拉黑' : '拉黑'}
                             </View>
                         </>
                     )}
@@ -207,6 +237,7 @@ export default function PersonalPage() {
                     />
                 )}
             </View>
-        </View>
+            </View>
+        </>
     );
 }
