@@ -8,6 +8,7 @@ import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 import { useUpdate } from 'ahooks'
 import { useAuthStore } from '@/store/authStore'
+import LogoPng from '@/assets/logo.png'
 
 // 1. 将静态数组移到组件外部，避免不必要的 renderHeader 依赖重绘
 const TABS = [
@@ -77,7 +78,7 @@ export default function HomePage() {
   const renderHeader = useCallback(() => (
     <>
       {/* 1. 顶部搜索栏 */}
-      <View className="flex flex-row items-center justify-between my-3 px-0.5">
+      <View className="flex flex-row items-center justify-between my-2 px-0.5">
         <View className="flex-1 flex flex-row items-center bg-white rounded-full px-4 py-2.5 shadow-sm border border-gray-100">
           <Text className="iconfont icon-search text-gray-400 mr-2 text-base leading-none" />
           <Input
@@ -168,9 +169,12 @@ export default function HomePage() {
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans box-border pb-20px">
       <NavBar>
-        <View className='flex flex-col leading-none ml-4'>
-          <Text className='text-[26px] font-bold text-[#e97442] tracking-wide'>觅途游</Text>
-          <Text className='text-[18px] text-black tracking-widest mt-1'>Meetogo</Text>
+        <View className='flex flex-row items-center ml-4'>
+          <Image src={LogoPng} className='w-70px h-70px mr-1.5 rounded-12px' />
+          <View className='flex flex-col leading-none'>
+            <Text className='font-bold text-[#e97442] tracking-wide'>觅途游</Text>
+            <Text className='text-[22px] text-black tracking-widest mt-1'>Meetogo</Text>
+          </View>
         </View>
       </NavBar>
       <View className='px-4'>
