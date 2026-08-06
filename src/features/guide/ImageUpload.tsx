@@ -9,9 +9,11 @@ interface Props {
   onChoose: (images: string[]) => void;
   onDelete: (index: number) => void;
   label?: string;
+  /** 图片格子边长（逻辑px，默认198；不同页面容器宽度可单独调整一行数量） */
+  size?: number;
 }
 
-export default function ImageUpload({ images, onChoose, onDelete, label = '游玩图片/票据' }: Props) {
+export default function ImageUpload({ images, onChoose, onDelete, label = '游玩图片/票据', size = 198 }: Props) {
   const handleChoose = async () => {
     const maxCanSelect = 9 - images.length;
     if (maxCanSelect <= 0) return;
@@ -35,19 +37,45 @@ export default function ImageUpload({ images, onChoose, onDelete, label = '游�
         {images.map((imgUrl, imgIdx) => (
           <View
             key={imgIdx}
-            className='w-[198px] h-[198px] bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'
+            className='bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'
+            style={{ width: `${size}px`, height: `${size}px` }}
           >
             <Image src={imgUrl} mode='aspectFill' className='w-full h-full' preview />
+
+            {/* 右上角删除按钮：黑色三角形 + 白色叉号 */}
             <View
-              onClick={() => {
-                deleteImage(imgUrl)
-                onDelete(imgIdx)
+              onClick={(e) => {
+                e.stopPropagation(); // 阻止冒泡，避免触发图片预览
+                deleteImage(imgUrl);
+                onDelete(imgIdx);
               }}
-              className='absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-bl-xl flex items-center justify-center text-[24px] font-bold z-10 active:bg-red-600'>×</View>
+              className='absolute top-0 right-0 z-10 active:opacity-70'
+              style={{
+                width: '58rpx',
+                height: '58rpx',
+                backgroundColor: '#000',
+                // 裁剪为右上角直角三角形（斜边朝左下）
+                clipPath: 'polygon(0 0, 100% 0, 100% 100%)'
+              }}
+            >
+              <Text
+                className='text-white font-bold leading-none absolute'
+                style={{
+                  top: '6rpx',
+                  right: '10rpx',
+                  fontSize: '24rpx' // 匹配三角形尺寸，可按需微调
+                }}
+              >×</Text>
+            </View>
           </View>
         ))}
+
         {images.length < 9 && (
-          <View onClick={handleChoose} className='w-[198px] h-[198px] border border-dashed border-gray-300 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 active:bg-gray-100 flex-shrink-0'>
+          <View
+            onClick={handleChoose}
+            className='border border-dashed border-gray-300 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 active:bg-gray-100 flex-shrink-0'
+            style={{ width: `${size}px`, height: `${size}px` }}
+          >
             <Text className='iconfont icon-plus text-80px' />
           </View>
         )}

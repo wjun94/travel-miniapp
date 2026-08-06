@@ -28,17 +28,17 @@ export default function ComplaintListPage() {
                   <Text className='font-bold text-stone-800 text-[28px]'>
                     {COMPLAINT_TARGET_NAMES[item.targetType] || item.targetType}
                   </Text>
-                  <Text className='text-[24px] text-stone-400 ml-2'>{item.reason}</Text>
+                  <Text className='text-stone-400 ml-2'>{item.reason}</Text>
                 </View>
-                <Text className={`text-[22px] px-2 py-0.5 rounded-full flex-shrink-0 ml-2 ${st.cls}`}>{st.label}</Text>
+                <Text className={`text-[24px] px-2 py-0.5 rounded-full flex-shrink-0 ml-2 ${st.cls}`}>{st.label}</Text>
               </View>
               <Text className='text-[26px] text-stone-600 leading-relaxed line-clamp-2'>{item.content}</Text>
               <View className='flex flex-row items-center mt-2'>
                 {item.images.length > 0 && (
-                  <Text className='text-[22px] text-stone-400 mr-3'>图片 {item.images.length} 张</Text>
+                  <Text className='text-[24px] text-stone-400 mr-3'>图片 {item.images.length} 张</Text>
                 )}
-                <Text className='text-[22px] text-stone-400'>{formatTime(item.createdAt)}</Text>
-                {item.reply && <Text className='text-[22px] text-green-600 ml-3'>已回复</Text>}
+                <Text className='text-[24px] text-stone-400'>{formatTime(item.createdAt)}</Text>
+                {item.reply && <Text className='text-[24px] text-green-600 ml-3'>已回复</Text>}
               </View>
             </View>
           )

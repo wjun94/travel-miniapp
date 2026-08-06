@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { View, Text, Picker, Input, Textarea, Image } from '@tarojs/components'
+import { View, Text, Picker, Input, Textarea } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
+import ImageUpload from '@/features/guide/ImageUpload'
 import { submitComplaint } from '@/api/complaint'
-import { uploadMultiImages } from '@/utils/upload'
 
 // 投诉对象类型
 const TARGET_OPTIONS = [
@@ -28,32 +28,7 @@ export default function ComplaintPage() {
   const [reasonIndex, setReasonIndex] = useState(-1)
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
-  const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-
-  // 选择并上传图片（最多9张）
-  const handleChooseImage = async () => {
-    const remain = 9 - images.length
-    if (remain <= 0) return
-    try {
-      const res = await Taro.chooseImage({ count: remain, sizeType: ['compressed'] })
-      setUploading(true)
-      const urls = await uploadMultiImages(res.tempFilePaths)
-      setImages((prev) => [...prev, ...urls].slice(0, 9))
-    } catch { /* ignore */ } finally {
-      setUploading(false)
-    }
-  }
-
-  // 删除已选图片
-  const handleRemoveImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  // 预览图片
-  const handlePreviewImage = (current: string) => {
-    Taro.previewImage({ current, urls: images })
-  }
 
   // 跳转我的投诉列表
   const goList = () => {
@@ -152,34 +127,13 @@ export default function ComplaintPage() {
 
         {/* 图片证据（最多9张） */}
         <View className='mb-5'>
-          <Text className='text-[26px] font-bold text-stone-800 block mb-2'>图片证据（最多9张）</Text>
-          <View className='grid grid-cols-3 gap-2'>
-            {images.map((img, i) => (
-              <View key={i} className='relative w-full h-28'>
-                <Image
-                  className='w-full h-full rounded-xl bg-stone-100'
-                  src={img}
-                  mode='aspectFill'
-                  onClick={() => handlePreviewImage(img)}
-                />
-                <View
-                  className='absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center'
-                  onClick={() => handleRemoveImage(i)}
-                >
-                  <Text className='iconfont icon-close text-[20px] text-white' />
-                </View>
-              </View>
-            ))}
-            {images.length < 9 && (
-              <View
-                className={`w-full h-28 rounded-xl bg-stone-50 border border-dashed border-stone-300 flex flex-col items-center justify-center ${uploading ? 'opacity-60' : ''}`}
-                onClick={handleChooseImage}
-              >
-                <Text className='iconfont icon-plus text-[40px] text-stone-300' />
-                <Text className='text-[22px] text-stone-300 mt-1'>{uploading ? '上传中...' : '添加图片'}</Text>
-              </View>
-            )}
-          </View>
+          <ImageUpload
+            images={images}
+            label='图片证据'
+            size={100}
+            onChoose={(list) => setImages(list)}
+            onDelete={(i) => setImages((prev) => prev.filter((_, idx) => idx !== i))}
+          />
         </View>
 
         {/* 描述 */}
@@ -193,7 +147,7 @@ export default function ComplaintPage() {
             value={content}
             onInput={(e) => setContent(e.detail.value)}
           />
-          <Text className='text-[22px] text-stone-300 block text-right mt-1'>{content.length}/500</Text>
+          <Text className='text-[24px] text-stone-300 block text-right mt-1'>{content.length}/500</Text>
         </View>
       </View>
 

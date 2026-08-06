@@ -1,4 +1,5 @@
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
+import { Image } from '@/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import {
@@ -26,10 +27,6 @@ export default function ComplaintDetailPage() {
       .catch(() => Taro.showToast({ title: '加载失败', icon: 'none' }))
       .finally(() => setLoading(false))
   }, [id])
-
-  const previewImage = (current: string) => {
-    if (item?.images.length) Taro.previewImage({ current, urls: item.images })
-  }
 
   if (loading) {
     return (
@@ -60,7 +57,7 @@ export default function ComplaintDetailPage() {
       <View className='bg-white rounded-2xl p-4 mb-3 shadow-sm'>
         <View className='flex flex-row items-center justify-between'>
           <Text className={`text-[26px] px-3 py-1 rounded-full font-bold ${st.cls}`}>{st.label}</Text>
-          <Text className='text-[22px] text-stone-400'>提交于 {formatTime(item.createdAt)}</Text>
+          <Text className='text-[24px] text-stone-400'>提交于 {formatTime(item.createdAt)}</Text>
         </View>
       </View>
 
@@ -70,22 +67,23 @@ export default function ComplaintDetailPage() {
           <Text className='text-[26px] font-bold text-stone-800'>
             {COMPLAINT_TARGET_NAMES[item.targetType] || item.targetType}
           </Text>
-          {item.targetId && <Text className='text-[22px] text-stone-400 ml-2 break-all'>ID: {item.targetId}</Text>}
+          {item.targetId && <Text className='text-[24px] text-stone-400 ml-2 break-all'>ID: {item.targetId}</Text>}
         </View>
         <Text className='text-[26px] text-orange-600 font-medium block mb-2'>{item.reason}</Text>
         <Text className='text-[26px] text-stone-700 leading-relaxed'>{item.content}</Text>
 
         {/* 图片证据 */}
         {item.images.length > 0 && (
-          <View className='grid grid-cols-3 gap-2 mt-4'>
+          <View className='grid grid-cols-3 gap-2 mt-2'>
             {item.images.map((img, i) => (
-              <Image
-                key={i}
-                className='w-full h-28 rounded-xl bg-stone-100'
-                src={img}
-                mode='aspectFill'
-                onClick={() => previewImage(img)}
-              />
+              <View key={i} className='relative w-full h-0 pb-[100%]'>
+                <Image
+                  className='absolute inset-0 w-full h-full rounded-xl bg-stone-100'
+                  src={img}
+                  mode='aspectFill'
+                  preview
+                />
+              </View>
             ))}
           </View>
         )}
@@ -97,7 +95,7 @@ export default function ComplaintDetailPage() {
           <View className='flex flex-row items-center mb-2'>
             <Text className='text-[26px] font-bold text-green-600'>官方回复</Text>
             {item.handledAt && (
-              <Text className='text-[22px] text-stone-400 ml-2'>{formatTime(item.handledAt)}</Text>
+              <Text className='text-[24px] text-stone-400 ml-2'>{formatTime(item.handledAt)}</Text>
             )}
           </View>
           <Text className='text-[26px] text-stone-700 leading-relaxed'>{item.reply}</Text>

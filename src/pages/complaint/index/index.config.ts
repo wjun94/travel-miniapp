@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '投诉'
+  navigationBarTitleText: '问题投诉'
 })

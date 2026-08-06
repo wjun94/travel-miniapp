@@ -97,7 +97,7 @@ export default function ProfilePage() {
     },
     {
       id: 5,
-      title: '投诉',
+      title: '问题投诉',
       icon: 'icon-complaint',
       onFn: () => {
         Taro.navigateTo({ url: '/pages/complaint/index/index' })
@@ -184,7 +184,7 @@ export default function ProfilePage() {
 
           {/* 5. 更多服务模块 */}
           <View className="p-5 mb-5 bg-white rounded-3xl">
-            <Text className="text-base font-black text-gray-800 tracking-wide block mb-4">更多服务</Text>
+            <Text className="text-base font-black text-gray-800 tracking-wide block">更多服务</Text>
             <View className="grid grid-cols-4 gap-2 text-center">
               {services.map((service) => (
                 <Button
