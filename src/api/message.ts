@@ -18,6 +18,10 @@ export interface Message {
 export interface NotificationItem {
   /** 评论/回复内容（评论通知时展示） */
   commentContent: string;
+  /** 跳转链接（系统通知时展示，点击跳转 webview） */
+  linkUrl: string;
+  /** 标题（系统通知时展示） */
+  title: string;
   /** 通知正文 */
   content: string;
   /** 通知创建时间 */
@@ -54,6 +58,16 @@ export interface NotificationItem {
   /** 接收方（当前用户）ID */
   userId: string;
 }
+
+/**
+ * 获取单条通知详情
+ * @param id 通知ID
+ */
+export const getNotificationDetail = (id: string) =>
+  request<NotificationItem>({
+    url: `/notification/${id}`,
+    method: 'GET',
+  });
 
 /**
  * 获取通知列表

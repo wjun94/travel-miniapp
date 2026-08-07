@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Textarea } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { getNotificationList, markNotificationTypeAllRead, NotificationItem } from '@/api/message';
+import { clearSystemMessages } from '@/api/conversation';
 import { handlePartnerApplication } from '@/api/partner';
 import { NavBar, ScrollLoadList, Avatar, Modal } from '@/components';
+import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
 import { formatTime } from '@/utils';
 
 const TYPE_BG: Record<number, string> = {
@@ -17,6 +19,76 @@ const TYPE_BG: Record<number, string> = {
 export default function MessageList() {
     const router = useRouter();
     const defaultType = router.params?.type ? Number(router.params.type) : undefined;
+    // 列表刷新句柄（清空系统消息后刷新）
+    const listRef = useRef<ScrollLoadListRef>(null);
+  // ===== WebSocket 实时推送：后台发送系统消息时即时刷新列表 =====
+  const socketTask = useRef<any>(null)
+  const isConnect = useRef<boolean>(false)
+  const heartbeatTimer = useRef<any>(null)
+
+  const connectWS = () => {
+    if (isConnect.current) return
+    const token = Taro.getStorageSync('token') || ''
+    if (!token) return
+    Taro.connectSocket({ url: `${SOCKET_BASE}/ws?token=${token}` }).then((task) => {
+      socketTask.current = task
+      task.onOpen(() => {
+        isConnect.current = true
+        startHeartbeat()
+      })
+      task.onMessage((res) => {
+        if (res.data === 'ping' || res.data === 'pong') return
+        try {
+          const data = JSON.parse(res.data)
+          if (data.action === 'new_notification') {
+            // 收到系统消息推送：刷新列表
+            listRef.current?.refresh()
+          }
+        } catch (e) { /* 忽略非 JSON 消息 */ }
+      })
+      task.onClose(() => {
+        isConnect.current = false
+        stopHeartbeat()
+        setTimeout(() => connectWS(), 5000)
+      })
+      task.onError(() => {
+        isConnect.current = false
+      })
+    })
+  }
+
+  const startHeartbeat = () => {
+    stopHeartbeat()
+    heartbeatTimer.current = setInterval(() => {
+      if (isConnect.current && socketTask.current) {
+        socketTask.current.send({ data: 'ping', fail: () => {} })
+      }
+    }, 30000)
+  }
+
+  const stopHeartbeat = () => {
+    if (heartbeatTimer.current) {
+      clearInterval(heartbeatTimer.current)
+      heartbeatTimer.current = null
+    }
+  }
+
+  const closeWS = () => {
+    stopHeartbeat()
+    if (socketTask.current) {
+      socketTask.current.close({})
+      socketTask.current = null
+    }
+  }
+
+  // 页面显示时连接 WS，隐藏时断开
+  Taro.useDidShow(() => {
+    connectWS()
+  })
+  Taro.useDidHide(() => {
+    closeWS()
+  })
+
     // 拒绝二次确认弹窗
     const [rejectModalVisible, setRejectModalVisible] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
@@ -32,6 +104,26 @@ export default function MessageList() {
             markNotificationTypeAllRead(defaultType).catch(() => { });
         }
     }, [defaultType]);
+
+    // 清空全部系统消息（仅系统消息列表展示入口）
+    const handleClearSystem = () => {
+        Taro.showModal({
+            title: '清空公告',
+            content: '确定清空全部公告吗？清空后不可恢复',
+            confirmText: '清空',
+            success: async (res) => {
+                if (res.confirm) {
+                    try {
+                        await clearSystemMessages();
+                        listRef.current?.refresh();
+                        Taro.showToast({ title: '已清空', icon: 'success' });
+                    } catch {
+                        Taro.showToast({ title: '清空失败', icon: 'none' });
+                    }
+                }
+            },
+        });
+    };
 
     // 同意申请
     const handleApprove = async (item: NotificationItem) => {
@@ -85,6 +177,11 @@ export default function MessageList() {
     };
 
     const handleItemClick = (item: NotificationItem) => {
+        // 系统消息：进入消息详情页（详情页内展示全文与跳转链接）
+        if (item.type === 4) {
+            Taro.navigateTo({ url: `/pages/message/detail/index?id=${item.id}` });
+            return;
+        }
         // 根据 targetType/targetId 跳转
         const routeMap: Record<string, string> = {
             guide: '/pages/guide/detail/index',
@@ -104,8 +201,21 @@ export default function MessageList() {
             <NavBar showBack title='消息中心' />
             <View className='min-h-screen bg-gray-50 flex flex-col'>
 
+            {/* 系统消息：顶部清空入口 */}
+            {defaultType === 4 && (
+                <View className='flex flex-row items-center justify-end px-4 py-2 bg-white bb'>
+                    <Text
+                        className='text-[24px] text-gray-500 px-3 py-1 rounded-full bg-gray-100 active:bg-gray-200'
+                        onClick={handleClearSystem}
+                    >
+                        清空公告
+                    </Text>
+                </View>
+            )}
+
             {/* 通知列表 */}
             <ScrollLoadList
+                ref={listRef}
                 className='flex-1'
                 request={(page, pageSize) =>
                     getNotificationList({ type: defaultType, page, pageSize })
@@ -132,17 +242,25 @@ export default function MessageList() {
                                 <View className='absolute left-0 top-3 bottom-3 w-[4px] rounded-r-md bg-[#F97316]' />
                             )}
 
-                            {/* 用户头像 + 类型小标：改为 items-start 顶部对齐 */}
-                            <View
-                                className='relative shrink-0 mt-0.5'
-                                onClick={(e) => { e.stopPropagation(); goUserDetail(item); }}
-                            >
-                                <Avatar
-                                    name={item.fromUser?.nickname}
-                                    src={item.fromUser?.avatarUrl}
-                                    className='w-[80px] h-[80px] rounded-full ring-2 ring-white shadow-sm'
-                                />
-                                <View className={`absolute -bottom-1 -right-1 w-[10px] h-[10px] rounded-full ring-2 ring-white ${bg}`} />
+                            {/* 用户头像 + 类型小标：改为 items-start 顶部对齐；公告用公告图标 */}
+                            <View className='relative shrink-0 mt-0.5'>
+                                {item.type === 4 ? (
+                                    <View className='w-[80px] h-[80px] rounded-12px bg-orange-500 flex items-center justify-center'>
+                                        <Text className='iconfont icon-bulletin text-white text-50px' />
+                                    </View>
+                                ) : (
+                                    <View
+                                        className='relative'
+                                        onClick={(e) => { e.stopPropagation(); goUserDetail(item); }}
+                                    >
+                                        <Avatar
+                                            name={item.fromUser?.nickname}
+                                            src={item.fromUser?.avatarUrl}
+                                            className='w-[80px] h-[80px] rounded-full ring-2 ring-white shadow-sm'
+                                        />
+                                        <View className={`absolute -bottom-1 -right-1 w-[10px] h-[10px] rounded-full ring-2 ring-white ${bg}`} />
+                                    </View>
+                                )}
                             </View>
 
                             {/* 内容区：去除了固定的 h-[80px]，改为自适应高度，配合 space-y 控制间距 */}
@@ -154,7 +272,7 @@ export default function MessageList() {
                                             className={`text-[26px] font-semibold truncate ${item.isRead ? 'text-gray-600' : 'text-gray-900'}`}
                                             onClick={(e) => { e.stopPropagation(); goUserDetail(item); }}
                                         >
-                                            {item.fromUser?.nickname || ''}
+                                            {item.type === 4 ? (item.title || '公告') : (item.fromUser?.nickname || '')}
                                         </Text>
                                         {!item.isRead && (
                                             <View className='w-[10px] h-[10px] rounded-full bg-[#F97316] shrink-0 ml-2 animate-pulse' />
