@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/accounting/index/index",
-          "pathName": "pages/accounting/index/index",
+          "name": "pages/message/index/index",
+          "pathName": "pages/message/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/accounting/index/index",
+          "pathName": "pages/accounting/index/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/mine/index",

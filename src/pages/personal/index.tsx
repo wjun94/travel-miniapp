@@ -120,16 +120,6 @@ export default function PersonalPage() {
                             >
                                 {profile?.isFollowed ? '已关注' : '关注'}
                             </View>
-                            <View
-                                className="flex-1 bg-slate-700 text-white text-center py-2.5 rounded-full font-semibold text-sm active:opacity-90 transition-opacity"
-                                onClick={() => {
-                                    Taro.navigateTo({
-                                        url: `/pages/message/chat/index?userId=${userId}&nickname=${profile?.nickname || ''}`,
-                                    });
-                                }}
-                            >
-                                发私信
-                            </View>
                             <View className="bg-slate-700 px-3 flex items-center justify-center rounded-full text-lg">
                                 👤+
                             </View>
