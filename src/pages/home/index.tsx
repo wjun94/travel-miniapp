@@ -172,8 +172,8 @@ export default function HomePage() {
         <View className='flex flex-row items-center ml-4'>
           <Image src={LogoPng} className='w-70px h-70px mr-1.5 rounded-20px' />
           <View className='flex flex-col leading-none'>
-            <Text className='font-bold text-[#e97442] tracking-wide text-30px'>觅途游</Text>
-            <Text className='text-[20px] text-black tracking-widest mt-1'>Meetogo</Text>
+            <Text className='font-bold text-[#e97442] tracking-wide text-30px'>邻刻走</Text>
+            <Text className='text-[24px] text-black tracking-widest mt-1'>LinkGo</Text>
           </View>
         </View>
       </NavBar>
