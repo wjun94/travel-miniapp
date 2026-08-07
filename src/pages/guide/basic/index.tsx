@@ -18,6 +18,7 @@ interface FormState {
     difficulty: 'easy' | 'medium' | 'hard';
     targetGroups: string[];
     isOriginal: boolean;
+    isOverseas: number; // 境内境外：0国内 1境外
     coverImage: string;
 }
 
@@ -39,6 +40,7 @@ export default function BasicInfoPage() {
         difficulty: 'easy',
         targetGroups: [],
         isOriginal: true,
+        isOverseas: 0,
         coverImage: '',
     });
 
@@ -56,7 +58,9 @@ export default function BasicInfoPage() {
     useDidShow(() => {
         const saved = Taro.getStorageSync('TEMP_GUIDE_DESTINATION');
         if (saved) {
-            setFormState({ destination: saved });
+            // 兼容旧缓存：无国内外标记时保持默认（国内）
+            const overseas = Taro.getStorageSync('TEMP_GUIDE_OVERSEAS');
+            setFormState({ destination: saved, isOverseas: typeof overseas === 'number' ? overseas : 0 });
         }
         const plans: any[] = Taro.getStorageSync('TEMP_ITINERARY_PLANS') || [];
         setDayCount(Array.isArray(plans) ? plans.length : 0);
@@ -79,8 +83,10 @@ export default function BasicInfoPage() {
                     difficulty: (detail.difficulty as any) || 'easy',
                     targetGroups: (detail.tags || '').split(',').filter(Boolean),
                     isOriginal: detail.isOriginal === 1,
+                    isOverseas: detail.isOverseas || 0,
                     coverImage: detail.coverImage || '',
                 });
+                Taro.setStorageSync('TEMP_GUIDE_OVERSEAS', detail.isOverseas || 0);
                 if (detail.destination) {
                     Taro.setStorageSync('TEMP_GUIDE_DESTINATION', detail.destination);
                 }
@@ -159,6 +165,7 @@ export default function BasicInfoPage() {
             difficulty,
             crowdType: targetGroups.join(','),
             isOriginal: isOriginal ? 1 : 0,
+            isOverseas: formState.isOverseas || 0,
             status: isPublish ? 1 : 0,
             days: cachedItinerary.map((day: any) => ({
                 date: day.date ? `${day.date}T00:00:00Z` : null,

@@ -42,6 +42,8 @@ export default function SearchPage() {
     // 点击选择目的地：新建流程跳转下一个页面（行程安排），从 basic 进入时返回上一页
     const handleSelect = (item: DestinationItem) => {
         Taro.setStorageSync('TEMP_GUIDE_DESTINATION', item.name);
+        // 保存国内外标记（typeEn=country 或 type=国家 视为境外，兼容后端两种返回）
+        Taro.setStorageSync('TEMP_GUIDE_OVERSEAS', item.typeEn === 'country' || item.type === '国家' ? 1 : 0);
         if (from === 'basic') {
             Taro.navigateBack();
         } else {

@@ -130,7 +130,7 @@ export default function ComplaintPage() {
           <ImageUpload
             images={images}
             label='图片证据'
-            size={100}
+            size={192}
             onChoose={(list) => setImages(list)}
             onDelete={(i) => setImages((prev) => prev.filter((_, idx) => idx !== i))}
           />

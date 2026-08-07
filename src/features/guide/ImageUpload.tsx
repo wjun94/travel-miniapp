@@ -9,7 +9,7 @@ interface Props {
   onChoose: (images: string[]) => void;
   onDelete: (index: number) => void;
   label?: string;
-  /** 图片格子边长（逻辑px，默认198；不同页面容器宽度可单独调整一行数量） */
+  /** 图片格子边长（rpx，默认198；不同页面容器宽度可单独调整一行数量） */
   size?: number;
 }
 
@@ -38,7 +38,7 @@ export default function ImageUpload({ images, onChoose, onDelete, label = '游�
           <View
             key={imgIdx}
             className='bg-gray-100 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0'
-            style={{ width: `${size}px`, height: `${size}px` }}
+            style={{ width: `${size}rpx`, height: `${size}rpx` }}
           >
             <Image src={imgUrl} mode='aspectFill' className='w-full h-full' preview />
 
@@ -74,7 +74,7 @@ export default function ImageUpload({ images, onChoose, onDelete, label = '游�
           <View
             onClick={handleChoose}
             className='border border-dashed border-gray-300 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 active:bg-gray-100 flex-shrink-0'
-            style={{ width: `${size}px`, height: `${size}px` }}
+            style={{ width: `${size}rpx`, height: `${size}rpx` }}
           >
             <Text className='iconfont icon-plus text-80px' />
           </View>

@@ -32,6 +32,7 @@ export interface FeedItem {
     destinations: string[];
     id: string;
     isLiked: boolean;
+    isOverseas: number;
     itemType: string;
     likeCount: number;
     sectionCount: number;

@@ -188,14 +188,17 @@ export default function TravelDurationPicker() {
         }
     };
 
-    // 将选中地址按 Trip 接口的请求参数格式保存到本地
+    /**
+     * 判断目的地是否为境外（国家/地区）
+     * 后端返回：type 为中文（"国家"），typeEn 为英文（"country"），此处兼容两者
+     */
     const saveDestinationMeta = () => {
         const meta = {
             cities: [...new Set(destinations.map(d => d.name))],
             destinations: destinations.map(d => d.code),
             provinces: [...new Set(destinations.map(d => d.province).filter(Boolean))],
-            countries: destinations.filter(d => d.type === 'overseas').map(d => d.name),
-            isOverseas: (destinations.some(d => d.type === 'overseas') ? 1 : 0) as 0 | 1,
+            countries: destinations.filter(isOverseasDestination).map(d => d.name),
+            isOverseas: (destinations.some(isOverseasDestination) ? 1 : 0) as 0 | 1,
         };
         Taro.setStorageSync('TEMP_TRIP_DESTINATIONS', meta);
     };
@@ -553,3 +556,8 @@ export default function TravelDurationPicker() {
         </View>
     );
 }
+
+// 判断目的地是否为境外（国家/地区）
+// 后端返回：type 为中文（"国家"），typeEn 为英文（"country"），此处兼容两者
+export const isOverseasDestination = (d: { typeEn?: string; type?: string }): boolean =>
+    d?.typeEn === 'country' || d?.type === '国家';

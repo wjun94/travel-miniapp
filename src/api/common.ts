@@ -35,7 +35,8 @@ export interface DestinationItem {
     "emoji": string,
     "name": string,
     "province": string,
-    "type": string
+    "type": string,
+    "typeEn"?: string
 }
 
 // 新增：每日天气详情数据项类型
