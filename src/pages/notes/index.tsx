@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { NavBar, ScrollLoadList, Image } from '@/components'
+import CalendarSvg from '@/assets/img/calendar.svg'
+import LandmarkSvg from '@/assets/img/landmark.svg'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
+import TeamSvg from '@/assets/img/team.svg'
 import { getMyGuides } from '@/api/guide'
 import { getMyTrips } from '@/api/trip'
 import { getMyPartners } from '@/api/partner'
@@ -32,13 +36,15 @@ const renderNoteCard = (item: Guide, type: 'guide' | 'trip') => (
       {(item.tripDays || item.sectionCount) && (
         <View className="flex flex-row items-center gap-2 mb-1">
           {item.tripDays ? (
-            <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
-              <Text className="text-[20rpx] text-emerald-600 font-medium">📅 {item.tripDays}天</Text>
+            <View className="bg-emerald-50 px-2 py-0.5 rounded-full flex items-center">
+              <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+              <Text className="text-[20rpx] text-emerald-600 font-medium">{item.tripDays}天</Text>
             </View>
           ) : null}
           {item.sectionCount ? (
-            <View className="bg-stone-50 px-2 py-0.5 rounded-full">
-              <Text className="text-[20rpx] text-stone-500 font-medium">📍 {item.sectionCount}个行程</Text>
+            <View className="bg-stone-50 px-2 py-0.5 rounded-full flex items-center">
+              <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
+              <Text className="text-[20rpx] text-stone-500 font-medium">{item.sectionCount}个行程</Text>
             </View>
           ) : null}
         </View>
@@ -67,7 +73,8 @@ const renderPartnerCard = (item: any) => (
       <View className='absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent' />
       {item.destination && (
         <View className="absolute bottom-2.5 left-3 z-10 flex items-center">
-          <Text className="text-white text-[22px] font-medium drop-shadow-sm">📍 {item.destination}</Text>
+          <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' />
+          <Text className="text-white text-[22px] font-medium drop-shadow-sm">{item.destination}</Text>
         </View>
       )}
     </View>
@@ -76,12 +83,18 @@ const renderPartnerCard = (item: any) => (
         {item.title || item.destination}
       </Text>
       <View className="flex flex-row items-center justify-between pt-1 border-t border-gray-50">
-        <Text className="text-[24px] text-gray-500 font-medium">
-          📅 {item.startDate ? new Date(item.startDate).getMonth() + 1 + '月' + new Date(item.startDate).getDate() + '日' : '时间待定'}
-        </Text>
-        <Text className="text-[24px] font-medium text-gray-700">
-          👥 {item.currentMembers}/{item.maxMembers} 人
-        </Text>
+        <View className="flex items-center">
+          <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+          <Text className="text-[24px] text-gray-500 font-medium">
+            {item.startDate ? new Date(item.startDate).getMonth() + 1 + '月' + new Date(item.startDate).getDate() + '日' : '时间待定'}
+          </Text>
+        </View>
+        <View className="flex items-center">
+          <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+          <Text className="text-[24px] font-medium text-gray-700">
+            {item.currentMembers}/{item.maxMembers} 人
+          </Text>
+        </View>
       </View>
     </View>
   </View>

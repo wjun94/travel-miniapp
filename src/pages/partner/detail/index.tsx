@@ -3,6 +3,8 @@ import { View, Text, Textarea, Input, Button, ScrollView } from '@tarojs/compone
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro'
 import { useRequest } from 'ahooks'
 import { NavBar, Image, Modal, Avatar } from '@/components'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
+import TeamSvg from '@/assets/img/team.svg'
 import { CommentSection } from '@/features'
 import { getPartnerDetail, applyPartner, likePartner, unlikePartner } from '@/api/partner'
 import { createHistoryRecord } from '@/api/history'
@@ -59,7 +61,7 @@ export default function PartnerDetail() {
 
   const isSelf = partner?.isSelf
   const statusInfo = STATUS_LABELS[partner?.status ?? 0] || STATUS_LABELS[0]
-  const canApply = !isSelf && (partner?.status ?? 0) === 0
+  const canApply = !isSelf && !partner?.isApplied && (partner?.status ?? 0) === 0
 
   // --- Handlers ---
   const handleToggleFollow = async () => {
@@ -222,7 +224,7 @@ export default function PartnerDetail() {
 
           {/* Card 1: 行程信息 */}
           <SectionCard title='行程信息'>
-            <Row label='目的地' value={`📍 ${partner.destination}`} />
+            <Row label='目的地' value={<View className='flex items-center justify-end'><Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px flex-shrink-0' /><Text className='text-[26px] text-gray-800 font-medium break-all'>{partner.destination}</Text></View>} />
             {partner.category && <Row label='活动类型' value={partner.category} />}
             {partner.type > 0 && <Row label='出行方式' value={TYPE_LABELS[partner.type]} />}
             {partner.address && <Row label='集合地点' value={partner.address} />}
@@ -267,7 +269,7 @@ export default function PartnerDetail() {
 
           {/* Card 3: 招募要求 */}
           <SectionCard title='招募要求'>
-            <Row label='当前成员' value={`👥 ${partner.currentMembers} / ${partner.maxMembers} 人`} />
+            <Row label='当前成员' value={<View className='flex items-center justify-end'><Image src={TeamSvg} className='h-4 w-4 mr-6px flex-shrink-0' /><Text className='text-[26px] text-gray-800 font-medium'>{partner.currentMembers} / {partner.maxMembers} 人</Text></View>} />
             {(partner.minMembers ?? 0) > 0 && <Row label='最少成行' value={`${partner.minMembers} 人`} />}
             <Row label='性别限制' value={GENDER_LABELS[partner.genderLimit] || '不限'} />
             {partner.maleCount > 0 && partner.femaleCount > 0 && partner.genderLimit === 3 && (
@@ -361,6 +363,10 @@ export default function PartnerDetail() {
             ) : isSelf ? (
               <View className='w-full bg-gray-100 text-gray-400 text-center py-2.5 rounded-xl font-medium text-[26px]'>
                 你创建的搭子行程
+              </View>
+            ) : partner?.isApplied ? (
+              <View className='w-full bg-gray-100 text-gray-400 text-center py-2.5 rounded-xl font-medium text-[26px]'>
+                {partner?.application?.status === 1 ? '已加入' : '已申请'}
               </View>
             ) : (
               <View className='w-full bg-gray-100 text-gray-400 text-center py-2.5 rounded-xl font-medium text-[26px]'>

@@ -3,6 +3,9 @@ import Taro from '@tarojs/taro'
 import { useRef, useState } from 'react'
 import { usePullDownRefresh } from '@tarojs/taro'
 import { ScrollLoadList, Image, Modal } from '@/components'
+import CalendarSvg from '@/assets/img/calendar.svg'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
+import TeamSvg from '@/assets/img/team.svg'
 import { getMyPartners, applyPartner } from '@/api/partner'
 import type { PartnerItem } from '@/api/partner'
 
@@ -104,8 +107,9 @@ export default function PartnerList() {
                 {/* 封面底部的目的地提示 */}
                 {item.destination && (
                   <View className='absolute bottom-2.5 left-3 z-10 flex items-center'>
+                    <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' />
                     <Text className='text-white text-[22px] font-medium drop-shadow-sm'>
-                      📍 {item.destination}
+                      {item.destination}
                     </Text>
                   </View>
                 )}
@@ -140,10 +144,13 @@ export default function PartnerList() {
                 {/* 行程时间与人数信息 */}
                 <View className='flex flex-row items-center justify-between pt-1 border-t border-gray-50'>
                   <View className='flex flex-row items-center space-x-2 text-gray-500 text-[24px]'>
-                    <Text className='font-medium text-gray-700'>
-                      📅 {formatDate(item.startDate)}
-                      {item.endDate ? ` - ${formatShortDate(item.endDate)}` : ''}
-                    </Text>
+                    <View className='flex items-center'>
+                      <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+                      <Text className='font-medium text-gray-700'>
+                        {formatDate(item.startDate)}
+                        {item.endDate ? ` - ${formatShortDate(item.endDate)}` : ''}
+                      </Text>
+                    </View>
                     {item.days > 0 && (
                       <Text className='text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium'>
                         {item.days}天
@@ -151,9 +158,12 @@ export default function PartnerList() {
                     )}
                   </View>
 
-                  <Text className='text-[24px] font-medium text-gray-700'>
-                    👥 {item.currentMembers}/{item.maxMembers} 人
-                  </Text>
+                  <View className='flex items-center'>
+                    <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+                    <Text className='text-[24px] font-medium text-gray-700'>
+                      {item.currentMembers}/{item.maxMembers} 人
+                    </Text>
+                  </View>
                 </View>
 
                 {/* 性别/年龄/费用标签 */}

@@ -1,4 +1,5 @@
 import { View, Text } from '@tarojs/components'
+import { ReactNode } from 'react'
 import { getHeaderHeight, getImageCdnUrl } from '@/utils'
 import Taro from '@tarojs/taro'
 
@@ -9,7 +10,7 @@ interface NavBarProps {
   /** 自定义 class */
   className?: string
   /** 导航栏标题（可选） */
-  title?: string
+  title?: string | ReactNode
   /** 标题对齐方式，默认 center */
   titleAlign?: 'left' | 'center'
   /** 是否显示返回按钮 */

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { NavBar, Avatar, ScrollLoadList, GuideCard, Image } from '@/components';
+import CalendarSvg from '@/assets/img/calendar.svg';
+import LocationsSvg from '@/assets/itinerary/locations.svg';
+import TeamSvg from '@/assets/img/team.svg';
 import { useRequest } from 'ahooks';
 import { getProfile, getUserFeed, getUserFavorites } from '@/api/personal';
 import { getMyJoinedPartners } from '@/api/partner';
@@ -87,7 +90,8 @@ function PartnerCard({ item }: { item: PartnerItem }) {
                 <View className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                 {item.destination && (
                     <View className="absolute bottom-2.5 left-3 z-10 flex items-center">
-                        <Text className="text-white text-[22px] font-medium drop-shadow-sm">📍 {item.destination}</Text>
+                        <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' />
+                        <Text className="text-white text-[22px] font-medium drop-shadow-sm">{item.destination}</Text>
                     </View>
                 )}
             </View>
@@ -99,17 +103,23 @@ function PartnerCard({ item }: { item: PartnerItem }) {
                 </Text>
                 <View className="flex flex-row items-center justify-between pt-1 border-t border-gray-50">
                     <View className="flex flex-row items-center space-x-2 text-gray-500 text-[24px]">
-                        <Text className="font-medium text-gray-700">
-                            📅 {formatPartnerDate(item.startDate)}
-                            {item.endDate ? ` - ${formatPartnerShortDate(item.endDate)}` : ''}
-                        </Text>
+                        <View className="flex items-center">
+                            <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+                            <Text className="font-medium text-gray-700">
+                                {formatPartnerDate(item.startDate)}
+                                {item.endDate ? ` - ${formatPartnerShortDate(item.endDate)}` : ''}
+                            </Text>
+                        </View>
                         {item.days > 0 && (
                             <Text className="text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium">{item.days}天</Text>
                         )}
                     </View>
-                    <Text className="text-[24px] font-medium text-gray-700">
-                        👥 {item.currentMembers}/{item.maxMembers} 人
-                    </Text>
+                    <View className="flex items-center">
+                        <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+                        <Text className="text-[24px] font-medium text-gray-700">
+                            {item.currentMembers}/{item.maxMembers} 人
+                        </Text>
+                    </View>
                 </View>
                 {/* 性别/年龄/费用标签 */}
                 <View className="flex flex-row items-center flex-wrap gap-1.5">

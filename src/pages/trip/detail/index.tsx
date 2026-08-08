@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image, CoverImage, Avatar } from '@/components';
+import { NavBar, Image, CoverImage, Avatar, TypeIcon } from '@/components';
+import LocationsSvg from '@/assets/itinerary/locations.svg';
+import WarningsSvg from '@/assets/itinerary/warnings.svg';
+import TeamSvg from '@/assets/img/team.svg';
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { getTripDetail, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -148,7 +151,7 @@ export default function TripDetail() {
                 </View>
 </NavBar>
             {error || !guideData ? <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
-                <Text className='text-[40px]'>⚠️</Text>
+                <Image src={WarningsSvg} className='h-3.5 w-3.5' />
                 <Text>行程数据加载失败或不存在</Text>
             </View> : <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
                 <ScrollView
@@ -179,7 +182,7 @@ export default function TripDetail() {
 
                         {destinationText && (
                             <View className='flex flex-row items-center text-stone-500 text-[24px] mb-4 font-medium'>
-                                <Text className='mr-1 text-[26px] text-[#F97316]'>📍</Text>
+                                <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' />
                                 <Text>{destinationText}</Text>
                             </View>
                         )}
@@ -201,7 +204,10 @@ export default function TripDetail() {
                             </View>
 
                             <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>👥 出行伴侣</Text>
+                                <View className='flex items-center'>
+                                    <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+                                    <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>出行伴侣</Text>
+                                </View>
                                 <Text className='text-[#F97316] font-bold text-[25px]'>
                                     {guide.members && guide.members.length > 0
                                         ? `${guide.members.length} 人同行`
@@ -321,7 +327,7 @@ export default function TripDetail() {
                                                                     <View className='flex flex-row items-center justify-between mb-2'>
                                                                         <Text className='text-[22px] font-bold text-stone-400'>⏱️ {formatTimeRange(item.startTime, item.endTime)}</Text>
                                                                         <View className='px-2 py-0.5 rounded-lg flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
-                                                                            <Text className='text-[22px]'>{typeCfg.emoji}</Text>
+                                                                            <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[22px]' />
                                                                             <Text className='text-[22px] font-bold'>{config.label}</Text>
                                                                         </View>
                                                                     </View>
@@ -338,7 +344,7 @@ export default function TripDetail() {
                                                                             {item.description && <Text className='text-[24px] text-stone-500 leading-relaxed block mt-1'>{item.description}</Text>}
                                                                             {item.address && (
                                                                                 <View className='flex flex-row items-center gap-1 mt-2 bg-stone-50 px-2.5 py-1 rounded-xl w-fit'>
-                                                                                    <Text className='text-[20px] text-stone-400'>📍</Text>
+                                                                                    <Image src={LocationsSvg} className='h-3.5 w-3.5' />
                                                                                     <Text className='text-[21px] text-stone-400 font-medium break-all'>{item.address}</Text>
                                                                                 </View>
                                                                             )}

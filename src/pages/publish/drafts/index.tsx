@@ -2,6 +2,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useRef, useState } from 'react'
 import { NavBar, ScrollLoadList, Modal, Image } from '@/components'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
 import { getHeaderHeight } from '@/utils'
 import { getMyGuides, deleteTravelGuide } from '@/api/guide'
 import { getMyTrips, deleteTrip } from '@/api/trip'
@@ -186,7 +187,10 @@ export default function DraftsPage() {
                     </Text>
                   </View>
                   {item.destination && (
-                    <Text className='text-[22px] text-gray-500 mt-1 block truncate'>📍 {item.destination}</Text>
+                    <View className='flex items-center mt-1'>
+                      <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px flex-shrink-0' />
+                      <Text className='text-[22px] text-gray-500 truncate flex-1'>{item.destination}</Text>
+                    </View>
                   )}
                 </View>
                 <View className='flex flex-row items-center justify-between'>

@@ -1,5 +1,7 @@
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { Image } from '@/components';
+import LocationsSvg from '@/assets/itinerary/locations.svg';
 
 interface Props {
   title?: string;
@@ -37,7 +39,9 @@ export default function LocationPicker({ title = "位置", label, address, latit
             <Text className='text-[20px] text-gray-400 block mt-0.5'>纬度: {latitude?.toFixed(4)}, 经度: {longitude?.toFixed(4)}</Text>
           ) : null}
         </View>
-        <View className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-[18px] flex-shrink-0 font-bold'>📍</View>
+        <View className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0'>
+          <Image src={LocationsSvg} className='h-3.5 w-3.5' />
+        </View>
       </View>
     </View>
   );

@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Avatar, CoverImage } from '@/components'
+import { Avatar, CoverImage, Image } from '@/components'
+import CalendarSvg from '@/assets/img/calendar.svg'
+import LandmarkSvg from '@/assets/img/landmark.svg'
+import TeamSvg from '@/assets/img/team.svg'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
 import { likePartner, unlikePartner } from '@/api/partner'
@@ -88,8 +91,9 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
               <Text className='text-[22px] text-white font-bold'>🗺️ 行程路线</Text>
             </View>
           ) : isPartner ? (
-            <View className='bg-orange-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>
-              <Text className='text-[22px] text-white font-bold'>👥 结伴搭子</Text>
+            <View className='bg-orange-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm flex items-center'>
+              <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+              <Text className='text-[22px] text-white font-bold'>结伴搭子</Text>
             </View>
           ) : (
             <View className='bg-sky-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>
@@ -107,13 +111,15 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
         {(item.tripDays || item.sectionCount) && (
           <View className='flex flex-row items-center gap-2 mb-1.5'>
             {item.tripDays && (
-              <View className='bg-emerald-50 px-2 py-0.5 rounded-full'>
-                <Text className='text-[22px] text-emerald-600 font-medium'>📅 {item.tripDays}天</Text>
+              <View className='bg-emerald-50 px-2 py-0.5 rounded-full flex items-center'>
+                <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+                <Text className='text-[22px] text-emerald-600 font-medium'>{item.tripDays}天</Text>
               </View>
             )}
             {item.sectionCount && (
-              <View className='bg-stone-50 px-2 py-0.5 rounded-full'>
-                <Text className='text-[22px] text-stone-500 font-medium'>📍 {item.sectionCount}个行程</Text>
+              <View className='bg-stone-50 px-2 py-0.5 rounded-full flex items-center'>
+                <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
+                <Text className='text-[22px] text-stone-500 font-medium'>{item.sectionCount}个行程</Text>
               </View>
             )}
           </View>

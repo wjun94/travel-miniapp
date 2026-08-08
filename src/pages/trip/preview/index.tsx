@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components';
-import { Image } from '@/components'
+import { Image, TypeIcon } from '@/components'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
+import WarningsSvg from '@/assets/itinerary/warnings.svg'
 import { useRouter } from '@tarojs/taro';
 import { getTripDetail } from '@/api/trip';
 import { useRequest } from 'ahooks';
@@ -62,7 +64,7 @@ export default function TravelGuideDetail() {
     if (error || !guideData) {
         return (
             <View className='w-full h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-400 text-[24px] space-y-2'>
-                <Text className='text-[40px]'>⚠️</Text>
+                <Image src={WarningsSvg} className='h-3.5 w-3.5' />
                 <Text>行程数据加载失败或不存在</Text>
             </View>
         );
@@ -172,7 +174,7 @@ export default function TravelGuideDetail() {
                                                                         ⏱️ {formatTimeRange(item.startTime, item.endTime)}
                                                                     </Text>
                                                                     <View className='px-2 py-0.5 rounded flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
-                                                                        <Text className='text-[24px]'>{typeCfg.emoji}</Text>
+                                                                        <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[24px]' />
                                                                         <Text className='text-[24px] font-medium'>{config.label}</Text>
                                                                     </View>
                                                                 </View>
@@ -189,7 +191,7 @@ export default function TravelGuideDetail() {
                                                                         {item.description && <Text className='text-[24px] text-gray-500 leading-relaxed block mt-1'>{item.description}</Text>}
                                                                         {item.address && (
                                                                             <View className='flex flex-row items-center gap-1 mt-2 bg-gray-50 px-2 py-1 rounded-lg w-fit'>
-                                                                                <Text className='text-[20px]'>📍</Text>
+                                                                                <Image src={LocationsSvg} className='h-3.5 w-3.5' />
                                                                                 <Text className='text-[22px] text-gray-400 break-all'>{item.address}</Text>
                                                                             </View>
                                                                         )}

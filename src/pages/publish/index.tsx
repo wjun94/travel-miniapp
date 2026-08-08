@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
-import { NavBar, Modal } from '@/components'
+import { NavBar, Modal, Image } from '@/components'
+import TeamSvg from '@/assets/img/team.svg'
 import Taro from '@tarojs/taro'
 
 export default function PublishPage() {
@@ -141,7 +142,7 @@ export default function PublishPage() {
           >
             {/* 图标区 */}
             <View className={`w-10 h-10 rounded-full flex flex-shrink-0 items-center justify-center ${item.color} ${item.textColor} mr-3`}>
-              <Text className="text-lg">{item.icon}</Text>
+              {item.icon === '👥' ? <Image src={TeamSvg} className='h-4 w-4' /> : <Text className="text-lg">{item.icon}</Text>}
             </View>
             {/* 文字区 */}
             <View className="flex flex-col justify-center overflow-hidden">

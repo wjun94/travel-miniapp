@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text, Input } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
+import LocationsSvg from '@/assets/itinerary/locations.svg'
 
 export default function DiscoverPage() {
   const [currentCate, setCurrentCate] = useState(1)
@@ -56,7 +57,7 @@ export default function DiscoverPage() {
 
   return (
     <>
-      <NavBar title="📍 深圳" titleAlign="left" />
+      <NavBar title={<View className='flex items-center'><Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' /><Text>深圳</Text></View>} titleAlign="left" />
       <View className="min-h-screen bg-[#FCFBF7] px-4 pb-10 font-sans">
 
       {/* 搜索输入框 */}
@@ -73,7 +74,7 @@ export default function DiscoverPage() {
       <View className="relative w-full h-40 bg-gradient-to-br from-[#E2F4EC] via-[#D5F0E4] to-[#CBEBDD] rounded-3xl overflow-hidden my-4 shadow-sm">
         {/* 右侧渐隐的半透明大头针背景点缀 */}
         <View className="absolute right-6 top-1/2 -translate-y-1/2 opacity-15">
-          <Text className="text-7xl text-[#3B8466]">📍</Text>
+          <Image src={LocationsSvg} className='h-3.5 w-3.5' />
         </View>
 
         {/* Banner 文本及按钮 */}

@@ -2,6 +2,8 @@ import { useCallback } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { ScrollLoadList, Image } from '@/components'
+import CalendarSvg from '@/assets/img/calendar.svg'
+import LandmarkSvg from '@/assets/img/landmark.svg'
 import { getMyTrips } from '@/api/trip'
 import type { Guide } from '@/api/post'
 
@@ -24,13 +26,15 @@ export default function MyGuideListPage() {
                     {(item.tripDays || item.sectionCount) && (
                         <View className="flex flex-row items-center gap-2 mb-1">
                             {item.tripDays && (
-                                <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
-                                    <Text className="text-[20rpx] text-emerald-600 font-medium">📅 {item.tripDays}天</Text>
+                                <View className="bg-emerald-50 px-2 py-0.5 rounded-full flex items-center">
+                                    <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+                                    <Text className="text-[20rpx] text-emerald-600 font-medium">{item.tripDays}天</Text>
                                 </View>
                             )}
                             {item.sectionCount && (
-                                <View className="bg-stone-50 px-2 py-0.5 rounded-full">
-                                    <Text className="text-[20rpx] text-stone-500 font-medium">📍 {item.sectionCount}个行程</Text>
+                                <View className="bg-stone-50 px-2 py-0.5 rounded-full flex items-center">
+                                    <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
+                                    <Text className="text-[20rpx] text-stone-500 font-medium">{item.sectionCount}个行程</Text>
                                 </View>
                             )}
                         </View>

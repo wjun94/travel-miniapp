@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
 import Taro, { useDidHide, useDidShow } from '@tarojs/taro';
 import Modal from '@/components/Modal';
+import { Image, TypeIcon } from '@/components';
+import CalendarSvg from '@/assets/img/calendar.svg';
 import { typeConfigMap, SectionType, typeOptions } from '@/constants/travel';
 import TransportForm from '@/features/guide/TransportForm';
 import AttractionForm from '@/features/guide/AttractionForm';
@@ -428,7 +430,7 @@ export default function ItineraryPage() {
                     <Picker mode='date' value={day.date} onChange={(e) => { const updated = [...dayPlans]; updated[dIdx].date = e.detail.value; setDayPlans(updated); }}>
                       <View className='p-3 bg-gray-50 rounded-xl flex justify-between items-center'>
                         <Text className={day.date ? 'text-gray-800 text-[26px]' : 'text-gray-400 text-[26px]'}>{day.date || '点击选择日期'}</Text>
-                        <Text className='text-gray-400 text-[24px]'>📅</Text>
+                        <Image src={CalendarSvg} className='h-3.5 w-3.5' />
                       </View>
                     </Picker>
                   </View>
@@ -471,7 +473,10 @@ export default function ItineraryPage() {
                         }}
                       >
                         <View className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100 box-border'>
-                          <Text className='text-gray-800 font-medium'>{cfg.emoji} {cfg.label}</Text>
+                          <View className='flex items-center'>
+                            <TypeIcon emoji={cfg.emoji} fallbackClassName='text-gray-800 font-medium' />
+                            <Text className='text-gray-800 font-medium'>{cfg.label}</Text>
+                          </View>
                           <Text className='text-gray-400 text-[24px]'>切换 ▾</Text>
                         </View>
                       </Picker>
