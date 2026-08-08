@@ -64,6 +64,7 @@ export interface UserProfile {
   id: string;
   avatarUrl: string;
   nickname: string;
+  role: number;  // 0普通 1领队 2管理员
   followCount: number;  // 关注数
   followerCount: number;  // 粉丝数
   partnerCount: number;  // 搭子数

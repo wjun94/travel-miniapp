@@ -30,7 +30,6 @@ export function formatTime(originTime) {
 
   const diffSecond = now.diff(target, 'second')
   const diffMinute = now.diff(target, 'minute')
-  const diffDay = now.diff(target, 'day')
 
   // 1分钟内 → 刚刚
   if (diffSecond < 60) {
@@ -47,14 +46,15 @@ export function formatTime(originTime) {
     return `今天 ${target.format('HH:mm')}`
   }
 
-  // 昨天 → 昨天 时分
-  if (diffDay === 1) {
+  // 昨天 → 昨天 时分（按自然日判断，避免跨天不足24小时显示"0天前"）
+  if (target.isSame(now.subtract(1, 'day'), 'day')) {
     return `昨天 ${target.format('HH:mm')}`
   }
 
-  // 7天以内 → N天前
-  if (diffDay <= 7) {
-    return `${diffDay}天前`
+  // 7天以内 → N天前（按自然日差，避免小时差值取整导致边界误判）
+  const dayDiff = now.startOf('day').diff(target.startOf('day'), 'day')
+  if (dayDiff >= 2 && dayDiff <= 7) {
+    return `${dayDiff}天前`
   }
 
   // 超过7天：同年 月日时分；跨年 年月日时分

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Input, Textarea, Switch, ScrollView, Picker } from '@tarojs/components';
 import { Image } from '@/components'
+import JourneySvg from '@/assets/img/journey.svg'
 import Taro from '@tarojs/taro';
 import { useRequest } from 'ahooks';
 import { createPartner, updatePartner, getPartnerDetail, DayItem as ApiDayItem } from '@/api/partner';
@@ -389,7 +390,10 @@ export default function PublishForm() {
                         onClick={() => Taro.navigateTo({ url: '/pages/partner/itinerary/index' })}
                     >
                         <View className="flex flex-col">
-                            <Text className="text-sm font-bold text-gray-800">🗓️ 行程安排</Text>
+                            <View className="flex flex-row items-center">
+                                <Image src={JourneySvg} className='w-5 h-5 mr-1' />
+                                <Text className="text-sm font-bold text-gray-800">行程安排</Text>
+                            </View>
                             <Text className="text-xs text-gray-400 mt-1">{getDaysData().length > 0 ? `已规划 ${getDaysData().length} 天，点击编辑每日行程` : '尚未规划每日行程，点击前往编辑'}</Text>
                         </View>
                         <Text className="text-gray-400 text-sm">编辑 ›</Text>

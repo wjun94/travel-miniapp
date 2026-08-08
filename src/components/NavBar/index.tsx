@@ -14,6 +14,8 @@ interface NavBarProps {
   titleAlign?: 'left' | 'center'
   /** 是否显示返回按钮 */
   showBack?: boolean
+  /** 返回按钮颜色（深色背景时传白色） */
+  backColor?: string
   /** 是否显示占位区 */
   isDefault?: boolean
   /** 自定义左侧内容（返回按钮旁） */
@@ -21,7 +23,7 @@ interface NavBarProps {
 }
 
 /** 自定义导航栏：占据状态栏 + 胶囊按钮区域高度，防止内容被遮挡 */
-export default function NavBar({ backgroundColor = '#FCFBF7', isDefault = true, children, bgImg, className = '', title, titleAlign = 'center', showBack }: NavBarProps) {
+export default function NavBar({ backgroundColor = '#FCFBF7', isDefault = true, children, bgImg, className = '', title, titleAlign = 'center', showBack, backColor }: NavBarProps) {
   const headerHeight = getHeaderHeight()
 
   return (
@@ -48,6 +50,7 @@ export default function NavBar({ backgroundColor = '#FCFBF7', isDefault = true, 
               })
             }}
             className='iconfont icon-next-copy relative top-4px font-bold inline-block h-50px w-50px leading-50px'
+            style={{ color: backColor }}
           />
 
         )}

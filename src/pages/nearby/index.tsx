@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Image, Input } from '@tarojs/components'
-import { NavBar } from '@/components'
+import { View, Text, Input } from '@tarojs/components'
+import { NavBar, Image } from '@/components'
 
 export default function DiscoverPage() {
   const [currentCate, setCurrentCate] = useState(1)

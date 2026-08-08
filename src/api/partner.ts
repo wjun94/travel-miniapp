@@ -398,6 +398,18 @@ export const getMyPartners = (params?: any) =>
   });
 
 /**
+ * 获取我参与的搭子列表（申请已通过且搭子已发布）
+ * GET /my/joined-partners
+ * @param params 查询参数 (如 page, pageSize)
+ */
+export const getMyJoinedPartners = (params?: any) =>
+  request<PageResult<PartnerItem>>({
+    url: `/my/joined-partners`,
+    method: 'GET',
+    params: params
+  });
+
+/**
  * 2. 发布搭子
  * POST /partner
  * @param data 搭子详细信息

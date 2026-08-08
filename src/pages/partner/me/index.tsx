@@ -93,8 +93,9 @@ export default function PartnerList() {
                 )}
 
                 {/* 浏览量 */}
-                <View className='absolute bottom-3 right-3 bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full z-10'>
-                  👁 {item.viewCount ?? 0}
+                <View className='absolute bottom-3 right-3 bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full z-10 flex items-center'>
+                  <Text className='iconfont icon-eye mr-1' />
+                  <Text className='text-22px'>{item.viewCount ?? 0}</Text>
                 </View>
 
                 {/* 底部黑 gradient 渐变 */}

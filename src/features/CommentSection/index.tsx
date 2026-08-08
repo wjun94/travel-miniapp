@@ -101,7 +101,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                 {/* 顶部昵称与点赞 */}
                                 <View className='flex flex-row items-center justify-between'>
                                     <View className='flex flex-row items-center space-x-2 min-w-0'>
-                                        <Text className='font-bold text-stone-700 text-[26px] truncate max-w-[280px] tracking-wide'>
+                                        <Text className='font-bold text-stone-700 text-[28px] truncate max-w-[280px] tracking-wide'>
                                             {item.nickname || '匿名驴友'}
                                         </Text>
                                         {item.isAuthor && (
@@ -132,7 +132,7 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                 )}
 
                                 {/* 评论正文 - 优化行高与字间距 */}
-                                <Text className='text-[26px] text-black leading-relaxed mt-1 break-all pr-2 tracking-wide font-normal'>
+                                <Text className='text-[26px] text-[#292524] leading-relaxed mt-1 break-all pr-2 tracking-wide font-normal'>
                                     {item.content}
                                 </Text>
 

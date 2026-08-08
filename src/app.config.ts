@@ -42,6 +42,7 @@ export default defineAppConfig({
     'pages/trip/basic/index',
     'pages/trip/itinerary/index',
     'pages/trip/detail/index',
+    'pages/trip/view/index',
     'pages/trip/preview/index',
     'pages/trip/where/index',
     'pages/trip/date/index',

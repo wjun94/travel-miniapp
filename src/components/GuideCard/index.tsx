@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { Avatar, CoverImage } from '@/components'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
+import { likePartner, unlikePartner } from '@/api/partner'
 
 interface GuideCardProps {
   item: any | Guide
@@ -25,6 +26,7 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
   const itemId = item.id ?? item.targetId
   const itemType = item.itemType ?? item.targetType
   const isTrip = itemType === 'trip'
+  const isPartner = itemType === 'partner'
   const isJustViewed = justViewedId === itemId
 
   // 内部点赞状态（当外部未提供时使用）
@@ -42,9 +44,11 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
     }
     try {
       if (!isLiked) {
-        await likeTravelGuide(itemId)
+        if (isPartner) await likePartner(itemId)
+        else await likeTravelGuide(itemId)
       } else {
-        await unlikeTravelGuide(itemId)
+        if (isPartner) await unlikePartner(itemId)
+        else await unlikeTravelGuide(itemId)
       }
       setInternalLiked(!isLiked)
       setInternalLikeCount(likeCount + (isLiked ? -1 : 1))
@@ -54,6 +58,10 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
   }, [item, itemId, isLiked, likeCount, onLike])
 
   const handleClick = () => {
+    if (isPartner) {
+      Taro.navigateTo({ url: `/pages/partner/detail/index?id=${itemId}` })
+      return
+    }
     const page = itemType === 'trip' ? 'trip' : 'guide'
     Taro.navigateTo({ url: `/pages/${page}/detail/index?id=${itemId}` })
   }
@@ -78,6 +86,10 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
           {isTrip ? (
             <View className='bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>
               <Text className='text-[22px] text-white font-bold'>🗺️ 行程路线</Text>
+            </View>
+          ) : isPartner ? (
+            <View className='bg-orange-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>
+              <Text className='text-[22px] text-white font-bold'>👥 结伴搭子</Text>
             </View>
           ) : (
             <View className='bg-sky-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>

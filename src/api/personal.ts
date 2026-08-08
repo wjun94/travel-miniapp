@@ -19,6 +19,7 @@ export interface ProfileData {
     totalLikes: number;
     tripCount: number;
     partnerCount: number;
+    joinedPartnerCount: number;
 }
 
 /**

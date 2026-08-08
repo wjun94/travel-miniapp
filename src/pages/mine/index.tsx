@@ -65,6 +65,12 @@ export default function ProfilePage() {
     },
   ]
 
+  // 角色徽标配置：0普通 1领队 2管理员
+  const ROLE_BADGES: Record<number, { label: string; bg: string }> = {
+    1: { label: '领队', bg: 'bg-emerald-500' },
+    2: { label: '管理员', bg: 'bg-[#F97316]' },
+  }
+
   // 2. 更多服务数据
   const services = [
     {
@@ -129,7 +135,14 @@ export default function ProfilePage() {
 
             {/* 名字与标签 */}
             <View className="flex flex-col ml-4 flex-1">
-              <Text className="text-xl font-black text-gray-800 tracking-wide">{profile?.nickname || '驴友'}</Text>
+              <View className="flex flex-row items-center">
+                <Text className="text-xl font-black text-gray-800 tracking-wide max-w-40 truncate">{profile?.nickname || '驴友'}</Text>
+                {ROLE_BADGES[profile?.role ?? 0] && (
+                  <Text className={`ml-1.5 text-[20px] text-white px-2 py-0.5 rounded-md flex-shrink-0 ${ROLE_BADGES[profile!.role!].bg}`}>
+                    {ROLE_BADGES[profile!.role!].label}
+                  </Text>
+                )}
+              </View>
               {/* 标签 - 新增用户ID展示 */}
               <View className="flex flex-row items-center mt-1.5 overflow-hidden w-[max-content]">
                 <Text className="text-24px">
@@ -143,7 +156,7 @@ export default function ProfilePage() {
               className="bg-[#ecf3fd] px-3 py-1.5 rounded-full active:opacity-70 flex-shrink-0"
               onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
             >
-              <Text className="text-[#3688C7] text-[22px] font-medium">编辑资料</Text>
+              <Text className="text-[#3688C7] text-[24px] font-medium">编辑资料</Text>
             </View>
           </View>
 

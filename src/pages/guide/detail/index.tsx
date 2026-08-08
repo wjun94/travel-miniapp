@@ -379,7 +379,7 @@ export default function TravelGuideDetail() {
                     onClick={() => Taro.navigateTo({ url: `../preview/index?id=${id}` })}
                     className='fixed bottom-[200px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
                 >
-                    <Text className='iconfont icon-view mb-1 text-32px' />
+                    <Text className='iconfont icon-view font-bold mb-1 text-34px' />
                     <Text className='text-[20px] font-black'>行程预览</Text>
                 </View>
 

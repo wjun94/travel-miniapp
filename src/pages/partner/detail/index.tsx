@@ -5,6 +5,7 @@ import { useRequest } from 'ahooks'
 import { NavBar, Image, Modal, Avatar } from '@/components'
 import { CommentSection } from '@/features'
 import { getPartnerDetail, applyPartner, likePartner, unlikePartner } from '@/api/partner'
+import { createHistoryRecord } from '@/api/history'
 import { followUser, unfollowUser } from '@/api/follow'
 import { addFavorite, deleteFavorite } from '@/api/favorite'
 import { createComment } from '@/api/comment'
@@ -40,7 +41,20 @@ export default function PartnerDetail() {
   // --- Data ---
   const { data: partner, mutate, refresh } = useRequest(
     () => getPartnerDetail(id || ''),
-    { refreshDeps: [id] },
+    {
+      refreshDeps: [id],
+      onSuccess: (data: any) => {
+        // 记录搭子浏览历史
+        if (data?.title) {
+          createHistoryRecord({
+            targetId: id || '',
+            targetType: 'partner',
+            title: data.title || '',
+            coverImage: data.cover || '',
+          }).catch(() => { })
+        }
+      },
+    },
   )
 
   const isSelf = partner?.isSelf
@@ -82,6 +96,7 @@ export default function PartnerDetail() {
       else await likePartner(id)
       mutate((prev: any) => {
         const next = !prev?.isLiked
+        // 点赞与收藏独立，点赞只更新点赞状态与数字
         return { ...prev, isLiked: next, likeCount: Math.max(0, (prev.likeCount || 0) + (next ? 1 : -1)) }
       })
     } catch {
@@ -96,6 +111,7 @@ export default function PartnerDetail() {
       else await addFavorite({ targetId: id, targetType: 'partner' })
       mutate((prev: any) => {
         const next = !prev?.isFavorited
+        // 点赞与收藏独立，收藏只更新收藏状态与数字
         return { ...prev, isFavorited: next, favoriteCount: Math.max(0, (prev.favoriteCount || 0) + (next ? 1 : -1)) }
       })
     } catch {
@@ -180,8 +196,8 @@ export default function PartnerDetail() {
           {partner.cover ? (
             <Image src={partner.cover} mode='aspectFill' className='w-full h-full opacity-90' />
           ) : (
-            <View className='w-full h-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center px-6'>
-              <Text className='text-white/70 text-4xl font-bold text-center line-clamp-2'>{partner.title || partner.destination}</Text>
+            <View className='w-full h-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center'>
+              <Text className='text-white/70 text-4xl font-bold text-center line-clamp-2 break-all block px-6'>{partner.title || partner.destination}</Text>
             </View>
           )}
 
@@ -195,7 +211,8 @@ export default function PartnerDetail() {
 
           <View className='absolute bottom-3 right-4 z-10'>
             <View className='bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center'>
-              <Text className='text-white/90 text-[22px] font-medium'>👁 {partner.viewCount ?? 0}</Text>
+              <Text className='iconfont icon-eye text-white/90 text-[22px] mr-1' />
+              <Text className='text-white/90 text-[24px] font-medium'>{partner.viewCount ?? 0}</Text>
             </View>
           </View>
         </View>
@@ -231,7 +248,7 @@ export default function PartnerDetail() {
             {partner.desc && (
               <View className='pt-2 border-t border-gray-50'>
                 <Text className='text-[24px] text-gray-400 block mb-1.5'>计划说明</Text>
-                <Text className='text-[26px] text-gray-700 leading-relaxed bg-gray-50/80 p-3 rounded-xl block border border-gray-100/60'>
+                <Text className='text-[26px] text-gray-700 leading-relaxed bg-gray-50/80 p-3 rounded-xl block border border-gray-100/60 break-all'>
                   {partner.desc}
                 </Text>
               </View>
@@ -263,7 +280,7 @@ export default function PartnerDetail() {
             {partner.requirement && (
               <View className='pt-2 border-t border-gray-50'>
                 <Text className='text-[24px] text-gray-400 block mb-1.5'>报名条件</Text>
-                <Text className='text-[26px] text-gray-700 bg-orange-50/50 border border-orange-100/80 rounded-xl p-3 leading-relaxed block'>
+                <Text className='text-[26px] text-gray-700 bg-orange-50/50 border border-orange-100/80 rounded-xl p-3 leading-relaxed block break-all'>
                   {partner.requirement}
                 </Text>
               </View>
@@ -289,7 +306,7 @@ export default function PartnerDetail() {
           {/* Card 5: 详细介绍 */}
           {partner.richDesc && (
             <SectionCard title='详细介绍'>
-              <Text className='text-[26px] text-gray-700 leading-relaxed whitespace-pre-line'>
+              <Text className='text-[26px] text-gray-700 leading-relaxed whitespace-pre-line break-all'>
                 {partner.richDesc}
               </Text>
             </SectionCard>
@@ -300,7 +317,7 @@ export default function PartnerDetail() {
             <SectionCard title='关联行程'>
               <View
                 className='bg-gray-50 rounded-xl p-3 space-y-2 active:opacity-80'
-                onClick={() => Taro.navigateTo({ url: `/pages/trip/detail/index?id=${partner.trip.id}` })}
+                onClick={() => Taro.navigateTo({ url: `/pages/trip/view/index?id=${partner.trip.id}` })}
               >
                 <Text className='text-[26px] font-bold text-gray-800'>{partner.trip.title}</Text>
                 {partner.trip.summary && (
@@ -514,7 +531,7 @@ function Row({ label, value }: { label: string; value: any }) {
       <Text className='text-[26px] text-gray-500 flex-shrink-0'>{label}</Text>
       <View className='text-right max-w-[60%]'>
         {typeof value === 'string' || typeof value === 'number' ? (
-          <Text className='text-[26px] text-gray-800 font-medium'>{value}</Text>
+          <Text className='text-[26px] text-gray-800 font-medium break-all'>{value}</Text>
         ) : (
           value
         )}

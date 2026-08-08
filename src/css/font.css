@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 5201413 */
-  src: url('//at.alicdn.com/t/c/font_5201413_0aov82in1vp.woff2?t=1786116217381') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5201413_0aov82in1vp.woff?t=1786116217381') format('woff'),
-       url('//at.alicdn.com/t/c/font_5201413_0aov82in1vp.ttf?t=1786116217381') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_5201413_t8vg2nq0oml.woff2?t=1786166133531') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5201413_t8vg2nq0oml.woff?t=1786166133531') format('woff'),
+       url('//at.alicdn.com/t/c/font_5201413_t8vg2nq0oml.ttf?t=1786166133531') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-eye:before {
+  content: "\e6bc";
+}
+
+.icon-view:before {
+  content: "\e6bb";
+}
+
+.icon-preview:before {
+  content: "\e6ba";
 }
 
 .icon-bulletin:before {
@@ -43,10 +55,6 @@
 
 .icon-people:before {
   content: "\e6b4";
-}
-
-.icon-view:before {
-  content: "\e6b1";
 }
 
 .icon-share:before {

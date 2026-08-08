@@ -10,11 +10,21 @@ const targetTypeLabel: Record<string, string> = {
   guide: '攻略',
   trip: '行程',
   checklist: '清单',
+  partner: '搭子',
 };
+
+// 收藏类型筛选 Tab（'' 表示全部）
+const TYPE_TABS = [
+  { key: '', label: '全部' },
+  { key: 'guide', label: '攻略' },
+  { key: 'trip', label: '行程' },
+  { key: 'partner', label: '搭子' },
+];
 
 export default function FavoritePage() {
   const listRef = useRef<ScrollLoadListRef>(null);
   const [deleteTarget, setDeleteTarget] = useState<FavoriteItem | null>(null);
+  const [activeType, setActiveType] = useState('');
 
   // 删除单条收藏
   const handleDeleteConfirm = async () => {
@@ -54,6 +64,7 @@ export default function FavoritePage() {
       guide: '/pages/guide/detail/index',
       trip: '/pages/trip/detail/index',
       checklist: '/pages/checklist/list/index',
+      partner: '/pages/partner/detail/index',
     };
     const path = routeMap[item.targetType];
     if (path) {
@@ -108,24 +119,27 @@ export default function FavoritePage() {
     </View>
   );
 
-  // 顶部 Header
-  const renderHeader = () => (
-    <View className="flex justify-between items-end px-6 pt-8 pb-4 bg-[#FAFAF9]">
-      <View>
-        <Text className="text-[36px] font-bold text-stone-800 tracking-wide block">我的收藏</Text>
-        <Text className="text-[24px] text-stone-400 mt-1 block">收藏你喜欢的攻略和行程</Text>
-      </View>
-    </View>
-  );
-
   return (
     <View className="min-h-screen bg-[#FAFAF9] font-sans box-border">
+      {/* 类型筛选 Tab（切换自动刷新列表） */}
+      <View className="sticky top-0 z-10 bg-[#FAFAF9] px-4 pt-3 pb-2 flex flex-row items-center gap-2">
+        {TYPE_TABS.map((tab) => (
+          <Text
+            key={tab.key || 'all'}
+            onClick={() => setActiveType(tab.key)}
+            className={`px-4 py-1 rounded-full text-[22px] font-medium ${activeType === tab.key ? 'bg-[#F97316] text-white' : 'bg-white text-gray-600 border border-gray-100'}`}
+          >
+            {tab.label}
+          </Text>
+        ))}
+      </View>
+
       <ScrollLoadList
         ref={listRef}
-        request={(page, pageSize) => getFavorites({ page, pageSize })}
+        request={(page, pageSize) => getFavorites({ page, pageSize, target_type: activeType || undefined })}
+        params={{ target_type: activeType }}
         renderItem={renderCard}
-        renderHeader={renderHeader}
-        emptyText="还没有收藏任何内容 🏕️"
+        emptyText={activeType === 'partner' ? '还没有收藏的搭子' : '还没有收藏任何内容 🏕️'}
         scrollViewProps={{ className: 'px-4 pb-28 w-full box-border' }}
       />
 

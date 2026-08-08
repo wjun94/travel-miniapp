@@ -11,6 +11,7 @@ const targetTypeLabel: Record<string, string> = {
   guide: '攻略',
   trip: '行程',
   checklist: '清单',
+  partner: '搭子',
 };
 
 export default function BrowseHistoryPage() {
@@ -49,6 +50,7 @@ export default function BrowseHistoryPage() {
       guide: '/pages/guide/detail/index',
       trip: '/pages/trip/detail/index',
       checklist: '/pages/checklist/list/index',
+      partner: '/pages/partner/detail/index',
     };
     const path = routeMap[item.targetType];
     if (path) {
@@ -103,29 +105,23 @@ export default function BrowseHistoryPage() {
     </View>
   );
 
-  // 顶部 Header
-  const renderHeader = () => (
-    <View className="flex justify-between items-end px-6 pt-8 pb-4 bg-[#FAFAF9]">
-      <View>
-        <Text className="text-[36px] font-bold text-stone-800 tracking-wide block">探索足迹</Text>
-        <Text className="text-[24px] text-stone-400 mt-1 block">记录你向往的每个远方</Text>
-      </View>
-      <View
-        onClick={() => setShowClearModal(true)}
-        className="px-4 py-2 bg-stone-100 rounded-full active:opacity-70 transition-opacity"
-      >
-        <Text className="text-stone-500 text-[24px] font-medium">清空全部</Text>
-      </View>
-    </View>
-  );
+
 
   return (
     <View className="min-h-screen bg-[#FAFAF9] font-sans box-border">
+      {/* 系统消息：顶部清空入口 */}
+      <View className='flex flex-row items-center justify-end px-4 py-2 bg-white bb'>
+        <Text
+          className='text-[24px] text-gray-500 px-3 py-1 rounded-full bg-gray-100 active:bg-gray-200'
+          onClick={() => setShowClearModal(true)}
+        >
+          清空全部
+        </Text>
+      </View>
       <ScrollLoadList
         ref={listRef}
         request={getHistoryList}
         renderItem={renderCard}
-        renderHeader={renderHeader}
         emptyText="还没有留下任何探索足迹 🏕️"
         scrollViewProps={{ className: 'px-4 pb-28 w-full box-border' }}
       />

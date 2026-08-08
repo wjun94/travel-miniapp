@@ -21,11 +21,25 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/partner/detail/index",
+          "pathName": "pages/partner/detail/index",
+          "query": "id=2085923878529404928",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/personal/index",
+          "pathName": "pages/personal/index",
+          "query": "userId=66710528&id2085764503235989504=undefined",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "pages/message/index/index",
           "pathName": "pages/message/index/index",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/accounting/index/index",

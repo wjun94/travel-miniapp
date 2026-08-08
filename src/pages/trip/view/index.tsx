@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { NavBar, Image, CoverImage, Avatar } from '@/components';
-import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
-import { getTripDetail, Trip } from '@/api/trip';
+import Taro, { useRouter, usePullDownRefresh, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
+import { getTripDetail, likeTrip, unlikeTrip, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
 import { useRequest } from 'ahooks';
 import { createHistoryRecord } from '@/api/history';
+import { likeComment } from '@/api/comment';
+import { getImageUrl, getImageCdnUrl } from '@/utils';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
 import { BottomActionBar, CommentSection } from '@/features';
 
@@ -106,6 +108,20 @@ export default function TripDetail() {
 
     const destinationText = getDestinationText();
 
+    // 分享好友：携带行程 ID
+    useShareAppMessage(() => ({
+        title: guide?.title || '发现一个好行程，一起出发吧！',
+        path: `/pages/trip/view/index?id=${id}`,
+        imageUrl: guide?.coverImage ? getImageUrl(guide.coverImage) : getImageCdnUrl('share.png'),
+    }));
+
+    // 分享朋友圈
+    useShareTimeline(() => ({
+        title: guide?.title || '发现一个好行程，一起出发吧！',
+        query: id ? `id=${id}` : '',
+        imageUrl: guide?.coverImage ? getImageUrl(guide.coverImage) : getImageCdnUrl('share.png'),
+    }));
+
     /** 刷新 */
     usePullDownRefresh(async () => {
         refresh();
@@ -126,7 +142,7 @@ export default function TripDetail() {
             <NavBar showBack backgroundColor='white'>
                 {guide?.userId ? <View
                     className='flex flex-row items-center flex-1'
-                    onClick={() => Taro.navigateTo({ url: `/pages/personal/index?userId=${guide.userId}&id${guide.id}` })}
+                    onClick={() => Taro.navigateTo({ url: `/pages/personal/index?userId=${guide.userId}&id=${guide.id}` })}
                 >
                     <Avatar name={guide.authorName} src={guide.authorAvatar} className='w-[48px] h-[48px] text-20px rounded-full border-2 border-white/80' />
                     <Text className='ml-2 text-[24px] font-bold drop-shadow-md'>{guide.authorName || ''}</Text>
@@ -387,64 +403,7 @@ export default function TripDetail() {
                             ))}
                         </View>
                     )}
-
-                    {/* 🎨 挂载解耦出来的评论大组件 */}
-                    <View id="comment-section">
-                        <CommentSection
-                            targetId={id || ''}
-                            targetType="trip"
-                            data={guideData}
-                            refreshKey={commentRefreshKey}
-                            onReplyComment={(comment) => setReplyTo({ parentId: comment.id, nickname: comment.nickname })}
-                        />
-                    </View>
-                </ScrollView>
-
-                {/* 切换视图悬浮按钮 */}
-                <View
-                    onClick={() => Taro.navigateTo({ url: `../preview/index?id=${id}` })}
-                    className='fixed bottom-[200px] right-4 w-[100px] h-[100px] bg-orange-100 text-[#F97316] rounded-full flex flex-col items-center justify-center shadow-md active:scale-90 transition-all z-50 border border-orange-200/50'
-                >
-                    <Text className='iconfont icon-view font-bold mb-1 text-34px' />
-                    <Text className='text-[20px] font-black'>行程预览</Text>
-                </View>
-
-                {/* 🎨 挂载解耦出来的底部悬浮多功能工具组件 */}
-                <BottomActionBar
-                    isLiked={guideData?.isLiked!}
-                    targetType="trip"
-                    isCollected={guideData?.isFavorited!}
-                    likeCount={guideData?.likeCount ?? 0}
-                    favoriteCount={guideData?.favoriteCount ?? 0}
-                    commentCount={guideData?.commentCount ?? 0}
-                    onLikeToggle={() => {
-                        mutate((prev: any) => {
-                            const next = !prev?.isLiked;
-                            prev.likeCount = next ? prev.likeCount + 1 : prev.likeCount - 1;
-                            prev.isLiked = next;
-                            return { ...prev }; // 浅拷贝触发 React 状态更新
-                        });
-                    }}
-                    onCollectToggle={() => {
-                        mutate((prev: any) => {
-                            const next = !prev?.isFavorited;
-                            prev.isFavorited = next;
-                            prev.favoriteCount = next ? prev.favoriteCount + 1 : prev.favoriteCount - 1;
-                            return { ...prev };
-                        });
-                    }}
-                    onCommentIconClick={handleScrollToComments}
-                    guideId={id || ''}
-                    onCommentSuccess={() => {
-                        setCommentRefreshKey(v => v + 1);
-                        mutate((prev: any) => {
-                            prev.commentCount += 1;
-                            return { ...prev };
-                        });
-                    }}
-                    replyTo={replyTo}
-                    onClearReply={() => setReplyTo(null)}
-                />
+                    </ScrollView>
             </View>}
         </>
     );

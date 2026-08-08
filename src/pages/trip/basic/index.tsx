@@ -1,9 +1,11 @@
-import { View, Text, Input, Textarea, Button, Image } from '@tarojs/components';
+import { View, Text, Input, Textarea, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { useSetState, useRequest } from 'ahooks';
 import { createTrip, updateTrip, getTripDetail, AiGenerateTripData } from '@/api/trip'
 import { uploadSingleFile } from '@/utils/upload';
+import { Image } from '@/components'
+import JourneySvg from '@/assets/img/journey.svg'
 
 // 定义表单的状态类型
 interface FormState {
@@ -231,7 +233,10 @@ export default function BasicInfoPage() {
                     onClick={() => Taro.navigateTo({ url: '/pages/trip/itinerary/index' })}
                 >
                     <View className='flex flex-col'>
-                        <Text className='text-sm font-bold text-gray-800'>🗓️ 每日行程</Text>
+                        <View className='flex flex-row items-center'>
+                            <Image src={JourneySvg} className='w-5 h-5 mr-1' />
+                            <Text className='text-sm font-bold text-gray-800'>每日行程</Text>
+                        </View>
                         <Text className='text-xs text-gray-400 mt-1'>{dayCount > 0 ? `已规划 ${dayCount} 天，点击编辑每日行程` : '尚未规划每日行程，点击前往编辑'}</Text>
                     </View>
                     <Text className='text-gray-400 text-sm'>编辑 ›</Text>

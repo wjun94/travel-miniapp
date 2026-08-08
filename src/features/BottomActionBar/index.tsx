@@ -19,9 +19,9 @@ interface BottomActionBarProps {
     guideId: string;
     onCommentSuccess?: () => void;
     /** 自定义点赞函数（不传则使用默认 guide 点赞 API） */
-    onLike?: (id: string) => Promise<void>;
+    onLike?: (id: string) => Promise<unknown>;
     /** 自定义取消点赞函数 */
-    onUnlike?: (id: string) => Promise<void>;
+    onUnlike?: (id: string) => Promise<unknown>;
     /** 回复目标（点回复时传入） */
     replyTo?: { parentId: string; nickname: string } | null;
     /** 清除回复目标 */
