@@ -267,6 +267,8 @@ export interface PartnerItem {
   endDate: string;
   /** 行程天数 */
   days: number;
+  /** 关联行程的行程项总数 */
+  itemCount: number;
   /** 创建时间 */
   createdAt: string;
   /** 更新时间 */

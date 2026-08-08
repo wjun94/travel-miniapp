@@ -19,7 +19,7 @@ export default function PartnerDatePicker() {
   const router = Taro.getCurrentInstance().router?.params;
   const from = router?.from || '';
 
-  const [activeTab, setActiveTab] = useState<'specific' | 'flexible'>('flexible');
+  const [activeTab, setActiveTab] = useState<'specific' | 'flexible'>('specific');
 
   // 当前查看的年、月（可以做成通过按钮切换）
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
@@ -350,8 +350,8 @@ export default function PartnerDatePicker() {
                       <Text className={`${item.isCurrentMonth ? (textClass || 'text-gray-900') : 'text-gray-200'}`}>
                         {item.day}
                       </Text>
-                      {item.isToday && !containerClass.includes('bg-emerald-500') && (
-                        <View className="absolute bottom-1 w-1 h-1 bg-emerald-400 rounded-full" />
+                      {item.isToday && (
+                        <View className="absolute bottom-1 w-1 h-1 bg-[#F97316] z-10 rounded-full" />
                       )}
                     </View>
                   );

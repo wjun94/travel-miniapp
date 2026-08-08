@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from 'react'
 import { usePullDownRefresh } from '@tarojs/taro'
 import { ScrollLoadList, Image, Modal, Avatar } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
+import LandmarkSvg from '@/assets/img/landmark.svg'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
 import TeamSvg from '@/assets/img/team.svg'
 import { getPartnerList, applyPartner } from '@/api/partner'
@@ -205,6 +206,12 @@ export default function PartnerList() {
                         <Text className='text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium'>
                           {item.days}天
                         </Text>
+                      )}
+                      {item.itemCount > 0 && (
+                        <View className='bg-stone-50 px-2 py-0.5 rounded-full flex items-center'>
+                          <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
+                          <Text className='text-[20px] text-stone-500 font-medium'>{item.itemCount}项行程</Text>
+                        </View>
                       )}
                     </View>
 

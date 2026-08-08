@@ -137,7 +137,7 @@
             {categories.map((item) => (
               <View key={item.id} onClick={() => handleCategoryClick(item)} className='flex flex-col items-center active:scale-95 transition-transform'>
                 <View style={{ backgroundColor: item.bgColor }} className='w-14 h-14 rounded-full flex items-center justify-center relative mb-2 shadow-sm'>
-                  <Text style={{ color: item.textColor }} className={`iconfont ${item.icon} text-60px`} />
+                  <Text style={{ color: item.textColor }} className={`iconfont ${item.icon} text-56px`} />
                   {item.badge > 0 && (
                     <View className='absolute -top-1 -right-1 bg-[#FF3B30] text-white text-22px font-bold px-12px py-6px rounded-full flex items-center justify-center border border-white'>
                       {item.badge > 99 ? '99+' : item.badge}

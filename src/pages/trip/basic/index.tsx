@@ -195,7 +195,7 @@ export default function BasicInfoPage() {
 
         Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
         setTimeout(() => {
-            Taro.switchTab({ url: '/pages/publish/index' });
+            Taro.switchTab({ url: '/pages/publish/index/index' });
             setTimeout(() => {
                 Taro.removeStorageSync('TEMP_TRIP_ITINERARY_PLANS');
             }, 500);

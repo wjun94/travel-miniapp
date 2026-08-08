@@ -7,7 +7,7 @@ export default defineAppConfig({
     'pages/webview/index',
     'pages/fans/index',
     'pages/nearby/index',
-    'pages/publish/index',
+    'pages/publish/index/index',
     'pages/publish/drafts/index',
     'pages/publish/share-trip/index',
     'pages/message/index/index',
@@ -74,7 +74,7 @@ export default defineAppConfig({
       //   selectedIconPath: imgUrl + 'addr1.png',
       // },
       {
-        pagePath: 'pages/publish/index',
+        pagePath: 'pages/publish/index/index',
         text: '发布',
         iconPath: imgUrl + 'publish.png',
         selectedIconPath: imgUrl + 'publish1.png',

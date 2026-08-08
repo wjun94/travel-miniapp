@@ -144,7 +144,7 @@ export default function PublishForm() {
             }
             Taro.showToast({ title: isDraft ? '已保存草稿' : '发布成功', icon: 'success' });
             clearTempStorage();
-            setTimeout(() => Taro.switchTab({ url: '/pages/publish/index' }), 1500);
+            setTimeout(() => Taro.switchTab({ url: '/pages/publish/index/index' }), 1500);
         } catch {
             Taro.showToast({ title: '提交失败，请重试', icon: 'none' });
         }
