@@ -182,6 +182,11 @@ export default function MessageList() {
             Taro.navigateTo({ url: `/pages/message/detail/index?id=${item.id}` });
             return;
         }
+        // 新增关注：跳转到关注者主页（后端 targetType 为 user）
+        if (item.targetType === 'user' && item.targetId) {
+            Taro.navigateTo({ url: `/pages/personal/index?userId=${item.targetId}` });
+            return;
+        }
         // 根据 targetType/targetId 跳转
         const routeMap: Record<string, string> = {
             guide: '/pages/guide/detail/index',
@@ -191,8 +196,6 @@ export default function MessageList() {
         const basePath = routeMap[item.targetType];
         if (basePath && item.targetId) {
             Taro.navigateTo({ url: `${basePath}?id=${item.targetId}` });
-        } else if (item.targetType === 'follow') {
-            Taro.navigateTo({ url: '/pages/fans/index' });
         }
     };
 

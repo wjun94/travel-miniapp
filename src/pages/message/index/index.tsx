@@ -17,10 +17,13 @@
     // 隐藏私聊：会话列表仅展示系统消息与群聊
     const visibleChatList = useMemo(() => chatList.filter((i) => i.type !== 'user'), [chatList])
 
-    // 下拉刷新
+    // 下拉刷新（失败也停止指示器，避免一直转圈）
     usePullDownRefresh(async () => {
-      await Promise.all([refreshUnread(), refreshList()])
-      Taro.stopPullDownRefresh()
+      try {
+        await Promise.all([refreshUnread(), refreshList()])
+      } finally {
+        Taro.stopPullDownRefresh()
+      }
     })
 
 
