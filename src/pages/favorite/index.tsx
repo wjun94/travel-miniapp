@@ -78,17 +78,10 @@ export default function FavoritePage() {
       className="bg-white rounded-3xl p-3 border border-stone-100 shadow-sm flex items-center space-x-3 mb-4 box-border active:opacity-80 transition-opacity"
       onClick={() => navToDetail(item)}
     >
-      {/* 封面图 */}
-      {item.coverImage ? (
-        <Image
-          src={item.coverImage}
-          className="w-16 h-16 rounded-2xl bg-stone-100 shrink-0"
-        />
-      ) : (
-        <View className="w-16 h-16 rounded-2xl bg-[#10B981]/10 flex items-center justify-center shrink-0">
-          <Text className="iconfont icon-tab_my text-[28px] text-[#10B981]" />
-        </View>
-      )}
+      <Image
+        src={item.coverImage || ''}
+        className="w-16 h-16 rounded-2xl bg-stone-100 shrink-0"
+      />
 
       {/* 内容展示区 */}
       <View className="flex-1 min-w-0">
