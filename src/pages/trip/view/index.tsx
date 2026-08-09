@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image, CoverImage, Avatar, TypeIcon } from '@/components';
+import { NavBar, Image, CoverImage, Avatar, TypeIcon, Modal } from '@/components';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import WarningsSvg from '@/assets/itinerary/warnings.svg';
 import TeamSvg from '@/assets/img/team.svg';
 import Taro, { useRouter, usePullDownRefresh, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
-import { getTripDetail, likeTrip, unlikeTrip, Trip } from '@/api/trip';
+import { getTripDetail, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
 import { useRequest } from 'ahooks';
 import { createHistoryRecord } from '@/api/history';
-import { likeComment } from '@/api/comment';
 import { getImageUrl, getImageCdnUrl } from '@/utils';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
-import { BottomActionBar, CommentSection } from '@/features';
 
 export default function TripDetail() {
     const router = useRouter();
@@ -21,6 +19,7 @@ export default function TripDetail() {
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
     const [replyTo, setReplyTo] = useState<{ parentId: string; nickname: string } | null>(null);
+    const [unfollowVisible, setUnfollowVisible] = useState(false);
 
     // 1. 获取行程详情
     const { data: guideData, mutate, loading, error, refresh } = useRequest(
@@ -76,20 +75,33 @@ export default function TripDetail() {
         });
     };
 
-    // 切换关注
-    const handleToggleFollow = async (e) => {
+    // 切换关注（取关前弹窗确认）
+    const handleToggleFollow = (e) => {
         e.stopPropagation();
         if (!guide.userId) return;
+        if (guide.isFollowed) {
+            setUnfollowVisible(true);
+        } else {
+            handleFollow();
+        }
+    };
+
+    const handleFollow = async () => {
+        if (!guide.userId) return;
         try {
-            if (guide.isFollowed) {
-                await unfollowUser(guide.userId);
-            } else {
-                await followUser(guide.userId);
-            }
-            mutate((prev: any) => ({
-                ...prev,
-                isFollowed: !prev?.isFollowed,
-            }));
+            await followUser(guide.userId);
+            mutate((prev: any) => ({ ...prev, isFollowed: true }));
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
+        }
+    };
+
+    const handleConfirmUnfollow = async () => {
+        if (!guide.userId) return;
+        setUnfollowVisible(false);
+        try {
+            await unfollowUser(guide.userId);
+            mutate((prev: any) => ({ ...prev, isFollowed: false }));
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' });
         }
@@ -158,14 +170,14 @@ export default function TripDetail() {
                         </View>
                     )}
                 </View> : null}
-                            <View
+                <View
                     className='ml-auto flex flex-row items-center px-2 flex-shrink-0'
                     onClick={() => Taro.navigateTo({ url: `/pages/accounting/list/index?targetType=trip&targetId=${id}&name=${encodeURIComponent(guide?.title || '')}` })}
                 >
                     <Text className='iconfont icon-notepad text-orange-500 text-30px' />
                     <Text className='ml-1 text-[24px] text-orange-500 font-bold'>记账</Text>
                 </View>
-</NavBar>
+            </NavBar>
             {error || !guideData ? <View className='w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2'>
                 <Image src={WarningsSvg} className='h-3.5 w-3.5' />
                 <Text>行程数据加载失败或不存在</Text>
@@ -409,8 +421,25 @@ export default function TripDetail() {
                             ))}
                         </View>
                     )}
-                    </ScrollView>
+                </ScrollView>
             </View>}
+
+            {/* 取消关注确认弹窗 */}
+            <Modal
+                visible={unfollowVisible}
+                title="取消关注"
+                confirmText="确定"
+                cancelText="再想想"
+                onConfirm={handleConfirmUnfollow}
+                onCancel={() => setUnfollowVisible(false)}
+                onMaskClick={() => setUnfollowVisible(false)}
+            >
+                <View className="py-2 text-center">
+                    <Text className="text-gray-600 text-[28px] leading-relaxed">
+                        确定不再关注「{guide?.authorName || '该用户'}」吗？
+                    </Text>
+                </View>
+            </Modal>
         </>
     );
 }

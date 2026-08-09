@@ -34,6 +34,7 @@ export default function PartnerDetail() {
   const [applyVisible, setApplyVisible] = useState(false)
   const [applyRemark, setApplyRemark] = useState('')
   const [applying, setApplying] = useState(false)
+  const [unfollowVisible, setUnfollowVisible] = useState(false)
   const [commentRefreshKey, setCommentRefreshKey] = useState(0)
   const [replyTo, setReplyTo] = useState<{ parentId: string; nickname: string } | null>(null)
   const [showCommentInput, setShowCommentInput] = useState(false)
@@ -64,11 +65,31 @@ export default function PartnerDetail() {
   const canApply = !isSelf && !partner?.isApplied && (partner?.status ?? 0) === 0
 
   // --- Handlers ---
-  const handleToggleFollow = async () => {
+  // 关注/取关（取关前弹窗确认）
+  const handleToggleFollow = () => {
+    if (!partner?.userId) return
+    if (partner.isFollowed) {
+      setUnfollowVisible(true)
+    } else {
+      handleFollow()
+    }
+  }
+
+  const handleFollow = async () => {
     if (!partner?.userId) return
     try {
-      if (partner.isFollowed) await unfollowUser(partner.userId)
-      else await followUser(partner.userId)
+      await followUser(partner.userId)
+      refresh()
+    } catch {
+      Taro.showToast({ title: '操作失败', icon: 'none' })
+    }
+  }
+
+  const handleConfirmUnfollow = async () => {
+    if (!partner?.userId) return
+    setUnfollowVisible(false)
+    try {
+      await unfollowUser(partner.userId)
       refresh()
     } catch {
       Taro.showToast({ title: '操作失败', icon: 'none' })
@@ -513,6 +534,23 @@ export default function PartnerDetail() {
         </View>
       </View>
       </View>
+
+      {/* 取消关注确认弹窗 */}
+      <Modal
+        visible={unfollowVisible}
+        title="取消关注"
+        confirmText="确定"
+        cancelText="再想想"
+        onConfirm={handleConfirmUnfollow}
+        onCancel={() => setUnfollowVisible(false)}
+        onMaskClick={() => setUnfollowVisible(false)}
+      >
+        <View className="py-2 text-center">
+          <Text className="text-gray-600 text-[28px] leading-relaxed">
+            确定不再关注「{partner?.authorName || '该用户'}」吗？
+          </Text>
+        </View>
+      </Modal>
     </>
   )
 }

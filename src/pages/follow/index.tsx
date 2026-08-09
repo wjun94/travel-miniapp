@@ -1,33 +1,50 @@
 import { useCallback, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { ScrollLoadList, Avatar } from '@/components'
+import { ScrollLoadList, Avatar, Modal } from '@/components'
 import { getMyFollowing, followUser, unfollowUser } from '@/api/follow'
 import type { UserFollowInfo } from '@/api/follow'
 
 export default function FollowPage() {
     const [unfollowedIds, setUnfollowedIds] = useState<Set<string>>(new Set())
+    const [unfollowTarget, setUnfollowTarget] = useState<{ userId: string; nickname: string } | null>(null)
 
     const handleClickItem = (userId: string) => {
         Taro.navigateTo({ url: `/pages/user/index?id=${userId}` })
     }
 
-    const handleToggleFollow = async (userId: string, isUnfollowed: boolean, e: any) => {
+    // 关注/取关（取关前弹窗确认）
+    const handleToggleFollow = (userId: string, nickname: string, isUnfollowed: boolean, e: any) => {
         e.stopPropagation()
+        if (isUnfollowed) {
+            handleFollow(userId)
+        } else {
+            setUnfollowTarget({ userId, nickname })
+        }
+    }
+
+    const handleFollow = async (userId: string) => {
         try {
-            if (isUnfollowed) {
-                await followUser(userId)
-                Taro.showToast({ title: '关注成功', icon: 'success' })
-                setUnfollowedIds(prev => {
-                    const next = new Set(prev)
-                    next.delete(userId)
-                    return next
-                })
-            } else {
-                await unfollowUser(userId)
-                Taro.showToast({ title: '已取消关注', icon: 'success' })
-                setUnfollowedIds(prev => new Set(prev).add(userId))
-            }
+            await followUser(userId)
+            Taro.showToast({ title: '关注成功', icon: 'success' })
+            setUnfollowedIds(prev => {
+                const next = new Set(prev)
+                next.delete(userId)
+                return next
+            })
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' })
+        }
+    }
+
+    const handleConfirmUnfollow = async () => {
+        if (!unfollowTarget) return
+        const { userId } = unfollowTarget
+        setUnfollowTarget(null)
+        try {
+            await unfollowUser(userId)
+            Taro.showToast({ title: '已取消关注', icon: 'success' })
+            setUnfollowedIds(prev => new Set(prev).add(userId))
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' })
         }
@@ -55,7 +72,7 @@ export default function FollowPage() {
                 </View>
                 <View
                     className={`px-4 py-1.5 rounded-full active:scale-95 transition-all ${isUnfollowed ? 'bg-[#F97316] text-white' : 'bg-stone-100 text-stone-500'}`}
-                    onClick={(e) => handleToggleFollow(item.userId, isUnfollowed, e)}
+                    onClick={(e) => handleToggleFollow(item.userId, item.nickname, isUnfollowed, e)}
                 >
                     <Text className={`text-[24px] font-medium ${isUnfollowed ? 'text-white' : 'text-stone-500'}`}>
                         {isUnfollowed ? '关注' : '已关注'}
@@ -77,6 +94,23 @@ export default function FollowPage() {
                     style: { height: '100vh' }
                 }}
             />
+
+            {/* 取消关注确认弹窗 */}
+            <Modal
+                visible={!!unfollowTarget}
+                title="取消关注"
+                confirmText="确定"
+                cancelText="再想想"
+                onConfirm={handleConfirmUnfollow}
+                onCancel={() => setUnfollowTarget(null)}
+                onMaskClick={() => setUnfollowTarget(null)}
+            >
+                <View className="py-2 text-center">
+                    <Text className="text-gray-600 text-[28px] leading-relaxed">
+                        确定不再关注「{unfollowTarget?.nickname || '该用户'}」吗？
+                    </Text>
+                </View>
+            </Modal>
         </View>
     )
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { NavBar, Avatar, ScrollLoadList, GuideCard, Image } from '@/components';
+import { NavBar, Avatar, ScrollLoadList, GuideCard, Image, Modal } from '@/components';
 import CalendarSvg from '@/assets/img/calendar.svg';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import TeamSvg from '@/assets/img/team.svg';
@@ -151,6 +151,7 @@ export default function PersonalPage() {
 
     const [activeTab, setActiveTab] = useState<'notes' | 'collect' | 'joined'>('notes');
     const [collectType, setCollectType] = useState<'guide' | 'trip'>('guide');
+    const [unfollowVisible, setUnfollowVisible] = useState(false);
 
     // 获取用户信息（含关注状态）
     const { data: profile, mutate: setProfile } = useRequest(
@@ -182,16 +183,33 @@ export default function PersonalPage() {
         }
     };
 
-    // 关注/取关
-    const handleToggleFollow = async () => {
+    // 关注/取关（取关前弹窗确认）
+    const handleToggleFollow = () => {
+        if (!profile) return;
+        if (profile.isFollowed) {
+            setUnfollowVisible(true);
+        } else {
+            handleFollow();
+        }
+    };
+
+    const handleFollow = async () => {
         if (!profile) return;
         try {
-            if (profile.isFollowed) {
-                await unfollowUser(userId);
-            } else {
-                await followUser(userId);
-            }
-            setProfile((prev: any) => prev ? { ...prev, isFollowed: !prev.isFollowed } : prev);
+            await followUser(userId);
+            setProfile((prev: any) => prev ? { ...prev, isFollowed: true } : prev);
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
+        }
+    };
+
+    const handleConfirmUnfollow = async () => {
+        if (!profile) return;
+        setUnfollowVisible(false);
+        try {
+            await unfollowUser(userId);
+            setProfile((prev: any) => prev ? { ...prev, isFollowed: false } : prev);
+            Taro.showToast({ title: '已取消关注', icon: 'success' });
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' });
         }
@@ -252,8 +270,11 @@ export default function PersonalPage() {
                             >
                                 {profile?.isFollowed ? '已关注' : '关注'}
                             </View>
-                            <View className="bg-slate-700 px-3 flex items-center justify-center rounded-full text-lg">
-                                👤+
+                            <View
+                                onClick={() => Taro.navigateTo({ url: `/pages/complaint/index/index?targetType=user&targetId=${userId}` })}
+                                className="flex-1 text-center py-2.5 rounded-full font-semibold text-sm bg-slate-700 text-white active:opacity-90 transition-opacity"
+                            >
+                                投诉
                             </View>
                             <View
                                 onClick={handleToggleBlock}
@@ -366,6 +387,23 @@ export default function PersonalPage() {
                 )}
             </View>
             </View>
+
+            {/* 取消关注确认弹窗 */}
+            <Modal
+                visible={unfollowVisible}
+                title="取消关注"
+                confirmText="确定"
+                cancelText="再想想"
+                onConfirm={handleConfirmUnfollow}
+                onCancel={() => setUnfollowVisible(false)}
+                onMaskClick={() => setUnfollowVisible(false)}
+            >
+                <View className="py-2 text-center">
+                    <Text className="text-gray-600 text-[28px] leading-relaxed">
+                        确定不再关注「{profile?.nickname || '该用户'}」吗？
+                    </Text>
+                </View>
+            </Modal>
         </>
     );
 }

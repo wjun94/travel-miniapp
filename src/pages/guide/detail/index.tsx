@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image, CoverImage, Avatar, TypeIcon } from '@/components';
+import { NavBar, Image, CoverImage, Avatar, TypeIcon, Modal } from '@/components';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import WarningsSvg from '@/assets/itinerary/warnings.svg';
 import TeamSvg from '@/assets/img/team.svg';
@@ -19,6 +19,7 @@ export default function TravelGuideDetail() {
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
     const [replyTo, setReplyTo] = useState<{ parentId: string; nickname: string } | null>(null);
+    const [unfollowVisible, setUnfollowVisible] = useState(false);
 
     // 1. 获取攻略详情
     const { data: tripData, mutate, loading, error, refresh } = useRequest(
@@ -73,20 +74,33 @@ export default function TravelGuideDetail() {
         });
     };
 
-    // 切换关注
-    const handleToggleFollow = async (e) => {
+    // 切换关注（取关前弹窗确认）
+    const handleToggleFollow = (e) => {
         e.stopPropagation();
         if (!guide.userId) return;
+        if (guide.isFollowed) {
+            setUnfollowVisible(true);
+        } else {
+            handleFollow();
+        }
+    };
+
+    const handleFollow = async () => {
+        if (!guide.userId) return;
         try {
-            if (guide.isFollowed) {
-                await unfollowUser(guide.userId);
-            } else {
-                await followUser(guide.userId);
-            }
-            mutate((prev: any) => ({
-                ...prev,
-                isFollowed: !prev?.isFollowed,
-            }));
+            await followUser(guide.userId);
+            mutate((prev: any) => ({ ...prev, isFollowed: true }));
+        } catch {
+            Taro.showToast({ title: '操作失败', icon: 'none' });
+        }
+    };
+
+    const handleConfirmUnfollow = async () => {
+        if (!guide.userId) return;
+        setUnfollowVisible(false);
+        try {
+            await unfollowUser(guide.userId);
+            mutate((prev: any) => ({ ...prev, isFollowed: false }));
         } catch {
             Taro.showToast({ title: '操作失败', icon: 'none' });
         }
@@ -426,6 +440,23 @@ export default function TravelGuideDetail() {
                     onClearReply={() => setReplyTo(null)}
                 />
             </View>}
+
+            {/* 取消关注确认弹窗 */}
+            <Modal
+                visible={unfollowVisible}
+                title="取消关注"
+                confirmText="确定"
+                cancelText="再想想"
+                onConfirm={handleConfirmUnfollow}
+                onCancel={() => setUnfollowVisible(false)}
+                onMaskClick={() => setUnfollowVisible(false)}
+            >
+                <View className="py-2 text-center">
+                    <Text className="text-gray-600 text-[28px] leading-relaxed">
+                        确定不再关注「{guide?.authorName || '该用户'}」吗？
+                    </Text>
+                </View>
+            </Modal>
         </>
     );
 }
