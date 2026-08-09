@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { Avatar, CoverImage, Image } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
+import CitySvg from '@/assets/img/city.svg'
 import LandmarkSvg from '@/assets/img/landmark.svg'
 import TeamSvg from '@/assets/img/team.svg'
 import type { Guide } from '@/api/post'
@@ -87,8 +88,9 @@ export default function GuideCard({ item, isLiked: propIsLiked, likeCount: propL
         {/* 类型标签 */}
         <View className='absolute top-2 left-2 z-10 flex flex-row items-center'>
           {isTrip ? (
-            <View className='bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm'>
-              <Text className='text-[22px] text-white font-bold'>🗺️ 行程路线</Text>
+            <View className='bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm flex items-center'>
+              <Image src={CitySvg} className='h-3.5 w-3.5 mr-6px' />
+              <Text className='text-[22px] text-white font-bold'>行程路线</Text>
             </View>
           ) : isPartner ? (
             <View className='bg-orange-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm flex items-center'>

@@ -4,6 +4,9 @@ import { NavBar, Image, CoverImage, Avatar, TypeIcon, Modal } from '@/components
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import WarningsSvg from '@/assets/itinerary/warnings.svg';
 import TeamSvg from '@/assets/img/team.svg';
+import CitySvg from '@/assets/img/city.svg';
+import WatchSvg from '@/assets/img/watch.svg';
+import HotSvg from '@/assets/img/hot.svg';
 import Taro, { useRouter, usePullDownRefresh, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
 import { getTripDetail, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -44,6 +47,14 @@ export default function TripDetail() {
     // 此时 guideData 就是返回的 Trip 实例，我们直接将其作为 guide 映射
     const guide = guideData || {} as Trip;
     const days = guideData?.days || [];
+
+    // 信息卡片（数组驱动渲染，字体最小 24px）
+    const tripStats: { key: string; label: string; value: string; highlight?: boolean; emoji?: string; svg?: string; iconClass?: string }[] = [
+        { key: 'city', svg: CitySvg, label: '途经城市数', value: `${guide.cities?.length || 0} 个城市`, iconClass: 'h-3.5 w-3.5 mr-6px' },
+        { key: 'days', svg: WatchSvg, label: '规划天数', value: `${days.length} 天深度游`, iconClass: 'h-3.5 w-3.5 mr-6px' },
+        { key: 'mate', svg: TeamSvg, label: '出行伴侣', value: guide.members && guide.members.length > 0 ? `${guide.members.length} 人同行` : '独自探索', highlight: true },
+        { key: 'view', svg: HotSvg, label: '浏览热度', value: `${guide.viewCount || 0} 次围观`, iconClass: 'h-3.5 w-3.5 mr-6px' },
+    ];
 
     // 处理工具方法
     const getImgArray = (images: any) => {
@@ -214,38 +225,21 @@ export default function TripDetail() {
 
                         {/* ✨ Bento Box 块级便当盒网格设计 - 已根据后端可用字段重构 */}
                         <View className='grid grid-cols-2 gap-3 py-1 text-left'>
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>🗺️ 途经城市数</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>
-                                    {guide.cities?.length || 0} 个城市
-                                </Text>
-                            </View>
-
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⏱️ 规划天数</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>
-                                    {days.length} 天深度游
-                                </Text>
-                            </View>
-
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <View className='flex items-center'>
-                                    <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
-                                    <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>出行伴侣</Text>
+                            {tripStats.map((s) => (
+                                <View key={s.key} className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
+                                    {s.emoji ? (
+                                        <Text className='block text-stone-400 mb-0.5 text-[24px] font-medium'>{s.emoji} {s.label}</Text>
+                                    ) : (
+                                        <View className='flex items-center'>
+                                            <Image src={s.svg!} className={s.iconClass || 'h-4 w-4 mr-6px'} />
+                                            <Text className='block text-stone-400 mb-0.5 text-[24px] font-medium'>{s.label}</Text>
+                                        </View>
+                                    )}
+                                    <Text className={`${s.highlight ? 'text-[#F97316]' : 'text-stone-800'} font-bold text-[25px]`}>
+                                        {s.value}
+                                    </Text>
                                 </View>
-                                <Text className='text-[#F97316] font-bold text-[25px]'>
-                                    {guide.members && guide.members.length > 0
-                                        ? `${guide.members.length} 人同行`
-                                        : '独自探索'}
-                                </Text>
-                            </View>
-
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>📈 浏览热度</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>
-                                    {guide.viewCount || 0} 次围观
-                                </Text>
-                            </View>
+                            ))}
                         </View>
 
                         {guide.summary && (
@@ -352,7 +346,10 @@ export default function TripDetail() {
 
                                                                 <View className='bg-white rounded-2xl p-4 shadow-xs box-border ml-1 border border-stone-100'>
                                                                     <View className='flex flex-row items-center justify-between mb-2'>
-                                                                        <Text className='text-[22px] font-bold text-stone-400'>⏱️ {formatTimeRange(item.startTime, item.endTime)}</Text>
+                                                                        <View className='flex flex-row items-center'>
+                                                                            <Image src={WatchSvg} className='h-3.5 w-3.5 mr-6px' />
+                                                                            <Text className='text-[22px] font-bold text-stone-400'>{formatTimeRange(item.startTime, item.endTime)}</Text>
+                                                                        </View>
                                                                         <View className='px-2 py-0.5 rounded-lg flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
                                                                             <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[22px]' />
                                                                             <Text className='text-[22px] font-bold'>{config.label}</Text>

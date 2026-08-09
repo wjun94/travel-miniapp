@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components';
 import { Image, TypeIcon } from '@/components'
+import WatchSvg from '@/assets/img/watch.svg'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
 import WarningsSvg from '@/assets/itinerary/warnings.svg'
 import { useRouter } from '@tarojs/taro';
@@ -170,9 +171,10 @@ export default function TravelGuideDetail() {
 
                                                             <View className='bg-white rounded-2xl p-4 shadow-sm box-border ml-2'>
                                                                 <View className='flex flex-row items-center justify-between mb-3'>
-                                                                    <Text className='text-[24px] font-medium text-gray-400 flex items-center'>
-                                                                        ⏱️ {formatTimeRange(item.startTime, item.endTime)}
-                                                                    </Text>
+                                                                    <View className='flex flex-row items-center'>
+                                                                        <Image src={WatchSvg} className='h-3.5 w-3.5 mr-6px' />
+                                                                        <Text className='text-[24px] font-medium text-gray-400'>{formatTimeRange(item.startTime, item.endTime)}</Text>
+                                                                    </View>
                                                                     <View className='px-2 py-0.5 rounded flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
                                                                         <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[24px]' />
                                                                         <Text className='text-[24px] font-medium'>{config.label}</Text>

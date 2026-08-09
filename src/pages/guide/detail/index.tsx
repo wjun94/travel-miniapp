@@ -4,6 +4,9 @@ import { NavBar, Image, CoverImage, Avatar, TypeIcon, Modal } from '@/components
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import WarningsSvg from '@/assets/itinerary/warnings.svg';
 import TeamSvg from '@/assets/img/team.svg';
+import WatchSvg from '@/assets/img/watch.svg';
+import BeanSvg from '@/assets/img/bean.svg';
+import MountainSvg from '@/assets/img/mountain.svg';
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
@@ -44,6 +47,14 @@ export default function TravelGuideDetail() {
 
     const guide = tripData || {} as TravelGuideDetailData;
     const days = guide?.days || [];
+
+    // 信息卡片（数组驱动渲染，字体最小 24px）
+    const guideStats: { key: string; label: string; value: string; highlight?: boolean; emoji?: string; svg?: string; iconClass?: string }[] = [
+        { key: 'season', svg: BeanSvg, label: '探索最佳时节', value: guide?.bestSeason || '随心出发', iconClass: 'h-3.5 w-3.5 mr-6px' },
+        { key: 'days', svg: WatchSvg, label: '建议行程天数', value: guide?.recommendedDays ? `${guide.recommendedDays} 天深度游` : '', iconClass: 'h-3.5 w-3.5 mr-6px' },
+        { key: 'difficulty', svg: MountainSvg, label: '地形户外难度', value: guide?.difficulty || '', highlight: true, iconClass: 'h-4 w-4 mr-6px' },
+        { key: 'crowd', svg: TeamSvg, label: '最佳出行旅伴', value: guide?.crowdType || '' },
+    ].filter((s) => !!s.value);
 
     // 处理工具方法
     const getImgArray = (images) => {
@@ -182,31 +193,21 @@ export default function TravelGuideDetail() {
 
                         {/* ✨ Bento Box 块级便当盒网格设计 */}
                         <View className='grid grid-cols-2 gap-3 py-1 text-left'>
-                            <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>🍂 探索最佳时节</Text>
-                                <Text className='text-stone-800 font-bold text-[25px]'>{guide.bestSeason || '随心出发'}</Text>
-                            </View>
-                            {guide.recommendedDays && (
-                                <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                    <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⏱️ 建议行程天数</Text>
-                                    <Text className='text-stone-800 font-bold text-[25px]'>{guide.recommendedDays} 天深度游</Text>
+                            {guideStats.map((s) => (
+                                <View key={s.key} className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
+                                    {s.emoji ? (
+                                        <Text className='block text-stone-400 mb-0.5 text-[24px] font-medium'>{s.emoji} {s.label}</Text>
+                                    ) : (
+                                        <View className='flex items-center justify-center mb-1'>
+                                            <Image src={s.svg!} className={s.iconClass || 'h-4 w-4 mr-6px'} />
+                                            <Text className='block text-stone-400 text-[24px] font-medium'>{s.label}</Text>
+                                        </View>
+                                    )}
+                                    <Text className={`${s.highlight ? 'text-[#F97316]' : 'text-stone-800'} font-bold text-[25px]`}>
+                                        {s.value}
+                                    </Text>
                                 </View>
-                            )}
-                            {guide?.difficulty && (
-                                <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                    <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>⛰️ 地形户外难度</Text>
-                                    <Text className='text-[#F97316] font-bold text-[25px]'>{guide.difficulty}</Text>
-                                </View>
-                            )}
-                            {guide.crowdType && (
-                                <View className='bg-stone-50/80 p-3 rounded-2xl border border-stone-100'>
-                                    <View className='flex items-center'>
-                                        <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
-                                        <Text className='block text-stone-400 mb-0.5 text-[20px] font-medium'>最佳出行旅伴</Text>
-                                    </View>
-                                    <Text className='text-stone-800 font-bold text-[25px]'>{guide.crowdType}</Text>
-                                </View>
-                            )}
+                            ))}
                         </View>
 
                         {guide.summary && (
@@ -313,7 +314,10 @@ export default function TravelGuideDetail() {
 
                                                                 <View className='bg-white rounded-2xl p-4 shadow-xs box-border ml-1 border border-stone-100'>
                                                                     <View className='flex flex-row items-center justify-between mb-2'>
-                                                                        <Text className='text-[22px] font-bold text-stone-400'>⏱️ {formatTimeRange(item.startTime, item.endTime)}</Text>
+                                                                        <View className='flex flex-row items-center'>
+                                                                            <Image src={WatchSvg} className='h-3.5 w-3.5 mr-6px' />
+                                                                            <Text className='text-[22px] font-bold text-stone-400'>{formatTimeRange(item.startTime, item.endTime)}</Text>
+                                                                        </View>
                                                                         <View className='px-2 py-0.5 rounded-lg flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
                                                                             <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[22px]' />
                                                                             <Text className='text-[22px] font-bold'>{config.label}</Text>
