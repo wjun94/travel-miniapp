@@ -80,9 +80,9 @@ export default function ChatView() {
 
   // 加载历史消息（第一页=最新一页）
   const loadHistory = async () => {
-    try {
-      setLoading(true);
-      const res = await getMessageList(targetUserId, 1, 20);
+    setLoading(true);
+    const res = await getMessageList(targetUserId, 1, 20).catch(() => null);
+    if (res) {
       const myId = String(userInfo?.id || '');
       const formatted = (res?.list || []).map(msg => toChatMessage(msg, myId));
       setMessages(formatted);
@@ -93,21 +93,19 @@ export default function ChatView() {
       // 无动画直达底部，避免进入页面出现滚动效果
       setScrollTop(9999);
       setTimeout(() => setWithAnimation(true), 400);
-    } catch (err) {
-      console.error('加载历史消息失败', err);
+    } else {
       connectWS();
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   // 加载更早的消息（上滑到顶部触发）
   const loadOlder = async () => {
     if (loadingMore || !hasMore || loading) return;
     setLoadingMore(true);
-    try {
-      const nextPage = page + 1;
-      const res = await getMessageList(targetUserId, nextPage, 20);
+    const nextPage = page + 1;
+    const res = await getMessageList(targetUserId, nextPage, 20).catch(() => null);
+    if (res) {
       const myId = String(userInfo?.id || '');
       const older = (res?.list || []).map(msg => toChatMessage(msg, myId));
       if (older.length > 0) {
@@ -123,11 +121,8 @@ export default function ChatView() {
       } else {
         setHasMore(false);
       }
-    } catch (err) {
-      console.error('加载更早消息失败', err);
-    } finally {
-      setLoadingMore(false);
     }
+    setLoadingMore(false);
   };
 
   // 1. 建立连接

@@ -54,24 +54,20 @@ export default function HomePage() {
   const likeStateMap = useRef<Record<string, { isLiked: boolean; likeCount: number }>>({})
   const handleLikeRef = useRef<(e: any, item: Guide) => void>(async (e, item) => {
     e.stopPropagation()
-    try {
-      const current = likeStateMap.current[item.id]
-      const isCurrentlyLiked = current?.isLiked ?? item.isLiked
-      const currentLikeCount = current?.likeCount ?? item.likeCount
+    const current = likeStateMap.current[item.id]
+    const isCurrentlyLiked = current?.isLiked ?? item.isLiked
+    const currentLikeCount = current?.likeCount ?? item.likeCount
 
-      if (!isCurrentlyLiked) {
-        await likeTravelGuide(item.id)
-      } else {
-        await unlikeTravelGuide(item.id)
-      }
-      likeStateMap.current[item.id] = {
-        isLiked: !isCurrentlyLiked,
-        likeCount: currentLikeCount + (isCurrentlyLiked ? -1 : 1)
-      }
-      update()
-    } catch {
-      Taro.showToast({ title: '操作失败', icon: 'none' })
+    if (!isCurrentlyLiked) {
+      await likeTravelGuide(item.id)
+    } else {
+      await unlikeTravelGuide(item.id)
     }
+    likeStateMap.current[item.id] = {
+      isLiked: !isCurrentlyLiked,
+      likeCount: currentLikeCount + (isCurrentlyLiked ? -1 : 1)
+    }
+    update()
   })
 
   // 优化 2: 抽取头部渲染，修复异常的 text-[34px] 为响应式字号

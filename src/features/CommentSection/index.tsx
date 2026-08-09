@@ -35,14 +35,9 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
         if (expandedCommentIds.length === 0) return;
         expandedCommentIds.forEach(async (commentId) => {
             setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
-            try {
-                const replies = await getCommentReplies({ parent_id: commentId });
-                setExpandedIds(prev => ({ ...prev, [commentId]: replies || [] }));
-            } catch {
-                // 静默失败，保持旧数据
-            } finally {
-                setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
-            }
+            const replies = await getCommentReplies({ parent_id: commentId }).catch(() => null);
+            setExpandedIds(prev => ({ ...prev, [commentId]: replies || [] }));
+            setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
         });
     }, [refreshKey]);
 
@@ -58,14 +53,9 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
         }
         // 未展开则加载
         setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
-        try {
-            const replies = await getCommentReplies({ parent_id: commentId });
-            setExpandedIds(prev => ({ ...prev, [commentId]: replies || [] }));
-        } catch {
-            Taro.showToast({ title: '加载回复失败', icon: 'none' });
-        } finally {
-            setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
-        }
+        const replies = await getCommentReplies({ parent_id: commentId }).catch(() => null);
+        setExpandedIds(prev => ({ ...prev, [commentId]: replies || [] }));
+        setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
     };
 
     return (

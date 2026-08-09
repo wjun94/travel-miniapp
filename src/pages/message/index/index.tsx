@@ -19,11 +19,8 @@
 
     // 下拉刷新（失败也停止指示器，避免一直转圈）
     usePullDownRefresh(async () => {
-      try {
-        await Promise.all([refreshUnread(), refreshList()])
-      } finally {
-        Taro.stopPullDownRefresh()
-      }
+      await Promise.all([refreshUnread(), refreshList()]).catch(() => {})
+      Taro.stopPullDownRefresh()
     })
 
 
@@ -122,10 +119,8 @@
 
     // 点击分类：按类型批量标记已读后进入列表
     const handleCategoryClick = async (item: (typeof categories)[number]) => {
-      try {
-        await markNotificationTypeAllRead(item.id)
-        refreshUnread()
-      } catch { /* ignore */ }
+      await markNotificationTypeAllRead(item.id).catch(() => {})
+      refreshUnread()
       Taro.navigateTo({ url: `/pages/message/list/index?type=${item.id}` })
     }
 

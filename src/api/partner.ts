@@ -439,6 +439,28 @@ export const applyPartner = (id: string, params: ApplyPartnerParams) =>
   });
 
 /**
+ * 解散搭子（仅发起人）
+ * @param id 搭子ID
+ * @param reason 解散原因（可选）
+ */
+export const cancelPartner = (id: string, reason?: string) =>
+  request<any>({
+    url: `/partner/${id}/cancel`,
+    method: 'PUT',
+    params: { reason: reason || '' }
+  });
+
+/**
+ * 退出搭子（仅已加入成员，发起人不可退出，只能解散）
+ * @param id 搭子ID
+ */
+export const leavePartner = (id: string) =>
+  request<any>({
+    url: `/partner/${id}/leave`,
+    method: 'PUT'
+  });
+
+/**
  * 4. 处理搭子申请 (同意/拒绝)
  * PUT /partner/{id}/application
  * @param id 搭子ID (路由参数)

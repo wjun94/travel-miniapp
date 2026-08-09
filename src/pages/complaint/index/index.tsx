@@ -46,21 +46,17 @@ export default function ComplaintPage() {
     }
     const target = TARGET_OPTIONS[targetIndex]
     setSubmitting(true)
-    try {
-      await submitComplaint({
-        targetType: target.value,
-        targetId: target.value === 'other' ? undefined : targetId.trim(),
-        reason: REASON_OPTIONS[reasonIndex],
-        content: content.trim(),
-        images,
-      })
-      Taro.showToast({ title: '提交成功，我们会尽快处理', icon: 'success' })
-      setTimeout(() => Taro.navigateBack(), 1200)
-    } catch {
-      Taro.showToast({ title: '提交失败，请稍后重试', icon: 'none' })
-    } finally {
-      setSubmitting(false)
-    }
+    const ok = await submitComplaint({
+      targetType: target.value,
+      targetId: target.value === 'other' ? undefined : targetId.trim(),
+      reason: REASON_OPTIONS[reasonIndex],
+      content: content.trim(),
+      images,
+    }).then(() => true).catch(() => false)
+    setSubmitting(false)
+    if (!ok) return
+    Taro.showToast({ title: '提交成功，我们会尽快处理', icon: 'success' })
+    setTimeout(() => Taro.navigateBack(), 1200)
   }
 
   return (

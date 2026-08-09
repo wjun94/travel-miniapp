@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
-import Taro, { useDidHide, useDidShow } from '@tarojs/taro';
+import {
+  View,
+  Text,
+  Input,
+  Button,
+  ScrollView,
+  Picker,
+} from '@tarojs/components';
+import Taro, { useRouter, useDidHide, useDidShow } from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { Image } from '@/components';
 import CalendarSvg from '@/assets/img/calendar.svg';
@@ -79,7 +86,12 @@ const buildDayPlansFromDates = (dates: any): DayPlan[] => {
       d.setDate(d.getDate() + i);
       date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
-    return { dayIndex: i + 1, date, title: '', items: [createEmptyItem(i + 1, 'attraction')] };
+    return {
+      dayIndex: i + 1,
+      date,
+      title: '',
+      items: [createEmptyItem(i + 1, 'attraction')],
+    };
   });
 };
 
@@ -89,7 +101,7 @@ const convertAiDays = (aiData: AiGenerateTripData): DayPlan[] => {
     dayIndex: day.dayNumber || idx + 1,
     date: day.date || '',
     title: day.title || '',
-    items: (day.items || []).map(item => ({
+    items: (day.items || []).map((item) => ({
       id: item.id,
       sectionType: item.sectionType as SectionType,
       title: item.title,
@@ -115,14 +127,20 @@ const convertAiDays = (aiData: AiGenerateTripData): DayPlan[] => {
 };
 
 export default function ItineraryPage() {
+  // useRouter 在页面渲染时可靠获取路由参数（getCurrentInstance 在 useState 初始化期不可靠）
+  const { params } = useRouter();
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
-    const params = Taro.getCurrentInstance().router?.params;
-
     // AI 生成数据：URL 携带 aiId 时，从缓存读取并转换为编辑结构
     const aiId = params?.aiId as string;
     if (aiId) {
-      const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
-      if (aiData && aiData.id === aiId && aiData.days && aiData.days.length > 0) {
+      const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as
+        AiGenerateTripData | undefined;
+      if (
+        aiData &&
+        aiData.id === aiId &&
+        aiData.days &&
+        aiData.days.length > 0
+      ) {
         return convertAiDays(aiData);
       }
     }
@@ -136,7 +154,9 @@ export default function ItineraryPage() {
       if (savedDays === expectedDays) {
         if (dates.startDate) {
           const plans = buildDayPlansFromDates(dates);
-          const dateMatch = plans.every((p, i) => saved[i] && saved[i].date === p.date);
+          const dateMatch = plans.every(
+            (p, i) => saved[i] && saved[i].date === p.date,
+          );
           if (dateMatch) return saved;
           return plans;
         }
@@ -150,12 +170,18 @@ export default function ItineraryPage() {
       return buildDayPlansFromDates(dates);
     }
     // 兜底：AI 生成数据（仅生成未编辑时直接恢复）
-    const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+    const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as
+      AiGenerateTripData | undefined;
     if (aiData && aiData.id && aiData.days && aiData.days.length > 0) {
       return convertAiDays(aiData);
     }
     return [
-      { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
+      {
+        dayIndex: 1,
+        date: '',
+        title: '',
+        items: [createEmptyItem(1, 'attraction')],
+      },
     ];
   });
 
@@ -183,6 +209,27 @@ export default function ItineraryPage() {
 
   // 页面重新显示时（从 basic/date 返回）：若日期已变化，按最新选择重建行程
   useDidShow(() => {
+    // AI 生成数据（URL 携带 aiId 且缓存匹配）：AI 行程优先于日期模板，避免被空白模板覆盖
+    const aiId = params?.aiId as string;
+    if (aiId) {
+      const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as
+        AiGenerateTripData | undefined;
+      if (
+        aiData &&
+        aiData.id === aiId &&
+        aiData.days &&
+        aiData.days.length > 0
+      ) {
+        // 当前行程仍为空模板（所有项未填内容）时才用 AI 数据覆盖，已编辑内容不覆盖
+        const cur = dayPlansRef.current;
+        const isEmptyPlan = cur.every((d) => d.items.every((it) => !it.title));
+        if (isEmptyPlan) {
+          setDayPlans(convertAiDays(aiData));
+          setActiveTab(1);
+        }
+        return;
+      }
+    }
     const dates = Taro.getStorageSync('TEMP_PARTNER_DATES');
     if (!dates || !(dates.flexDays || dates.totalDays)) return;
     const expectedDays = dates.flexDays || dates.totalDays || 1;
@@ -194,7 +241,9 @@ export default function ItineraryPage() {
     }
     if (dates.startDate) {
       const plans = buildDayPlansFromDates(dates);
-      const dateMatch = plans.every((p, i) => current[i] && current[i].date === p.date);
+      const dateMatch = plans.every(
+        (p, i) => current[i] && current[i].date === p.date,
+      );
       if (!dateMatch) {
         setDayPlans(plans);
         setActiveTab(1);
@@ -210,14 +259,34 @@ export default function ItineraryPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalContent, setModalContent] = useState('');
-  const [pendingDelete, setPendingDelete] = useState<{ type: 'day' | 'item'; dayIndex: number; itemId?: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    type: 'day' | 'item';
+    dayIndex: number;
+    itemId?: string;
+  } | null>(null);
 
   // 类型切换确认
   const [switchConfirmVisible, setSwitchConfirmVisible] = useState(false);
-  const [pendingSwitch, setPendingSwitch] = useState<{ dayIndex: number; itemId: string; newType: SectionType } | null>(null);
+  const [pendingSwitch, setPendingSwitch] = useState<{
+    dayIndex: number;
+    itemId: string;
+    newType: SectionType;
+  } | null>(null);
 
   const getFormatDayName = (index: number) => {
-    const zhNums = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+    const zhNums = [
+      '零',
+      '一',
+      '二',
+      '三',
+      '四',
+      '五',
+      '六',
+      '七',
+      '八',
+      '九',
+      '十',
+    ];
     if (index <= 10) return `第${zhNums[index]}天`;
     if (index < 20) return `第十${zhNums[index % 10]}天`;
     const space = Math.floor(index / 10);
@@ -231,7 +300,9 @@ export default function ItineraryPage() {
     setToViewId(`day-node-${dayIndex}`);
     const targetTabTarget = dayIndex > 1 ? dayIndex - 1 : 1;
     setToTabId(`tab-node-${targetTabTarget}`);
-    setTimeout(() => { setIsClickScrolling(false); }, 500);
+    setTimeout(() => {
+      setIsClickScrolling(false);
+    }, 500);
   };
 
   const handlePageScroll = () => {
@@ -248,7 +319,8 @@ export default function ItineraryPage() {
           const currentDayIndex = idxToDayIndex(node.id);
           if (currentDayIndex && activeTab !== currentDayIndex) {
             setActiveTab(currentDayIndex);
-            const targetTabTarget = currentDayIndex > 1 ? currentDayIndex - 1 : 1;
+            const targetTabTarget =
+              currentDayIndex > 1 ? currentDayIndex - 1 : 1;
             setToTabId(`tab-node-${targetTabTarget}`);
           }
           break;
@@ -264,29 +336,48 @@ export default function ItineraryPage() {
 
   const handleAddDay = () => {
     const nextDay = dayPlans.length + 1;
-    setDayPlans([...dayPlans, { dayIndex: nextDay, date: '', title: '', items: [] }]);
-    Taro.showToast({ title: `已添加${getFormatDayName(nextDay)}`, icon: 'none' });
-    setTimeout(() => { handleTabClick(nextDay); }, 120);
+    setDayPlans([
+      ...dayPlans,
+      { dayIndex: nextDay, date: '', title: '', items: [] },
+    ]);
+    Taro.showToast({
+      title: `已添加${getFormatDayName(nextDay)}`,
+      icon: 'none',
+    });
+    setTimeout(() => {
+      handleTabClick(nextDay);
+    }, 120);
   };
 
   const triggerDeleteDay = (index: number) => {
     setModalTitle('确定删除这一天的全部行程吗？');
-    setModalContent(`确认要将"${getFormatDayName(index + 1)}"及其包含的所有行程节点全部清空并删除吗？`);
+    setModalContent(
+      `确认要将"${getFormatDayName(index + 1)}"及其包含的所有行程节点全部清空并删除吗？`,
+    );
     setPendingDelete({ type: 'day', dayIndex: index });
     setModalVisible(true);
   };
 
   // 置顶行程项（将指定项移到数组首位）
   const handlePinItem = (dayIndex: number, itemId: string) => {
-    setDayPlans(dayPlans.map(day => {
-      if (day.dayIndex !== dayIndex) return day;
-      const idx = day.items.findIndex(item => item.id === itemId);
-      if (idx <= 0) return day;
-      return { ...day, items: [day.items[idx], ...day.items.filter((_, i) => i !== idx)] };
-    }));
+    setDayPlans(
+      dayPlans.map((day) => {
+        if (day.dayIndex !== dayIndex) return day;
+        const idx = day.items.findIndex((item) => item.id === itemId);
+        if (idx <= 0) return day;
+        return {
+          ...day,
+          items: [day.items[idx], ...day.items.filter((_, i) => i !== idx)],
+        };
+      }),
+    );
   };
 
-  const triggerDeleteItem = (dayIndex: number, itemId: string, itemTitle: string) => {
+  const triggerDeleteItem = (
+    dayIndex: number,
+    itemId: string,
+    itemTitle: string,
+  ) => {
     setModalTitle('确定删除该行程项吗？');
     setModalContent(`确认删除：${itemTitle || '未命名行程'} 吗？`);
     setPendingDelete({ type: 'item', dayIndex, itemId });
@@ -301,11 +392,24 @@ export default function ItineraryPage() {
         setModalVisible(false);
         return;
       }
-      const updated = dayPlans.filter((_, i) => i !== pendingDelete.dayIndex).map((day, i) => ({ ...day, dayIndex: i + 1 }));
+      const updated = dayPlans
+        .filter((_, i) => i !== pendingDelete.dayIndex)
+        .map((day, i) => ({ ...day, dayIndex: i + 1 }));
       setDayPlans(updated);
       handleTabClick(1);
     } else if (pendingDelete.type === 'item') {
-      setDayPlans(dayPlans.map(day => day.dayIndex === pendingDelete.dayIndex ? { ...day, items: day.items.filter(item => item.id !== pendingDelete.itemId) } : day));
+      setDayPlans(
+        dayPlans.map((day) =>
+          day.dayIndex === pendingDelete.dayIndex
+            ? {
+                ...day,
+                items: day.items.filter(
+                  (item) => item.id !== pendingDelete.itemId,
+                ),
+              }
+            : day,
+        ),
+      );
     }
     setModalVisible(false);
     setPendingDelete(null);
@@ -313,40 +417,94 @@ export default function ItineraryPage() {
 
   // 点击添加按钮 → 直接添加默认类型（打卡地）
   const handleAddItemClick = (dayIndex: number) => {
-    setDayPlans(dayPlans.map(day => {
-      if (day.dayIndex === dayIndex) {
-        return { ...day, items: [...day.items, createEmptyItem(day.dayIndex, 'attraction')] };
-      }
-      return day;
-    }));
+    setDayPlans(
+      dayPlans.map((day) => {
+        if (day.dayIndex === dayIndex) {
+          return {
+            ...day,
+            items: [...day.items, createEmptyItem(day.dayIndex, 'attraction')],
+          };
+        }
+        return day;
+      }),
+    );
   };
 
-  const updateItemField = (dayIndex: number, itemId: string, field: string | Record<string, any>, value?: any) => {
-    setDayPlans(dayPlans.map(day => day.dayIndex === dayIndex ? {
-      ...day,
-      items: day.items.map(item => {
-        if (item.id !== itemId) return item;
-        if (typeof field === 'string') return { ...item, [field]: value };
-        return { ...item, ...field };
-      })
-    } : day));
+  const updateItemField = (
+    dayIndex: number,
+    itemId: string,
+    field: string | Record<string, any>,
+    value?: any,
+  ) => {
+    setDayPlans(
+      dayPlans.map((day) =>
+        day.dayIndex === dayIndex
+          ? {
+              ...day,
+              items: day.items.map((item) => {
+                if (item.id !== itemId) return item;
+                if (typeof field === 'string')
+                  return { ...item, [field]: value };
+                return { ...item, ...field };
+              }),
+            }
+          : day,
+      ),
+    );
   };
 
   // 类型切换：检查是否需要确认
-  const handleTypeSwitch = (dayIndex: number, itemId: string, newType: SectionType, currentItem: DayItem) => {
-    const hasData = currentItem.title || currentItem.description || currentItem.address || currentItem.startAddress || currentItem.needReservation || (currentItem.images && currentItem.images.length > 0);
+  const handleTypeSwitch = (
+    dayIndex: number,
+    itemId: string,
+    newType: SectionType,
+    currentItem: DayItem,
+  ) => {
+    const hasData =
+      currentItem.title ||
+      currentItem.description ||
+      currentItem.address ||
+      currentItem.startAddress ||
+      currentItem.needReservation ||
+      (currentItem.images && currentItem.images.length > 0);
     if (hasData) {
       setPendingSwitch({ dayIndex, itemId, newType });
       setSwitchConfirmVisible(true);
     } else {
-      setDayPlans(dayPlans.map(day => day.dayIndex === dayIndex ? { ...day, items: day.items.map(item => item.id === itemId ? { ...createEmptyItem(dayIndex, newType), id: item.id } : item) } : day));
+      setDayPlans(
+        dayPlans.map((day) =>
+          day.dayIndex === dayIndex
+            ? {
+                ...day,
+                items: day.items.map((item) =>
+                  item.id === itemId
+                    ? { ...createEmptyItem(dayIndex, newType), id: item.id }
+                    : item,
+                ),
+              }
+            : day,
+        ),
+      );
     }
   };
 
   const handleConfirmSwitch = () => {
     if (!pendingSwitch) return;
     const { dayIndex, itemId, newType } = pendingSwitch;
-    setDayPlans(dayPlans.map(day => day.dayIndex === dayIndex ? { ...day, items: day.items.map(item => item.id === itemId ? { ...createEmptyItem(dayIndex, newType), id: item.id } : item) } : day));
+    setDayPlans(
+      dayPlans.map((day) =>
+        day.dayIndex === dayIndex
+          ? {
+              ...day,
+              items: day.items.map((item) =>
+                item.id === itemId
+                  ? { ...createEmptyItem(dayIndex, newType), id: item.id }
+                  : item,
+              ),
+            }
+          : day,
+      ),
+    );
     setSwitchConfirmVisible(false);
     setPendingSwitch(null);
   };
@@ -354,11 +512,18 @@ export default function ItineraryPage() {
   const handleNextStep = () => {
     for (const day of dayPlans) {
       if (day.items.length === 0) {
-        Taro.showToast({ title: `${getFormatDayName(day.dayIndex)}还没有任何行程明细`, icon: 'none' });
+        Taro.showToast({
+          title: `${getFormatDayName(day.dayIndex)}还没有任何行程明细`,
+          icon: 'none',
+        });
         return;
       }
       for (const item of day.items) {
-        if (item.sectionType !== 'transport' && item.sectionType !== 'tips' && !item.title) {
+        if (
+          item.sectionType !== 'transport' &&
+          item.sectionType !== 'tips' &&
+          !item.title
+        ) {
           const cfg = typeConfigMap[item.sectionType];
           Taro.showToast({ title: `${cfg.label}名称不能为空`, icon: 'none' });
           return;
@@ -376,29 +541,56 @@ export default function ItineraryPage() {
 
   /** 根据类型渲染对应表单 */
   const renderForm = (item: DayItem, dayIndex: number) => {
-    const uf = (field: string | Record<string, any>, value?: any) => updateItemField(dayIndex, item.id, field, value);
+    const uf = (field: string | Record<string, any>, value?: any) =>
+      updateItemField(dayIndex, item.id, field, value);
     switch (item.sectionType) {
-      case 'transport': return <TransportForm item={item} updateField={uf} />;
-      case 'attraction': return <AttractionForm item={item} updateField={uf} imageLabel='活动图片' />;
-      case 'food': return <FoodForm item={item} updateField={uf} imageLabel='活动图片' />;
-      case 'hotel': return <HotelForm item={item} updateField={uf} imageLabel='活动图片' />;
-      case 'shopping': return <ShoppingForm item={item} updateField={uf} imageLabel='活动图片' />;
-      case 'tips': return <TipsForm item={item} updateField={uf} />;
-      default: return null;
+      case 'transport':
+        return <TransportForm item={item} updateField={uf} />;
+      case 'attraction':
+        return (
+          <AttractionForm item={item} updateField={uf} imageLabel="活动图片" />
+        );
+      case 'food':
+        return <FoodForm item={item} updateField={uf} imageLabel="活动图片" />;
+      case 'hotel':
+        return <HotelForm item={item} updateField={uf} imageLabel="活动图片" />;
+      case 'shopping':
+        return (
+          <ShoppingForm item={item} updateField={uf} imageLabel="活动图片" />
+        );
+      case 'tips':
+        return <TipsForm item={item} updateField={uf} />;
+      default:
+        return null;
     }
   };
 
   return (
-    <View className='w-full h-screen bg-gray-50 text-gray-800 flex flex-col overflow-hidden relative text-[28px] box-border'>
+    <View className="w-full h-screen bg-gray-50 text-gray-800 flex flex-col overflow-hidden relative text-[28px] box-border">
       {/* 顶部固定栏 */}
-      <View className='bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border'>
-        <View className='px-4 py-3 flex justify-between items-center box-border'>
-          <Text className='font-bold text-gray-900 text-[28px]'>创建搭子</Text>
-          <Button onClick={handleAddDay} className='m-0 px-3 py-1 bg-green-500 text-white font-medium rounded-full text-[24px]'>+ 再加一天</Button>
+      <View className="bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-40 box-border">
+        <View className="px-4 py-3 flex justify-between items-center box-border">
+          <Text className="font-bold text-gray-900 text-[28px]">创建搭子</Text>
+          <Button
+            onClick={handleAddDay}
+            className="m-0 px-3 py-1 bg-green-500 text-white font-medium rounded-full text-[24px]"
+          >
+            + 再加一天
+          </Button>
         </View>
-        <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
+        <ScrollView
+          scrollX
+          className="w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border"
+          scrollWithAnimation
+          scrollIntoView={toTabId}
+        >
           {dayPlans.map((day) => (
-            <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>
+            <View
+              key={day.dayIndex}
+              id={`tab-node-${day.dayIndex}`}
+              onClick={() => handleTabClick(day.dayIndex)}
+              className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}
+            >
               {getFormatDayName(day.dayIndex)}
             </View>
           ))}
@@ -406,31 +598,78 @@ export default function ItineraryPage() {
       </View>
 
       {/* 主体滚动卡片区域 */}
-      <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll}>
-        <View className='pb-12 box-border'>
+      <ScrollView
+        scrollY
+        className="flex-1 h-0 w-full"
+        scrollIntoView={toViewId}
+        scrollWithAnimation
+        onScroll={handlePageScroll}
+      >
+        <View className="pb-12 box-border">
           {dayPlans.map((day, dIdx) => (
-            <View key={day.dayIndex} id={`day-node-${day.dayIndex}`} className='day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0 box-border'>
-
+            <View
+              key={day.dayIndex}
+              id={`day-node-${day.dayIndex}`}
+              className="day-card-anchor mt-4 px-4 space-y-4 pb-6 border-b border-gray-200/50 last:border-0 box-border"
+            >
               {/* 天级别卡片 */}
-              <View className='bg-white p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden box-border'>
-                <View className='flex justify-between items-center'>
-                  <Text className='font-bold text-gray-900 text-[28px]'>{getFormatDayName(day.dayIndex)}</Text>
-                  {day.dayIndex > 1 && <Text onClick={() => triggerDeleteDay(dIdx)} className='text-red-500 text-[24px]'>删除</Text>}
+              <View className="bg-white p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden box-border">
+                <View className="flex justify-between items-center">
+                  <Text className="font-bold text-gray-900 text-[28px]">
+                    {getFormatDayName(day.dayIndex)}
+                  </Text>
+                  {day.dayIndex > 1 && (
+                    <Text
+                      onClick={() => triggerDeleteDay(dIdx)}
+                      className="text-red-500 text-[24px]"
+                    >
+                      删除
+                    </Text>
+                  )}
                 </View>
-                <View className='space-y-1.5'>
-                  <Text className='text-gray-700 text-[26px] font-medium'>标题</Text>
+                <View className="space-y-1.5">
+                  <Text className="text-gray-700 text-[26px] font-medium">
+                    标题
+                  </Text>
                   <View>
-                    <Input className='w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center' placeholder='当天游玩概要（可选）' value={day.title} onInput={(e) => { const updated = [...dayPlans]; updated[dIdx].title = e.detail.value; setDayPlans(updated); }} />
+                    <Input
+                      className="w-full h-[80px] px-3 bg-gray-50 rounded-xl text-[28px] box-border flex items-center"
+                      placeholder="当天游玩概要（可选）"
+                      value={day.title}
+                      onInput={(e) => {
+                        const updated = [...dayPlans];
+                        updated[dIdx].title = e.detail.value;
+                        setDayPlans(updated);
+                      }}
+                    />
                   </View>
                 </View>
                 {/* 日期选择 */}
-                <View className='space-y-1.5'>
-                  <Text className='text-gray-700 text-[26px] font-medium'>日期</Text>
+                <View className="space-y-1.5">
+                  <Text className="text-gray-700 text-[26px] font-medium">
+                    日期
+                  </Text>
                   <View>
-                    <Picker mode='date' value={day.date} onChange={(e) => { const updated = [...dayPlans]; updated[dIdx].date = e.detail.value; setDayPlans(updated); }}>
-                      <View className='p-3 bg-gray-50 rounded-xl flex justify-between items-center'>
-                        <Text className={day.date ? 'text-gray-800 text-[26px]' : 'text-gray-400 text-[26px]'}>{day.date || '点击选择日期'}</Text>
-                        <Image src={CalendarSvg} className='h-3.5 w-3.5' />
+                    <Picker
+                      mode="date"
+                      value={day.date}
+                      onChange={(e) => {
+                        const updated = [...dayPlans];
+                        updated[dIdx].date = e.detail.value;
+                        setDayPlans(updated);
+                      }}
+                    >
+                      <View className="p-3 bg-gray-50 rounded-xl flex justify-between items-center">
+                        <Text
+                          className={
+                            day.date
+                              ? 'text-gray-800 text-[26px]'
+                              : 'text-gray-400 text-[26px]'
+                          }
+                        >
+                          {day.date || '点击选择日期'}
+                        </Text>
+                        <Image src={CalendarSvg} className="h-3.5 w-3.5" />
                       </View>
                     </Picker>
                   </View>
@@ -441,63 +680,100 @@ export default function ItineraryPage() {
               {day.items.map((item) => {
                 const cfg = typeConfigMap[item.sectionType];
                 return (
-                  <View key={item.id} className='bg-white p-4 rounded-2xl shadow-sm space-y-4 relative box-border'>
+                  <View
+                    key={item.id}
+                    className="bg-white p-4 rounded-2xl shadow-sm space-y-4 relative box-border"
+                  >
                     {/* 卡片头部：置顶 + 删除 */}
-                    <View className='flex justify-end items-center border-b border-gray-50 box-border gap-3'>
+                    <View className="flex justify-end items-center border-b border-gray-50 box-border gap-3">
                       <Text
                         onClick={() => handlePinItem(day.dayIndex, item.id)}
-                        className='text-blue-500 font-medium active:opacity-60'
+                        className="text-blue-500 font-medium active:opacity-60"
                       >
                         ↑ 置顶
                       </Text>
                       <Text
-                        onClick={() => triggerDeleteItem(day.dayIndex, item.id, item.title)}
-                        className='text-red-500 font-medium active:opacity-60'
+                        onClick={() =>
+                          triggerDeleteItem(day.dayIndex, item.id, item.title)
+                        }
+                        className="text-red-500 font-medium active:opacity-60"
                       >
                         <Text className="iconfont icon-remove" /> 删除
                       </Text>
                     </View>
 
                     {/* 类型选择 */}
-                    <View className='space-y-1.5 box-border'>
-                      <View className='flex items-center mb-1.5'>
-                        <Text className='text-red-500 font-bold mr-0.5'>*</Text>
-                        <Text className='text-gray-700 text-[26px] font-medium'>类型<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
+                    <View className="space-y-1.5 box-border">
+                      <View className="flex items-center mb-1.5">
+                        <Text className="text-red-500 font-bold mr-0.5">*</Text>
+                        <Text className="text-gray-700 text-[26px] font-medium">
+                          类型
+                          <Text className="text-gray-400 font-normal text-[24px]">
+                            （必填）
+                          </Text>
+                        </Text>
                       </View>
                       <Picker
-                        mode='selector'
+                        mode="selector"
                         range={typeOptions}
                         rangeKey="label"
                         onChange={(e) => {
-                          handleTypeSwitch(day.dayIndex, item.id, typeOptions[e.detail.value].value, item);
+                          handleTypeSwitch(
+                            day.dayIndex,
+                            item.id,
+                            typeOptions[e.detail.value].value,
+                            item,
+                          );
                         }}
                       >
-                        <View className='w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100 box-border'>
-                          <View className='flex items-center'>
-                            <Image src={cfg.svg} className='h-3.5 w-3.5 mr-6px' />
-                            <Text className='text-gray-800 font-medium'>{cfg.label}</Text>
+                        <View className="w-full p-2.5 bg-gray-50 rounded-xl text-[28px] flex justify-between items-center active:bg-gray-100 box-border">
+                          <View className="flex items-center">
+                            <Image
+                              src={cfg.svg}
+                              className="h-3.5 w-3.5 mr-6px"
+                            />
+                            <Text className="text-gray-800 font-medium">
+                              {cfg.label}
+                            </Text>
                           </View>
-                          <Text className='text-gray-400 text-[24px]'>切换 ▾</Text>
+                          <Text className="text-gray-400 text-[24px]">
+                            切换 ▾
+                          </Text>
                         </View>
                       </Picker>
                     </View>
 
                     {/* 名称输入（交通和避坑类型不需要） */}
-                    {item.sectionType !== 'transport' && item.sectionType !== 'tips' && (
-                      <View className='space-y-1.5 box-border'>
-                        <View className='flex items-center mb-1.5'>
-                          <Text className='text-red-500 font-bold mr-0.5'>*</Text>
-                          <Text className='text-gray-700 text-[26px] font-medium'>{cfg.nameLabel}<Text className='text-gray-400 font-normal text-[24px]'>（必填）</Text></Text>
+                    {item.sectionType !== 'transport' &&
+                      item.sectionType !== 'tips' && (
+                        <View className="space-y-1.5 box-border">
+                          <View className="flex items-center mb-1.5">
+                            <Text className="text-red-500 font-bold mr-0.5">
+                              *
+                            </Text>
+                            <Text className="text-gray-700 text-[26px] font-medium">
+                              {cfg.nameLabel}
+                              <Text className="text-gray-400 font-normal text-[24px]">
+                                （必填）
+                              </Text>
+                            </Text>
+                          </View>
+                          <Input
+                            className="w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center"
+                            value={item.title}
+                            placeholder={cfg.namePlaceholder}
+                            placeholderStyle="color:#9ca3af"
+                            onInput={(e) =>
+                              updateItemField(
+                                day.dayIndex,
+                                item.id,
+                                'title',
+                                e.detail.value,
+                              )
+                            }
+                          />
                         </View>
-                        <Input
-                          className='w-full h-[80px] px-3 bg-gray-50 rounded-xl font-medium text-[28px] box-border flex items-center'
-                          value={item.title}
-                          placeholder={cfg.namePlaceholder}
-                          placeholderStyle='color:#9ca3af'
-                          onInput={(e) => updateItemField(day.dayIndex, item.id, 'title', e.detail.value)}
-                        />
-                      </View>
-                    )}
+                      )}
 
                     {/* 动态表单 */}
                     {renderForm(item, day.dayIndex)}
@@ -506,8 +782,11 @@ export default function ItineraryPage() {
               })}
 
               {/* 添加按钮 */}
-              <View className='pt-1 box-border'>
-                <View onClick={() => handleAddItemClick(day.dayIndex)} className='w-full text-center py-2 bg-white border border-dashed border-green-500 text-green-500 font-bold rounded-14px text-[26px] shadow-sm active:bg-green-50/50 m-0'>
+              <View className="pt-1 box-border">
+                <View
+                  onClick={() => handleAddItemClick(day.dayIndex)}
+                  className="w-full text-center py-2 bg-white border border-dashed border-green-500 text-green-500 font-bold rounded-14px text-[26px] shadow-sm active:bg-green-50/50 m-0"
+                >
                   + 添加行程项
                 </View>
               </View>
@@ -517,18 +796,40 @@ export default function ItineraryPage() {
       </ScrollView>
 
       {/* 吸底动作栏 */}
-      <View className='bg-white border-t border-gray-100 p-3 pb-safe flex-shrink-0 z-50 shadow-lg box-border'>
-        <Button onClick={handleNextStep} className='w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95'>下一步 (配置搭子基本信息)</Button>
+      <View className="bg-white border-t border-gray-100 p-3 pb-safe flex-shrink-0 z-50 shadow-lg box-border">
+        <Button
+          onClick={handleNextStep}
+          className="w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95"
+        >
+          下一步 (配置搭子基本信息)
+        </Button>
       </View>
 
       {/* 删除确认弹窗 */}
-      <Modal visible={modalVisible} title={modalTitle} onConfirm={handleConfirmDelete} onCancel={() => setModalVisible(false)}>
-        <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>{modalContent}</Text>
+      <Modal
+        visible={modalVisible}
+        title={modalTitle}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setModalVisible(false)}
+      >
+        <Text className="text-gray-600 block py-2 text-[26px] leading-relaxed text-center">
+          {modalContent}
+        </Text>
       </Modal>
 
       {/* 类型切换确认弹窗 */}
-      <Modal visible={switchConfirmVisible} title='切换类型' onConfirm={handleConfirmSwitch} onCancel={() => { setSwitchConfirmVisible(false); setPendingSwitch(null); }}>
-        <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>切换类型后，已填写的内容将被清空，是否继续？</Text>
+      <Modal
+        visible={switchConfirmVisible}
+        title="切换类型"
+        onConfirm={handleConfirmSwitch}
+        onCancel={() => {
+          setSwitchConfirmVisible(false);
+          setPendingSwitch(null);
+        }}
+      >
+        <Text className="text-gray-600 block py-2 text-[26px] leading-relaxed text-center">
+          切换类型后，已填写的内容将被清空，是否继续？
+        </Text>
       </Modal>
     </View>
   );

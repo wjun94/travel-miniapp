@@ -118,28 +118,22 @@ export default function ChecklistFormPage() {
             return;
         }
 
-        try {
-            Taro.showLoading({ title: '保存中...' });
-            const payload: Partial<Checklist> = {
-                name,
-                tripId: tripId || undefined,
-                items,
-                isTemplate: 0
-            };
+        Taro.showLoading({ title: '保存中...' });
+        const payload: Partial<Checklist> = {
+            name,
+            tripId: tripId || undefined,
+            items,
+            isTemplate: 0
+        };
 
-            if (isEdit) {
-                await updateChecklist(id!, { name, items });
-            } else {
-                await createChecklist(payload);
-            }
+        const ok = isEdit
+            ? await updateChecklist(id!, { name, items }).then(() => true).catch(() => false)
+            : await createChecklist(payload).then(() => true).catch(() => false);
+        Taro.hideLoading();
+        if (!ok) return;
 
-            Taro.showToast({ title: '保存成功', icon: 'success' });
-            setTimeout(() => Taro.navigateBack(), 1500);
-        } catch (err) {
-            Taro.showToast({ title: '操作失败', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
-        }
+        Taro.showToast({ title: '保存成功', icon: 'success' });
+        setTimeout(() => Taro.navigateBack(), 1500);
     };
 
     return (

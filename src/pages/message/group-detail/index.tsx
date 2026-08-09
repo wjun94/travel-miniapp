@@ -24,13 +24,9 @@ export default function GroupDetailPage() {
       confirmColor: '#FF3B30',
       success: async (res) => {
         if (!res.confirm) return
-        try {
-          await kickConversationMember(convId, member.userId)
-          Taro.showToast({ title: '已踢出', icon: 'success' })
-          refresh()
-        } catch (err) {
-          console.error('踢出失败', err)
-        }
+        await kickConversationMember(convId, member.userId)
+        Taro.showToast({ title: '已踢出', icon: 'success' })
+        refresh()
       }
     })
   }

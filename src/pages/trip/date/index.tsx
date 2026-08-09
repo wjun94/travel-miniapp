@@ -149,26 +149,20 @@ export default function TravelDurationPicker() {
                 : 1)
             : selectedDayIndex + 1;
 
-        // 检查 AI 使用额度，不足则弹窗引导分享获取
-        try {
-            const quota = await getAiQuota();
-            if (!quota || quota.trip.remain <= 0) {
-                setQuotaModalVisible(true);
-                return;
-            }
-        } catch (e) {
-            // 额度查询失败不阻塞生成
-            console.warn('获取 AI 额度失败', e);
+        // 检查 AI 使用额度，不足则弹窗引导分享获取（查询失败不阻塞生成）
+        const quota = await getAiQuota().catch(() => null);
+        if (quota && quota.trip.remain <= 0) {
+            setQuotaModalVisible(true);
+            return;
         }
 
         setAiLoading(true);
         // 全屏 loading 锁住页面，避免生成期间重复操作
         Taro.showLoading({ title: 'AI 生成中...', mask: true });
-        try {
-            const res = await aiGenerateTrip({
-                destination: destinations.map(d => d.name).join(','),
-                days,
-            });
+        await aiGenerateTrip({
+            destination: destinations.map(d => d.name).join(','),
+            days,
+        }).then((res) => {
             // 保存 AI 生成数据与目的地信息到本地
             setAiData(res);
             Taro.setStorageSync('TEMP_TRIP_AI_GENERATED', res);
@@ -180,12 +174,9 @@ export default function TravelDurationPicker() {
             }
             // 生成成功直接跳转行程编辑页
             Taro.navigateTo({ url: `../itinerary/index?aiId=${res.id}` });
-        } catch (e: any) {
-            Taro.showToast({ title: e?.message || 'AI 生成失败，请稍后重试', icon: 'none' });
-        } finally {
-            setAiLoading(false);
-            Taro.hideLoading();
-        }
+        }).catch(() => {});
+        setAiLoading(false);
+        Taro.hideLoading();
     };
 
     /**
@@ -212,14 +203,9 @@ export default function TravelDurationPicker() {
         }
         setSearchLoading(true);
         const timer = setTimeout(async () => {
-            try {
-                const res = await searchDestinations({ keyword });
-                setSearchResults(res || []);
-            } catch {
-                setSearchResults([]);
-            } finally {
-                setSearchLoading(false);
-            }
+            const res = await searchDestinations({ keyword }).catch(() => null);
+            setSearchResults(res || []);
+            setSearchLoading(false);
         }, 300);
         return () => clearTimeout(timer);
     }, [keyword]);

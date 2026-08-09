@@ -66,53 +66,41 @@ export default memo(function BottomActionBar({
     const handleSubmitComment = async () => {
         if (!commentText.trim() || submitting) return;
         setSubmitting(true);
-        try {
-            await createComment({
-                content: commentText.trim(),
-                targetId: guideId,
-                targetType,
-                parentId: replyTo?.parentId || undefined
-            });
-            Taro.showToast({ title: '评论成功', icon: 'success' });
-            setShowInput(false);
-            setCommentText('');
-            onClearReply?.();
-            onCommentSuccess?.();
-        } catch {
-            Taro.showToast({ title: '发布失败', icon: 'none' });
-        } finally {
-            setSubmitting(false);
-        }
+        const ok = await createComment({
+            content: commentText.trim(),
+            targetId: guideId,
+            targetType,
+            parentId: replyTo?.parentId || undefined
+        }).then(() => true).catch(() => false);
+        setSubmitting(false);
+        if (!ok) return;
+        Taro.showToast({ title: '评论成功', icon: 'success' });
+        setShowInput(false);
+        setCommentText('');
+        onClearReply?.();
+        onCommentSuccess?.();
     };
 
     const handleLike = async () => {
-        try {
-            if (!isLiked) {
-                if (onLike) await onLike(guideId);
-                else await likeTravelGuide(guideId);
-            } else {
-                if (onUnlike) await onUnlike(guideId);
-                else await unlikeTravelGuide(guideId);
-            }
-            update();
-            onLikeToggle();
-        } catch {
-            Taro.showToast({ title: '操作失败', icon: 'none' });
+        if (!isLiked) {
+            if (onLike) await onLike(guideId);
+            else await likeTravelGuide(guideId);
+        } else {
+            if (onUnlike) await onUnlike(guideId);
+            else await unlikeTravelGuide(guideId);
         }
+        update();
+        onLikeToggle();
     };
 
     const handleCollect = async () => {
-        try {
-            if (!isCollected) {
-                await addFavorite({ targetId: guideId, targetType });
-            } else {
-                await deleteFavorite(guideId, targetType);
-            }
-            update();
-            onCollectToggle();
-        } catch {
-            Taro.showToast({ title: '操作失败', icon: 'none' });
+        if (!isCollected) {
+            await addFavorite({ targetId: guideId, targetType });
+        } else {
+            await deleteFavorite(guideId, targetType);
         }
+        update();
+        onCollectToggle();
     };
 
     const isButtonDisabled = submitting || !commentText.trim();

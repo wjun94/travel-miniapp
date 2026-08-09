@@ -17,15 +17,9 @@ export default function SearchPage() {
         }
 
         setLoading(true);
-        try {
-            const res = await searchDestinations({ keyword: trimmedVal });
-            setResults(res || []);
-        } catch (error) {
-            console.error('搜索目的地失败:', error);
-            setResults([]);
-        } finally {
-            setLoading(false);
-        }
+        const res = await searchDestinations({ keyword: trimmedVal }).catch(() => null);
+        setResults(res || []);
+        setLoading(false);
     };
 
     // 简易防抖逻辑

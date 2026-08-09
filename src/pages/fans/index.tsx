@@ -14,13 +14,9 @@ export default function FansPage() {
 
     const handleRemove = async (userId: string, e: any) => {
         e.stopPropagation()
-        try {
-            await removeFollower(userId)
-            Taro.showToast({ title: '已移除', icon: 'success' })
-            setRemovedIds(prev => new Set(prev).add(userId))
-        } catch {
-            Taro.showToast({ title: '操作失败', icon: 'none' })
-        }
+        await removeFollower(userId)
+        Taro.showToast({ title: '已移除', icon: 'success' })
+        setRemovedIds(prev => new Set(prev).add(userId))
     }
 
     const renderItem = useCallback((item: UserFollowInfo) => {

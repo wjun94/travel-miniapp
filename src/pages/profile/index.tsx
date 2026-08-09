@@ -44,19 +44,18 @@ export default function ProfilePage() {
         setAvatar(tempPath);
         // 全屏 loading 锁住页面，避免重复操作
         Taro.showLoading({ title: '上传中...', mask: true });
-        try {
-            const uploaded = await uploadSingleFile(tempPath);
-            const url = uploaded?.url || uploaded;
-            setAvatar(url);
-            // 上传成功直接更新头像
-            await updateProfile({ avatarUrl: url });
-            setUserInfo({ avatarUrl: url } as any);
-            Taro.showToast({ title: '头像已更新', icon: 'success' });
-        } catch {
+        const uploaded = await uploadSingleFile(tempPath).catch(() => null);
+        Taro.hideLoading();
+        if (!uploaded) {
             Taro.showToast({ title: '头像上传失败', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
+            return;
         }
+        const url = uploaded?.url || uploaded;
+        setAvatar(url);
+        // 上传成功直接更新头像
+        await updateProfile({ avatarUrl: url });
+        setUserInfo({ avatarUrl: url } as any);
+        Taro.showToast({ title: '头像已更新', icon: 'success' });
     };
 
     // 2. 绑定手机号
@@ -68,15 +67,11 @@ export default function ProfilePage() {
         }
         // 全屏 loading 锁住页面，避免重复操作
         Taro.showLoading({ title: '绑定中...', mask: true });
-        try {
-            const res = await bindWxPhone(code);
-            setPhoneNumber(res?.phone || '已绑定');
-            Taro.showToast({ title: '绑定成功', icon: 'success' });
-        } catch (e: any) {
-            Taro.showToast({ title: e?.message || '绑定失败，请重试', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
-        }
+        const res = await bindWxPhone(code).catch(() => null);
+        Taro.hideLoading();
+        if (!res) return;
+        setPhoneNumber(res?.phone || '已绑定');
+        Taro.showToast({ title: '绑定成功', icon: 'success' });
     };
 
     // 3. 打开昵称编辑弹窗
@@ -99,19 +94,15 @@ export default function ProfilePage() {
         }
         // 全屏 loading 锁住页面，避免重复操作
         Taro.showLoading({ title: '更新中...', mask: true });
-        try {
-            await updateProfile({ nickname: value });
-            setNickname(value);
-            initialNicknameRef.current = value;
-            // 同步更新 store
-            setUserInfo({ nickname: value } as any);
-            setNicknameModalVisible(false);
-            Taro.showToast({ title: '昵称已更新', icon: 'success' });
-        } catch {
-            Taro.showToast({ title: '昵称更新失败', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
-        }
+        const ok = await updateProfile({ nickname: value }).then(() => true).catch(() => false);
+        Taro.hideLoading();
+        if (!ok) return;
+        setNickname(value);
+        initialNicknameRef.current = value;
+        // 同步更新 store
+        setUserInfo({ nickname: value } as any);
+        setNicknameModalVisible(false);
+        Taro.showToast({ title: '昵称已更新', icon: 'success' });
     };
 
     if (loading) {

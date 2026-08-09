@@ -94,25 +94,24 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     }
     setError(false)
 
-    try {
-      const res = await request(currentPage, pageSize, params)
+    const res = await request(currentPage, pageSize, params).catch(() => null)
       if (!isMounted.current) return
 
-      const { list, total } = res
-      const totalPage = Math.ceil(total / pageSize)
+      if (res) {
+        const { list, total } = res
+        const totalPage = Math.ceil(total / pageSize)
 
-      if (isRefresh) {
-        setData(list || [])
-        setPage(currentPage)
+        if (isRefresh) {
+          setData(list || [])
+          setPage(currentPage)
+        } else {
+          setData(prev => [...prev, ...list])
+        }
+        setHasMore(currentPage < totalPage)
+        setError(false)
       } else {
-        setData(prev => [...prev, ...list])
+        setError(true)
       }
-      setHasMore(currentPage < totalPage)
-      setError(false)
-    } catch (err) {
-      if (!isMounted.current) return
-      setError(true)
-    } finally {
       if (isRefresh) {
         setRefreshing(false)
       } else {
@@ -121,7 +120,6 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
       if (isRefresh && isMounted.current) {
         setInitialLoading(false)
       }
-    }
   }, [request, pageSize, loadingMore, params])
 
   // params 变化时自动刷新列表（首次挂载由初始加载 effect 负责，避免重复请求）

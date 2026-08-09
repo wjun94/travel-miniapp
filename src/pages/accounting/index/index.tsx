@@ -40,15 +40,11 @@ export default function AccountingIndexPage() {
   }
   const handleCreateConfirm = async () => {
     const name = bookName.trim() || '我的账本'
-    try {
-      const book = await createAccountBook(name)
-      setCreateVisible(false)
-      Taro.navigateTo({
-        url: `/pages/accounting/list/index?targetType=custom&targetId=${book.targetId}&name=${encodeURIComponent(book.targetName)}`,
-      })
-    } catch {
-      Taro.showToast({ title: '创建失败', icon: 'none' })
-    }
+    const book = await createAccountBook(name)
+    setCreateVisible(false)
+    Taro.navigateTo({
+      url: `/pages/accounting/list/index?targetType=custom&targetId=${book.targetId}&name=${encodeURIComponent(book.targetName)}`,
+    })
   }
 
   // 删除账本确认（图标按钮 / 长按共用）
@@ -57,14 +53,10 @@ export default function AccountingIndexPage() {
   }
   const handleDeleteConfirm = async () => {
     if (!deleteBook) return
-    try {
-      await deleteAccountBook(deleteBook.targetType as TargetType, deleteBook.targetId)
-      setDeleteBook(null)
-      refresh()
-      Taro.showToast({ title: '已删除', icon: 'success' })
-    } catch {
-      Taro.showToast({ title: '删除失败', icon: 'none' })
-    }
+    await deleteAccountBook(deleteBook.targetType as TargetType, deleteBook.targetId)
+    setDeleteBook(null)
+    refresh()
+    Taro.showToast({ title: '已删除', icon: 'success' })
   }
 
   // 长按账本：删除整本账本（含全部记账记录）

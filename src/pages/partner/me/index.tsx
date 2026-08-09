@@ -42,17 +42,14 @@ export default function PartnerList() {
   const handleApply = async () => {
     if (!applyPartnerId) return
     setApplying(true)
-    try {
-      await applyPartner(applyPartnerId, { remark: applyRemark })
-      Taro.showToast({ title: '申请已发送', icon: 'success' })
-      setApplyVisible(false)
-      setApplyRemark('')
-      listRef.current?.refresh()
-    } catch {
-      Taro.showToast({ title: '申请失败', icon: 'none' })
-    } finally {
-      setApplying(false)
-    }
+    const ok = await applyPartner(applyPartnerId, { remark: applyRemark })
+      .then(() => true).catch(() => false)
+    setApplying(false)
+    if (!ok) return
+    Taro.showToast({ title: '申请已发送', icon: 'success' })
+    setApplyVisible(false)
+    setApplyRemark('')
+    listRef.current?.refresh()
   }
 
   usePullDownRefresh(async () => {

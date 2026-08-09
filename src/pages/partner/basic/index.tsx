@@ -113,41 +113,37 @@ export default function PublishForm() {
             return;
         }
 
-        try {
-            const days = getDaysData();
-            const params: any = {
-                ...formData,
-                days: days.length > 0 ? days : undefined,
-                maxMembers: Number(formData.maxMembers) || 1,
-                minMembers: Number(formData.minMembers) || 1,
-                minAge: Number(formData.minAge) || 18,
-                maxAge: Number(formData.maxAge) || 60,
-                maleCount: formData.genderLimit === 3 ? Number(formData.maleCount) : undefined,
-                femaleCount: formData.genderLimit === 3 ? Number(formData.femaleCount) : undefined,
-                budgetPerPerson: formData.feeMode === 3 ? Number(formData.budgetPerPerson) : undefined,
-                isDraft,
-            };
+        const days = getDaysData();
+        const params: any = {
+            ...formData,
+            days: days.length > 0 ? days : undefined,
+            maxMembers: Number(formData.maxMembers) || 1,
+            minMembers: Number(formData.minMembers) || 1,
+            minAge: Number(formData.minAge) || 18,
+            maxAge: Number(formData.maxAge) || 60,
+            maleCount: formData.genderLimit === 3 ? Number(formData.maleCount) : undefined,
+            femaleCount: formData.genderLimit === 3 ? Number(formData.femaleCount) : undefined,
+            budgetPerPerson: formData.feeMode === 3 ? Number(formData.budgetPerPerson) : undefined,
+            isDraft,
+        };
 
-            Object.keys(params).forEach(k => {
-                if (params[k] === undefined || params[k] === '') {
-                    delete params[k];
-                }
-            });
-
-            if (draftId) {
-                if (tripId) {
-                    params.tripId = tripId;
-                }
-                await updatePartner(draftId, params);
-            } else {
-                await createRun(params);
+        Object.keys(params).forEach(k => {
+            if (params[k] === undefined || params[k] === '') {
+                delete params[k];
             }
-            Taro.showToast({ title: isDraft ? '已保存草稿' : '发布成功', icon: 'success' });
-            clearTempStorage();
-            setTimeout(() => Taro.switchTab({ url: '/pages/publish/index/index' }), 1500);
-        } catch {
-            Taro.showToast({ title: '提交失败，请重试', icon: 'none' });
+        });
+
+        if (draftId) {
+            if (tripId) {
+                params.tripId = tripId;
+            }
+            await updatePartner(draftId, params);
+        } else {
+            await createRun(params);
         }
+        Taro.showToast({ title: isDraft ? '已保存草稿' : '发布成功', icon: 'success' });
+        clearTempStorage();
+        setTimeout(() => Taro.switchTab({ url: '/pages/publish/index/index' }), 1500);
     };
 
     const ageOptions = Array.from({ length: 53 }, (_, i) => i + 18);

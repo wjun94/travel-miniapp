@@ -29,12 +29,8 @@ export default function FavoritePage() {
   // 删除单条收藏
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    try {
-      await deleteFavorite(deleteTarget.targetId, deleteTarget.targetType);
-      Taro.showToast({ title: '已取消收藏', icon: 'success' });
-    } catch {
-      // 兜底
-    }
+    await deleteFavorite(deleteTarget.targetId, deleteTarget.targetType);
+    Taro.showToast({ title: '已取消收藏', icon: 'success' });
     setDeleteTarget(null);
     listRef.current?.refresh();
   };

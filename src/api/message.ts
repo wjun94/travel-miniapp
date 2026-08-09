@@ -53,6 +53,8 @@ export interface NotificationItem {
   targetId: string
   /** 目标类型：guide攻略 trip行程 partner搭子 follow关注 */
   targetType: string
+  /** 解散原因（搭子解散通知时展示） */
+  cancelReason: string;
   /** 通知类型：1搭子申请 2点赞 3新增关注 4系统通知 5评论 */
   type: number;
   /** 接收方（当前用户）ID */
@@ -125,7 +127,8 @@ export const getUnreadNotificationCount = () =>
     likeCount: number;
     partnerApplyCount: number;
     systemNotifyCount: number;
-    commentCount: number
+    commentCount: number;
+    partnerDynamicCount: number;
   }>({
     url: '/notification/unread',
     method: 'GET',

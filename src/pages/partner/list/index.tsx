@@ -57,16 +57,13 @@ export default function PartnerList() {
   const handleApply = async () => {
     if (!applyPartnerId) return
     setApplying(true)
-    try {
-      await applyPartner(applyPartnerId, { remark: applyRemark })
-      Taro.showToast({ title: '申请已发送', icon: 'success' })
-      closeApplyModal()
-      listRef.current?.refresh()
-    } catch {
-      Taro.showToast({ title: '申请失败', icon: 'none' })
-    } finally {
-      setApplying(false)
-    }
+    const ok = await applyPartner(applyPartnerId, { remark: applyRemark })
+      .then(() => true).catch(() => false)
+    setApplying(false)
+    if (!ok) return
+    Taro.showToast({ title: '申请已发送', icon: 'success' })
+    closeApplyModal()
+    listRef.current?.refresh()
   }
 
   // 关闭申请弹窗：先收起键盘再关闭，避免键盘收起导致列表滚动位置被重置到顶部

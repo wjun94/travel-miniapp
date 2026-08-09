@@ -117,18 +117,17 @@ export default function DraftsPage() {
   const handleDelete = async () => {
     if (!delTarget) return
     setDeleting(true)
-    try {
-      if (delTarget.type === 'guide') await deleteTravelGuide(delTarget.id)
-      if (delTarget.type === 'trip') await deleteTrip(delTarget.id)
-      if (delTarget.type === 'partner') await deletePartner(delTarget.id)
-      Taro.showToast({ title: '已删除', icon: 'success' })
-      setDelTarget(null)
-      listRef.current?.refresh()
-    } catch {
-      Taro.showToast({ title: '删除失败', icon: 'none' })
-    } finally {
-      setDeleting(false)
-    }
+    const ok = await (delTarget.type === 'guide'
+      ? deleteTravelGuide(delTarget.id)
+      : delTarget.type === 'trip'
+        ? deleteTrip(delTarget.id)
+        : deletePartner(delTarget.id)
+    ).then(() => true).catch(() => false)
+    setDeleting(false)
+    if (!ok) return
+    Taro.showToast({ title: '已删除', icon: 'success' })
+    setDelTarget(null)
+    listRef.current?.refresh()
   }
 
   const editUrl = (item: DraftItem) => {

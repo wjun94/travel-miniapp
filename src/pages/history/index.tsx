@@ -22,24 +22,16 @@ export default function BrowseHistoryPage() {
   // 删除单条
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    try {
-      await deleteHistoryRecord(deleteTarget.id);
-      Taro.showToast({ title: '已删除', icon: 'success' });
-    } catch {
-      // 兜底
-    }
+    await deleteHistoryRecord(deleteTarget.id);
+    Taro.showToast({ title: '已删除', icon: 'success' });
     setDeleteTarget(null);
     listRef.current?.refresh();
   };
 
   // 清空全部
   const handleClearAllConfirm = async () => {
-    try {
-      await clearAllHistory();
-      Taro.showToast({ title: '已全部清空', icon: 'none' });
-    } catch {
-      // 兜底
-    }
+    await clearAllHistory();
+    Taro.showToast({ title: '已全部清空', icon: 'none' });
     setShowClearModal(false);
     listRef.current?.refresh();
   };

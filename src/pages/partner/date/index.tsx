@@ -88,23 +88,17 @@ export default function PartnerDatePicker() {
         : 1)
       : selectedDayIndex + 1;
 
-    // 检查 AI 使用额度，不足则弹窗引导分享获取
-    try {
-      const quota = await getAiQuota();
-      if (!quota || quota.partner.remain <= 0) {
-        setQuotaModalVisible(true);
-        return;
-      }
-    } catch (e) {
-      // 额度查询失败不阻塞生成
-      console.warn('获取 AI 额度失败', e);
+    // 检查 AI 使用额度，不足则弹窗引导分享获取（查询失败不阻塞生成）
+    const quota = await getAiQuota().catch(() => null);
+    if (quota && quota.partner.remain <= 0) {
+      setQuotaModalVisible(true);
+      return;
     }
 
     setAiLoading(true);
     // 全屏 loading 锁住页面，避免生成期间重复操作
     Taro.showLoading({ title: 'AI 生成中...', mask: true });
-    try {
-      const res = await aiGeneratePartner({ destination, days });
+    await aiGeneratePartner({ destination, days }).then((res) => {
       // 保存 AI 生成数据到本地
       setAiData(res);
       Taro.setStorageSync('TEMP_PARTNER_AI_GENERATED', res);
@@ -115,12 +109,9 @@ export default function PartnerDatePicker() {
       }
       // 生成成功直接跳转搭子行程编辑页
       Taro.navigateTo({ url: `../itinerary/index?aiId=${res.id}` });
-    } catch (e: any) {
-      Taro.showToast({ title: e?.message || 'AI 生成失败，请稍后重试', icon: 'none' });
-    } finally {
-      setAiLoading(false);
-      Taro.hideLoading();
-    }
+    }).catch(() => {});
+    setAiLoading(false);
+    Taro.hideLoading();
   };
 
   useEffect(() => {
@@ -128,30 +119,37 @@ export default function PartnerDatePicker() {
     if (dest) setDestination(dest);
   }, []);
 
-  // 保存日期并进入行程规划页
-  const handleNext = () => {
+  // 将当前选择保存到缓存（跳过/下一步统一调用，避免读取到上次残留的旧日期）
+  const saveDates = () => {
     if (activeTab === 'specific') {
-      if (!startDate) {
-        Taro.showToast({ title: '请选择出发日期', icon: 'none' });
-        return;
-      }
-      const end = endDate || startDate;
-      const totalDays = end === startDate
-        ? 1
-        : Math.ceil((new Date(end).getTime() - new Date(startDate).getTime()) / 86400000) + 1;
-      const meta: DateMeta = { startDate, endDate: end, totalDays, flexDays: 0 };
+      const end = endDate || startDate || '';
+      const totalDays = startDate && end
+        ? (end === startDate
+          ? 1
+          : Math.ceil((new Date(end).getTime() - new Date(startDate).getTime()) / 86400000) + 1)
+        : 1;
+      const meta: DateMeta = { startDate: startDate || '', endDate: end, totalDays, flexDays: 0 };
       Taro.setStorageSync('TEMP_PARTNER_DATES', meta);
-      jumpNext();
     } else {
       const days = selectedDayIndex + 1;
       const meta: DateMeta = { startDate: '', endDate: '', totalDays: days, flexDays: days };
       Taro.setStorageSync('TEMP_PARTNER_DATES', meta);
-      jumpNext();
     }
   };
 
-  // 从 basic 返回时直接返回，否则进入行程规划页
+  // 保存日期并进入行程规划页
+  const handleNext = () => {
+    if (activeTab === 'specific' && !startDate) {
+      Taro.showToast({ title: '请选择出发日期', icon: 'none' });
+      return;
+    }
+    saveDates();
+    jumpNext();
+  };
+
+  // 从 basic 返回时直接返回，否则进入行程规划页（跳过也先保存当前选择）
   const jumpNext = () => {
+    saveDates();
     if (from === 'basic') {
       Taro.navigateBack();
     } else {

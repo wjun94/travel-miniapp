@@ -14,6 +14,7 @@ const TYPE_BG: Record<number, string> = {
     3: 'bg-green-50',
     4: 'bg-orange-50',
     5: 'bg-purple-50',
+    6: 'bg-teal-50',
 };
 
 export default function MessageList() {
@@ -113,13 +114,9 @@ export default function MessageList() {
             confirmText: '清空',
             success: async (res) => {
                 if (res.confirm) {
-                    try {
-                        await clearSystemMessages();
-                        listRef.current?.refresh();
-                        Taro.showToast({ title: '已清空', icon: 'success' });
-                    } catch {
-                        Taro.showToast({ title: '清空失败', icon: 'none' });
-                    }
+                    await clearSystemMessages();
+                    listRef.current?.refresh();
+                    Taro.showToast({ title: '已清空', icon: 'success' });
                 }
             },
         });
@@ -129,16 +126,13 @@ export default function MessageList() {
     const handleApprove = async (item: NotificationItem) => {
         if (!item.targetId || !item.relatedId) return;
         Taro.showLoading({ title: '处理中...', mask: true });
-        try {
-            await handlePartnerApplication(item.targetId, { applicationId: item.relatedId, status: 1, reason: '' });
-            // 本地即时更新列表状态，无需整列表刷新
-            setStatusMap(prev => ({ ...prev, [item.id]: 1 }));
-            Taro.showToast({ title: '已同意', icon: 'success' });
-        } catch {
-            Taro.showToast({ title: '操作失败', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
-        }
+        const ok = await handlePartnerApplication(item.targetId, { applicationId: item.relatedId, status: 1, reason: '' })
+            .then(() => true).catch(() => false);
+        Taro.hideLoading();
+        if (!ok) return;
+        // 本地即时更新列表状态，无需整列表刷新
+        setStatusMap(prev => ({ ...prev, [item.id]: 1 }));
+        Taro.showToast({ title: '已同意', icon: 'success' });
     };
 
     // 打开拒绝弹窗（二次确认 + 输入拒绝理由）
@@ -153,21 +147,17 @@ export default function MessageList() {
         if (!rejectTarget || !rejectTarget.targetId || !rejectTarget.relatedId) return;
         setRejectModalVisible(false);
         Taro.showLoading({ title: '处理中...', mask: true });
-        try {
-            await handlePartnerApplication(rejectTarget.targetId, {
-                applicationId: rejectTarget.relatedId,
-                status: 2,
-                reason: rejectReason.trim(),
-            });
-            // 本地即时更新列表状态，无需整列表刷新
-            setStatusMap(prev => ({ ...prev, [rejectTarget.id]: 2 }));
-            setReasonMap(prev => ({ ...prev, [rejectTarget.id]: rejectReason.trim() }));
-            Taro.showToast({ title: '已拒绝', icon: 'success' });
-        } catch {
-            Taro.showToast({ title: '操作失败', icon: 'none' });
-        } finally {
-            Taro.hideLoading();
-        }
+        const ok = await handlePartnerApplication(rejectTarget.targetId, {
+            applicationId: rejectTarget.relatedId,
+            status: 2,
+            reason: rejectReason.trim(),
+        }).then(() => true).catch(() => false);
+        Taro.hideLoading();
+        if (!ok) return;
+        // 本地即时更新列表状态，无需整列表刷新
+        setStatusMap(prev => ({ ...prev, [rejectTarget.id]: 2 }));
+        setReasonMap(prev => ({ ...prev, [rejectTarget.id]: rejectReason.trim() }));
+        Taro.showToast({ title: '已拒绝', icon: 'success' });
     };
 
     // 点击用户：进入用户详情页
@@ -302,18 +292,29 @@ export default function MessageList() {
                                 {/* 第四行：申请备注 */}
                                 {item.remark && (
                                     <View className='mt-2 bg-orange-50 border border-solid border-orange-100 px-3 py-2 rounded-lg max-w-full'>
-                                        <Text className='text-[22px] text-orange-600 line-clamp-2 leading-relaxed'>
+                                        <Text className='text-[22px] text-orange-600 leading-relaxed'>
                                             备注：{item.remark}
                                         </Text>
                                     </View>
                                 )}
 
-                                {/* 第五行：拒绝原因（仅已拒绝状态展示） */}
-                                {item.type === 1 && status === 2 && reason && (
-                                    <View className='mt-2 bg-red-50 border border-solid border-red-100 px-3 py-2 rounded-lg max-w-full'>
-                                        <Text className='text-[22px] text-red-500 line-clamp-2 leading-relaxed'>
-                                            拒绝原因：{reason}
+                                {/* 第五行：搭子解散原因 */}
+                                {item.type === 6 && item.cancelReason && (
+                                    <View className='mt-2 bg-teal-50 border border-solid border-teal-100 px-3 py-2 rounded-lg max-w-full'>
+                                        <Text className='text-[22px] text-teal-600 leading-relaxed'>
+                                            解散原因：{item.cancelReason}
                                         </Text>
+                                    </View>
+                                )}
+
+                                {/* 第五行：解散原因（仅已拒绝状态展示） */}
+                                {item.type === 1 && status === 2 && reason && (
+                                    <View className='mt-2 flex flex-row items-start bg-red-50/70 border border-solid border-red-100 px-3 py-2.5 rounded-lg'>
+                                        <View className='w-[8px] h-[8px] rounded-full bg-red-400 mt-[9px] mr-2 shrink-0' />
+                                        <View className='flex-1 min-w-0'>
+                                            <Text className='text-[20px] font-medium text-red-400 block mb-1'>解散原因</Text>
+                                            <Text className='text-[22px] text-red-600 leading-relaxed break-all'>{reason}</Text>
+                                        </View>
                                     </View>
                                 )}
 

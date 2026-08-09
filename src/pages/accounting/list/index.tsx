@@ -64,29 +64,26 @@ export default function AccountingListPage() {
       return
     }
     setSubmitting(true)
-    try {
-      if (editTarget) {
-        await updateAccount(editTarget.id, { category, amount: value, note: note.trim() })
-      } else {
-        await addAccount({
-          targetType,
-          targetId,
-          targetName: targetType === 'custom' ? name : undefined,
-          category,
-          amount: value,
-          note: note.trim(),
-        })
-      }
-      Taro.showToast({ title: '已保存', icon: 'success' })
-      setShowAdd(false)
-      setEditTarget(null)
-      setAmount('')
-      setNote('')
-      refresh()
-      refreshSummary()
-    } catch { /* ignore */ } finally {
-      setSubmitting(false)
-    }
+    const ok = (editTarget
+      ? updateAccount(editTarget.id, { category, amount: value, note: note.trim() })
+      : addAccount({
+        targetType,
+        targetId,
+        targetName: targetType === 'custom' ? name : undefined,
+        category,
+        amount: value,
+        note: note.trim(),
+      })
+    ).then(() => true).catch(() => false)
+    setSubmitting(false)
+    if (!ok) return
+    Taro.showToast({ title: '已保存', icon: 'success' })
+    setShowAdd(false)
+    setEditTarget(null)
+    setAmount('')
+    setNote('')
+    refresh()
+    refreshSummary()
   }
 
   // 打开编辑表单（预填该条记录）
@@ -108,12 +105,10 @@ export default function AccountingListPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
-    try {
-      await deleteAccount(deleteTarget.id)
-      setDeleteTarget(null)
-      refresh()
-      refreshSummary()
-    } catch { /* ignore */ }
+    await deleteAccount(deleteTarget.id)
+    setDeleteTarget(null)
+    refresh()
+    refreshSummary()
   }
 
   // 删除整本账本（含全部记账记录），删除后返回账本列表
@@ -121,14 +116,10 @@ export default function AccountingListPage() {
     setDeleteBookVisible(true)
   }
   const handleDeleteBookConfirm = async () => {
-    try {
-      await deleteAccountBook(targetType, targetId)
-      setDeleteBookVisible(false)
-      Taro.showToast({ title: '已删除', icon: 'success' })
-      setTimeout(() => Taro.navigateBack(), 400)
-    } catch {
-      Taro.showToast({ title: '删除失败', icon: 'none' })
-    }
+    await deleteAccountBook(targetType, targetId)
+    setDeleteBookVisible(false)
+    Taro.showToast({ title: '已删除', icon: 'success' })
+    setTimeout(() => Taro.navigateBack(), 400)
   }
 
   return (
