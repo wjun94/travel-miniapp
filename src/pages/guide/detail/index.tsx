@@ -10,11 +10,13 @@ import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
 import { useRequest } from 'ahooks';
 import { SECTION_MAP, typeConfigMap, getTransportLabel } from '@/constants/travel';
+import { getHeaderHeight } from '@/utils';
 import { BottomActionBar, CommentSection } from '@/features';
 
 export default function TravelGuideDetail() {
     const router = useRouter();
     const { id } = router.params || {};
+    const headerHeight = getHeaderHeight();
 
     const [currentDayIdx, setCurrentDayIdx] = useState(0);
     const [commentRefreshKey, setCommentRefreshKey] = useState(0);
@@ -61,7 +63,7 @@ export default function TravelGuideDetail() {
         Taro.pageScrollTo({
             selector: `#day-node-${idx}`, // 直接穿透定位
             duration: 300,
-            offsetTop: -100 // 预留出顶部自定义 NavBar 的高度
+            offsetTop: -(headerHeight + 140) // 预留 NavBar 与吸顶行程概览的高度
         });
     };
 
@@ -70,7 +72,7 @@ export default function TravelGuideDetail() {
         Taro.pageScrollTo({
             selector: '#comment-section', // 直接穿透定位
             duration: 300,
-            offsetTop: -100 // 预留出顶部自定义 NavBar 的高度
+            offsetTop: -(headerHeight + 140) // 预留 NavBar 与吸顶行程概览的高度
         });
     };
 
@@ -152,11 +154,7 @@ export default function TravelGuideDetail() {
             </View> : <View className='w-full min-h-screen bg-stone-50 flex flex-col pb-140px'>
                 {/* 顶部导航栏 */}
 
-                <ScrollView
-                    scrollY
-                    scrollWithAnimation
-                    className='w-full flex-1 box-border'
-                >
+                <View className='w-full box-border'>
                     {/* 顶部沉浸式大图封面 */}
                     <View className='relative w-full h-[520px]'>
                         <CoverImage src={guide.coverImage} title={guide.title}>
@@ -230,9 +228,10 @@ export default function TravelGuideDetail() {
                         </View>
                     </View>
 
-                    {/* 天数导航横向卡片 */}
+                    {/* 天数导航横向卡片（吸顶） */}
                     {days.length > 0 && (
-                        <View className='mt-4 bg-white mx-4 rounded-3xl p-4 shadow-sm'>
+                        <View className='pt-3 pb-1 bg-stone-50 sticky z-30' style={{ top: headerHeight }}>
+                            <View className='bg-white mx-4 rounded-3xl p-4 shadow-sm'>
                             <View className='flex flex-row justify-between items-center mb-3'>
                                 <Text className='text-[28px] font-extrabold text-stone-800 tracking-wide'>行程概览</Text>
                                 {days[currentDayIdx]?.title && (
@@ -259,6 +258,7 @@ export default function TravelGuideDetail() {
                                     );
                                 })}
                             </ScrollView>
+                            </View>
                         </View>
                     )}
 
@@ -392,7 +392,7 @@ export default function TravelGuideDetail() {
                             onReplyComment={(comment) => setReplyTo({ parentId: comment.id, nickname: comment.nickname })}
                         />
                     </View>
-                </ScrollView>
+                </View>
 
                 {/* 切换视图悬浮按钮 */}
                 <View
