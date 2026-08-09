@@ -1,5 +1,12 @@
 // src/constants/travel.ts
 
+import LocationsSvg from '@/assets/itinerary/locations.svg';
+import TransportationSvg from '@/assets/itinerary/transportation.svg';
+import HotelsSvg from '@/assets/itinerary/hotels.svg';
+import FoodSvg from '@/assets/itinerary/food.svg';
+import ShoppingSvg from '@/assets/itinerary/shopping.svg';
+import WarningsSvg from '@/assets/itinerary/warnings.svg';
+
 /** 行程难度选项 */
 export const difficultyOptions = [
   { key: 'easy', label: '轻松出行' },
@@ -15,7 +22,7 @@ export interface TypeConfig {
   // 基础信息
   label: string;
   icon: string;
-  emoji: string;
+  svg: string;
   // 颜色配置
   dotColor: string;
   ringColor: string;
@@ -38,7 +45,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   attraction: {
     label: '打卡地',
     icon: 'icon-attrac',
-    emoji: '📍',
+    svg: LocationsSvg,
     dotColor: '#FF851B',
     ringColor: '#FFEADA',
     color: '#E65100',
@@ -56,7 +63,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   transport: {
     label: '交通',
     icon: 'icon-bus',
-    emoji: '🚄',
+    svg: TransportationSvg,
     dotColor: '#10B981',
     ringColor: '#E6F4EA',
     color: '#047857',
@@ -74,7 +81,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   hotel: {
     label: '住宿',
     icon: 'icon-accom',
-    emoji: '🏨',
+    svg: HotelsSvg,
     dotColor: '#8B5CF6',
     ringColor: '#F3E8FF',
     color: '#6D28D9',
@@ -92,7 +99,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   food: {
     label: '美食',
     icon: 'icon-food',
-    emoji: '🍜',
+    svg: FoodSvg,
     dotColor: '#be123c',
     ringColor: '#ffe4e6',
     color: '#f43f5e',
@@ -110,7 +117,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   shopping: {
     label: '购物',
     icon: 'icon-shop',
-    emoji: '🛍️',
+    svg: ShoppingSvg,
     dotColor: '#0ea5e9',
     ringColor: '#e0f2fe',
     color: '#0369a1',
@@ -128,7 +135,7 @@ export const typeConfigMap: Record<SectionType, TypeConfig> = {
   tips: {
     label: '避坑',
     icon: 'icon-danger',
-    emoji: '⚠️',
+    svg: WarningsSvg,
     dotColor: '#EF4444',
     ringColor: '#FFE5E5',
     color: '#B91C1C',

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { NavBar, Image, CoverImage, Avatar, TypeIcon, Modal } from '@/components';
+import { NavBar, Image, CoverImage, Avatar, Modal } from '@/components';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
 import WarningsSvg from '@/assets/itinerary/warnings.svg';
 import TeamSvg from '@/assets/img/team.svg';
 import CitySvg from '@/assets/img/city.svg';
 import WatchSvg from '@/assets/img/watch.svg';
 import HotSvg from '@/assets/img/hot.svg';
+import CarSvg from '@/assets/img/car.svg';
 import Taro, { useRouter, usePullDownRefresh, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
 import { getTripDetail, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -325,7 +326,7 @@ export default function TripDetail() {
                                                                 <View key={item.id || index} className='relative my-2 py-1 flex flex-row items-center pl-2'>
                                                                     <View className='absolute -left-[48px] w-2.5 h-2.5 rounded-full bg-stone-300 z-10 border-2 border-white' />
                                                                     <View className='bg-stone-100/80 rounded-full px-4 py-1.5 flex flex-row items-center space-x-2 border border-white shadow-xs'>
-                                                                        <Text className='text-[24px]'>🚗</Text>
+                                                                        <Image src={CarSvg} className='h-4 w-4 mr-6px' />
                                                                         <Text className='text-[22px] text-stone-600 font-semibold'>
                                                                             {getTransportLabel((item as any).transportMode)}
                                                                             {item.description ? ` · ${item.description}` : ''}
@@ -351,7 +352,7 @@ export default function TripDetail() {
                                                                             <Text className='text-[22px] font-bold text-stone-400'>{formatTimeRange(item.startTime, item.endTime)}</Text>
                                                                         </View>
                                                                         <View className='px-2 py-0.5 rounded-lg flex items-center gap-1' style={{ color: config.color, backgroundColor: config.bg }}>
-                                                                            <TypeIcon emoji={typeCfg.emoji} className='h-3.5 w-3.5' fallbackClassName='text-[22px]' />
+                                                                            <Image src={typeCfg.svg} className='h-3.5 w-3.5' />
                                                                             <Text className='text-[22px] font-bold'>{config.label}</Text>
                                                                         </View>
                                                                     </View>

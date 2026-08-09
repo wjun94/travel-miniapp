@@ -1,5 +1,5 @@
 import { View, Text } from '@tarojs/components';
-import { TypeIcon } from '@/components';
+import { Image } from '@/components';
 import { typeConfigMap, SectionType } from '@/constants/travel';
 
 interface TypeSelectorProps {
@@ -23,7 +23,7 @@ export default function TypeSelector({ visible, onSelect, onCancel }: TypeSelect
             const cfg = typeConfigMap[type];
             return (
               <View key={type} onClick={() => onSelect(type)} className='flex flex-col items-center justify-center py-4 bg-gray-50 rounded-2xl active:bg-gray-100 box-border'>
-                <TypeIcon emoji={cfg.emoji} className='h-3.5 w-3.5 mb-1' fallbackClassName='text-[40px] mb-1' />
+                <Image src={cfg.svg} className='h-3.5 w-3.5 mb-1' />
                 <Text className='text-gray-700 font-medium text-[26px]'>{cfg.label}</Text>
               </View>
             );

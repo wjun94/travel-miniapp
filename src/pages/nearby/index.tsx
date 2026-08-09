@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { View, Text, Input } from '@tarojs/components'
 import { NavBar, Image } from '@/components'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
+import CarSvg from '@/assets/img/car.svg'
 
 export default function DiscoverPage() {
   const [currentCate, setCurrentCate] = useState(1)
 
   // 1. 分类金刚区数据 (对应图标色系)
-  const categories = [
+  const categories: { id: number; title: string; icon: string; svg?: string; bgColor: string; textColor: string }[] = [
     { id: 1, title: '推荐', icon: '🌲', bgColor: 'bg-[#EBF5F1]', textColor: 'text-[#3B8466]' },
     { id: 2, title: '徒步', icon: '🥾', bgColor: 'bg-[#F2F6F3]', textColor: 'text-[#617568]' },
     { id: 3, title: '露营', icon: '⛺', bgColor: 'bg-[#F5F6EE]', textColor: 'text-[#737A5C]' },
     { id: 4, title: '亲子', icon: '👶', bgColor: 'bg-[#FAF1EC]', textColor: 'text-[#A36D54]' },
-    { id: 5, title: '自驾', icon: '🚗', bgColor: 'bg-[#FDF0F0]', textColor: 'text-[#AD6461]' },
+    { id: 5, title: '自驾', icon: '🚗', svg: CarSvg, bgColor: 'bg-[#FDF0F0]', textColor: 'text-[#AD6461]' },
   ]
 
   // 2. 周边推荐卡片数据 (完全还原UI图数据)
@@ -103,7 +104,7 @@ export default function DiscoverPage() {
               {/* 圆形图标圈，激活用专属浅绿背景，未激活用意境灰底 */}
               <View className={`w-12 h-12 rounded-full flex items-center justify-center mb-1.5 transition-all ${isActive ? item.bgColor + ' shadow-sm' : 'bg-[#F6F6F2]'
                 }`}>
-                <Text className="text-lg opacity-90">{item.icon}</Text>
+                {item.svg ? <Image src={item.svg} className='h-4 w-4' /> : <Text className="text-lg opacity-90">{item.icon}</Text>}
               </View>
               <Text className={`text-[12px] ${isActive ? item.textColor + ' font-bold' : 'text-gray-400 font-normal'}`}>
                 {item.title}
