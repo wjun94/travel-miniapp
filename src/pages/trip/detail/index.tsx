@@ -9,7 +9,7 @@ import WatchSvg from '@/assets/img/watch.svg';
 import HotSvg from '@/assets/img/hot.svg';
 import CarSvg from '@/assets/img/car.svg';
 import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
-import { getTripDetail, Trip } from '@/api/trip';
+import { getTripDetail, likeTrip, unlikeTrip, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
 import { useRequest } from 'ahooks';
 import { createHistoryRecord } from '@/api/history';
@@ -637,6 +637,8 @@ export default function TripDetail() {
               });
             }}
             onCommentIconClick={handleScrollToComments}
+            onLike={likeTrip}
+            onUnlike={unlikeTrip}
             guideId={id || ''}
             onCommentSuccess={() => {
               setCommentRefreshKey((v) => v + 1);

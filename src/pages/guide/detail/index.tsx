@@ -608,7 +608,7 @@ export default function TravelGuideDetail() {
                 const next = !prev?.isLiked;
                 prev.likeCount = next ? prev.likeCount + 1 : prev.likeCount - 1;
                 prev.isLiked = next;
-                return prev;
+                return { ...prev }; // 浅拷贝触发 React 状态更新
               });
             }}
             onCollectToggle={() => {
@@ -618,7 +618,7 @@ export default function TravelGuideDetail() {
                 prev.favoriteCount = next
                   ? prev.favoriteCount + 1
                   : prev.favoriteCount - 1;
-                return prev;
+                return { ...prev }; // 浅拷贝触发 React 状态更新
               });
             }}
             onCommentIconClick={handleScrollToComments}
