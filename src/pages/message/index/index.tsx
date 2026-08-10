@@ -48,6 +48,10 @@
               refreshUnread()
               refreshList()
             }
+            if (data.action === 'group_message') {
+              // 收到群聊新消息推送：刷新会话列表（未读数+1）
+              refreshList()
+            }
           } catch (e) { /* 忽略非 JSON 消息 */ }
         })
         task.onClose(() => {

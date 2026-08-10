@@ -50,6 +50,8 @@ const STATUS_LABELS: Record<
   0: { label: '招募中', bg: 'bg-emerald-500/90', text: 'text-white' },
   1: { label: '已满员', bg: 'bg-gray-500/80', text: 'text-white' },
   2: { label: '已解散', bg: 'bg-rose-500/80', text: 'text-white' },
+  3: { label: '已结束', bg: 'bg-gray-500/80', text: 'text-white' },
+  4: { label: '已结束', bg: 'bg-gray-500/80', text: 'text-white' },
 };
 
 const formatDate = (dateStr: string) => {
@@ -370,8 +372,10 @@ export default function PartnerDetail() {
                 <Text className="text-[26px] text-gray-500">出行时间</Text>
                 <View className="text-right">
                   <Text className="text-[26px] text-gray-800 font-medium">
-                    {formatDate(partner.startDate)} -{' '}
-                    {formatDate(partner.endDate)}
+                    {formatDate(partner.startDate)}
+                    {partner.days !== 1 && partner.endDate && partner.endDate !== partner.startDate && (
+                      <> - {formatDate(partner.endDate)}</>
+                    )}
                   </Text>
                   {partner.days > 0 && (
                     <Text className="text-[22px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded ml-1.5 font-medium">
@@ -601,7 +605,7 @@ export default function PartnerDetail() {
                   </View>
                 ) : (
                   <View className="w-full bg-gray-100 text-gray-400 text-center py-2.5 rounded-xl font-medium text-[26px]">
-                    已解散
+                    {partner?.status === 2 ? '已解散' : '已结束'}
                   </View>
                 )
               ) : partner?.isApplied ? (

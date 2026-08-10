@@ -16,7 +16,9 @@ const FEE_LABELS: Record<number, string> = { 0: '免费', 1: 'AA制', 2: '组织
 const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
   0: { label: '招募中', bg: 'bg-emerald-500/90' },
   1: { label: '已满员', bg: 'bg-gray-500/80' },
-  2: { label: '已结束', bg: 'bg-rose-500/80' },
+  2: { label: '已解散', bg: 'bg-rose-500/80' },
+  3: { label: '已结束', bg: 'bg-gray-500/80' },
+  4: { label: '已结束', bg: 'bg-gray-500/80' },
 }
 
 const formatDate = (dateStr: string) => {
