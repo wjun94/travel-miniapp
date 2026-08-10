@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Input, Textarea, Switch, ScrollView, Picker } from '@tarojs/components';
 import { Image } from '@/components'
 import JourneySvg from '@/assets/img/journey.svg'
@@ -12,11 +12,21 @@ import LocationPicker from '@/features/guide/LocationPicker';
 // 主题色 Sunset Orange: #F97316
 
 export default function PublishForm() {
-    // 编辑模式：URL 携带 draftId 时加载草稿数据
     const params = Taro.getCurrentInstance().router?.params;
-    const draftId = (params?.draftId as string) || '';
+    const aiId = (params?.aiId as string) || '';
+    // 编辑模式：URL 携带 draftId 时加载草稿数据（AI 流程复用 AI 草稿 ID，更新而非新建）
+    const [draftId, setDraftId] = useState((params?.draftId as string) || '');
     // 编辑草稿时保留原关联行程 ID，提交时复用更新行程安排
     const [tripId, setTripId] = useState('');
+
+    // AI 生成流程兜底：URL 带 aiId 且与本地缓存匹配时，复用 AI 草稿 ID 走更新（避免重复创建）
+    useEffect(() => {
+        if (draftId) return;
+        const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
+        if (aiId && aiData && aiData.id === aiId) {
+            setDraftId(aiId);
+        }
+    }, []);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -58,6 +68,8 @@ export default function PublishForm() {
     const handleBlur = (field: string) => setInputFocus(prev => ({ ...prev, [field]: false }));
 
     const { runAsync: createRun, loading: submitting } = useRequest(createPartner, { manual: true });
+    // 提交锁（ref 同步标记，防双击连点重复创建）
+    const submitLockRef = useRef(false);
 
     const handleChooseCover = () => {
         Taro.chooseImage({ count: 1 }).then(async (res) => {
@@ -96,6 +108,8 @@ export default function PublishForm() {
     };
 
     const handleSubmit = async (isDraft: number) => {
+        if (submitting || submitLockRef.current) return; // 防重复提交
+        submitLockRef.current = true;
         if (!formData.title.trim()) {
             Taro.showToast({ title: '请填写搭子标题', icon: 'none' });
             return;
@@ -143,7 +157,10 @@ export default function PublishForm() {
         }
         Taro.showToast({ title: isDraft ? '已保存草稿' : '发布成功', icon: 'success' });
         clearTempStorage();
-        setTimeout(() => Taro.switchTab({ url: '/pages/publish/index/index' }), 1500);
+        setTimeout(() => {
+            submitLockRef.current = false;
+            Taro.switchTab({ url: '/pages/publish/index/index' });
+        }, 1500);
     };
 
     const ageOptions = Array.from({ length: 53 }, (_, i) => i + 18);
@@ -228,12 +245,16 @@ export default function PublishForm() {
                     longitude: Number(detail.longitude) || 0,
                 });
 
-                // 关联行程：保留 ID 并缓存行程安排（后端 TripDay -> 前端 DayPlan）
+                // 关联行程：保留 ID（老数据兼容），行程安排优先取搭子自身 itinerary
                 if (detail.trip?.id) {
                     setTripId(detail.trip.id);
                 }
-                if (detail.trip && Array.isArray(detail.trip.days) && detail.trip.days.length > 0) {
-                    const plans = detail.trip.days.map((day: any) => ({
+                const itineraryDays =
+                    (detail.itinerary && Array.isArray(detail.itinerary) && detail.itinerary.length > 0
+                        ? detail.itinerary
+                        : detail.trip?.days) || [];
+                if (Array.isArray(itineraryDays) && itineraryDays.length > 0) {
+                    const plans = itineraryDays.map((day: any) => ({
                         dayIndex: day.dayNumber || 1,
                         date: day.date || '',
                         title: day.title || '',
@@ -376,7 +397,7 @@ export default function PublishForm() {
     };
 
     return (
-        <View className="min-h-screen bg-[#F9FAFB] pb-10 text-gray-800">
+        <View className="min-h-screen bg-[#F9FAFB] pb-20 text-gray-800">
 
             <ScrollView scrollY className="px-4 pt-3 box-border">
                 {/* 行程安排入口（编辑草稿时可直接调整每日行程） */}
@@ -788,7 +809,7 @@ export default function PublishForm() {
                 </Section>
 
                 {/* 底部操作按钮 */}
-                <View className="mt-6 mb-10 flex items-center justify-between gap-3">
+                <View className="py-4 flex items-center justify-between gap-3 fixed bg-white px-4 bottom-0 left-0 right-0 z-50 backdrop-blur-md shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
                     <View
                         className="flex-1 py-3.5 text-center font-semibold bg-gray-100 text-gray-700 rounded-full active:bg-gray-200"
                         onClick={() => handleSubmit(1)}

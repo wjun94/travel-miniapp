@@ -280,6 +280,15 @@ export default function MessageList() {
                                     {item.content}
                                 </Text>
 
+                                {/* 点赞/收藏：展示被操作内容标题 */}
+                                {item.type === 2 && item.title && (
+                                    <View className='mt-2 bg-gray-50 border border-solid border-gray-100 px-3 py-2 rounded-lg max-w-full'>
+                                        <Text className='text-[22px] text-gray-500 line-clamp-2 leading-relaxed'>
+                                            {item.title}
+                                        </Text>
+                                    </View>
+                                )}
+
                                 {/* 第三行：评论/回复气泡背景 */}
                                 {item.commentContent && (
                                     <View className='mt-2 bg-gray-50 border border-solid border-gray-100 px-3 py-2 rounded-lg max-w-full'>

@@ -162,6 +162,8 @@ export default function TravelDurationPicker() {
         await aiGenerateTrip({
             destination: destinations.map(d => d.name).join(','),
             days,
+            // 具体日期模式下携带出发日期，AI 行程每天日期按此顺延
+            startDate: activeTab === 'specific' ? (startDate || undefined) : undefined,
         }).then((res) => {
             // 保存 AI 生成数据与目的地信息到本地
             setAiData(res);
@@ -186,7 +188,8 @@ export default function TravelDurationPicker() {
     const saveDestinationMeta = () => {
         const meta = {
             cities: [...new Set(destinations.map(d => d.name))],
-            destinations: destinations.map(d => d.code),
+            // destinations 存目的地名称（与 AI 生成流程、后台展示/搜索语义一致，code 可能为空）
+            destinations: [...new Set(destinations.map(d => d.name))],
             provinces: [...new Set(destinations.map(d => d.province).filter(Boolean))],
             countries: destinations.filter(isOverseasDestination).map(d => d.name),
             isOverseas: (destinations.some(isOverseasDestination) ? 1 : 0) as 0 | 1,

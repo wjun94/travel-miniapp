@@ -359,12 +359,18 @@ export interface PartnerItem {
   // --- 统计 ---
   /** 浏览次数 */
   viewCount: number;
+  /** 点赞数 */
+  likeCount: number;
 }
 
 // AI生成搭子行程请求入参
 export interface AiGeneratePartnerParams {
   destination: string;
   days: number;
+  /** 用户选择的出发日期（YYYY-MM-DD），指定后搭子日期与行程安排按此顺延 */
+  startDate?: string;
+  /** 用户选择的结束日期（YYYY-MM-DD） */
+  endDate?: string;
 }
 
 // --- API 函数 ---

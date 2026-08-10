@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/history/index",
-          "pathName": "pages/history/index",
+          "name": "发布",
+          "pathName": "pages/publish/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/history/index",
+          "pathName": "pages/history/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/partner/detail/index",
@@ -65,13 +72,6 @@
         {
           "name": "pages/partner/list/index",
           "pathName": "pages/partner/list/index",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "发布",
-          "pathName": "pages/publish/index",
           "query": "",
           "launchMode": "default",
           "scene": null

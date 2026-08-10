@@ -536,7 +536,9 @@ export default function ItineraryPage() {
       }
     }
     Taro.setStorageSync('TEMP_PARTNER_ITINERARY_PLANS', dayPlans);
-    Taro.navigateTo({ url: '/pages/partner/basic/index' });
+    // AI 流程携带 aiId，basic 页据此复用 AI 草稿更新（避免重复创建搭子）
+    const aiId = params?.aiId as string;
+    Taro.navigateTo({ url: `/pages/partner/basic/index${aiId ? `?aiId=${aiId}` : ''}` });
   };
 
   /** 根据类型渲染对应表单 */

@@ -206,13 +206,16 @@ export default function BasicInfoPage() {
           : aiData?.days || [],
     };
 
-    if (draftId) {
-      await updateTrip(draftId, payload as any);
+    // 编辑已有草稿（draftId），或 AI 生成后首次发布（缓存含 AI 草稿行程ID）→ 更新而非新建
+    const existingId = draftId || (aiData?.id ? String(aiData.id) : '');
+    if (existingId) {
+      await updateTrip(existingId, payload as any);
     } else {
       await createRunAsync(payload as any);
     }
 
     Taro.removeStorageSync('TEMP_TRIP_DESTINATIONS');
+    Taro.removeStorageSync('TEMP_TRIP_AI_GENERATED');
     setTimeout(() => {
       Taro.switchTab({ url: '/pages/publish/index/index' });
       setTimeout(() => {

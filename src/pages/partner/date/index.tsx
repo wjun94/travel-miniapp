@@ -95,10 +95,18 @@ export default function PartnerDatePicker() {
       return;
     }
 
+    // 保存当前选择的日期到缓存（basic 页本地已选优先，避免读到上次残留旧日期）
+    saveDates();
     setAiLoading(true);
     // 全屏 loading 锁住页面，避免生成期间重复操作
     Taro.showLoading({ title: 'AI 生成中...', mask: true });
-    await aiGeneratePartner({ destination, days }).then((res) => {
+    await aiGeneratePartner({
+      destination,
+      days,
+      // 具体日期模式下携带用户选择的日期，AI 生成的搭子日期按此为准
+      startDate: activeTab === 'specific' ? (startDate || undefined) : undefined,
+      endDate: activeTab === 'specific' ? (endDate || undefined) : undefined,
+    }).then((res) => {
       // 保存 AI 生成数据到本地
       setAiData(res);
       Taro.setStorageSync('TEMP_PARTNER_AI_GENERATED', res);

@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef } from 'react'
 import { View, Text, Input, ScrollView } from '@tarojs/components'
-import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro'
+import Taro, { useShareAppMessage, useShareTimeline, useDidShow } from '@tarojs/taro'
 import { getHeaderHeight, getImageCdnUrl } from '@/utils'
 import { NavBar, ScrollLoadList, GuideCard, Image } from '@/components'
+import type { ScrollLoadListRef } from '@/components/ScrollLoadList'
 import { getGuides } from '@/api/post'
 import type { Guide } from '@/api/post'
 import { likeTravelGuide, unlikeTravelGuide } from '@/api/guide'
@@ -24,6 +25,12 @@ export default function HomePage() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const headerHeight = getHeaderHeight()
   const update = useUpdate()
+  // 列表刷新句柄：页面显示时同步最新数据（新建发布/详情点赞返回后）
+  const listRef = useRef<ScrollLoadListRef>(null)
+
+  useDidShow(() => {
+    listRef.current?.refresh()
+  })
 
   // 点击搜索：跳转搜索页并携带关键词
   const handleSearch = useCallback(() => {
@@ -177,6 +184,7 @@ export default function HomePage() {
         {renderHeader()}
       </View>
       <ScrollLoadList
+        ref={listRef}
         request={(page, pageSize, params) => getGuides(page, pageSize, undefined, undefined, params?.category)}
         params={{ category: TABS[currentTab].value }}
         renderItem={renderCard}

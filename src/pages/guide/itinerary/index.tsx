@@ -68,9 +68,26 @@ const createEmptyItem = (dayIndex: number, type: SectionType): DayItem => ({
 });
 
 export default function ItineraryPage() {
+  // 根据起始日期 + 偏移天数生成日期字符串（YYYY-MM-DD）
+  const getDateStr = (start: string, offset: number) => {
+    const d = new Date(start);
+    d.setDate(d.getDate() + offset);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const [dayPlans, setDayPlansState] = useState<DayPlan[]>(() => {
     const saved = Taro.getStorageSync('TEMP_ITINERARY_PLANS');
     if (saved) return saved;
+    // 新建流程：优先按 guide/date 已选出行日期生成天数与每日日期
+    const dates = Taro.getStorageSync('TEMP_GUIDE_DATES') as { startDate?: string; totalDays?: number } | undefined;
+    if (dates?.startDate && (dates.totalDays || 0) > 0) {
+      return Array.from({ length: dates.totalDays as number }, (_, i) => ({
+        dayIndex: i + 1,
+        date: getDateStr(dates.startDate as string, i),
+        title: '',
+        items: [createEmptyItem(i + 1, 'attraction')],
+      }));
+    }
     return [
       { dayIndex: 1, date: '', title: '', items: [createEmptyItem(1, 'attraction')] }
     ];
@@ -160,7 +177,13 @@ export default function ItineraryPage() {
 
   const handleAddDay = () => {
     const nextDay = dayPlans.length + 1;
-    setDayPlans([...dayPlans, { dayIndex: nextDay, date: '', title: '', items: [] }]);
+    // 已选出行日期时，新增一天自动续上对应日期
+    let date = '';
+    const dates = Taro.getStorageSync('TEMP_GUIDE_DATES') as { startDate?: string } | undefined;
+    if (dates?.startDate) {
+      date = getDateStr(dates.startDate, nextDay - 1);
+    }
+    setDayPlans([...dayPlans, { dayIndex: nextDay, date, title: '', items: [] }]);
     Taro.showToast({ title: `已添加${getFormatDayName(nextDay)}`, icon: 'none' });
     setTimeout(() => { handleTabClick(nextDay); }, 120);
   };

@@ -5,6 +5,8 @@ import type { Guide } from './post'
 export interface AiGenerateTripParams {
   destination: string;
   days: number;
+  /** 用户选择的出发日期（YYYY-MM-DD），指定后 AI 行程每天日期按此顺延 */
+  startDate?: string;
 }
 
 interface TripMember {

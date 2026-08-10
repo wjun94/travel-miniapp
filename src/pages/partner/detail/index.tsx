@@ -506,38 +506,64 @@ export default function PartnerDetail() {
               </SectionCard>
             )}
 
-            {/* Card 6: 关联行程 */}
-            {partner.trip && (
-              <SectionCard title="关联行程">
-                <View
-                  className="bg-gray-50 rounded-xl p-3 space-y-2 active:opacity-80"
-                  onClick={() =>
-                    Taro.navigateTo({
-                      url: `/pages/trip/view/index?id=${partner.trip.id}`,
-                    })
-                  }
-                >
-                  <Text className="text-[26px] font-bold text-gray-800">
-                    {partner.trip.title}
-                  </Text>
-                  {partner.trip.summary && (
-                    <Text className="text-[24px] text-gray-500 line-clamp-2">
-                      {partner.trip.summary}
-                    </Text>
-                  )}
-                  <View className="flex flex-row flex-wrap gap-1.5">
-                    {partner.trip.destinations?.map((d, i) => (
-                      <Text
-                        key={i}
-                        className="text-[20px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded"
-                      >
-                        {d}
+            {/* Card 6: 行程安排 */}
+            {(Array.isArray(partner.itinerary) && partner.itinerary.length > 0) ||
+              (partner.trip && (
+                <SectionCard title="行程安排">
+                  {Array.isArray(partner.itinerary) && partner.itinerary.length > 0 ? (
+                    <View className="space-y-2">
+                      {partner.itinerary.map((day: any, di: number) => (
+                        <View key={di} className="bg-gray-50 rounded-xl p-3">
+                          <View className="flex flex-row items-center mb-1">
+                            <Text className="text-[22px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded">
+                              第{day.dayNumber || di + 1}天
+                            </Text>
+                            {day.title && (
+                              <Text className="text-[24px] font-medium text-gray-800 ml-2 flex-1 line-clamp-1">
+                                {day.title}
+                              </Text>
+                            )}
+                          </View>
+                          <Text className="text-[22px] text-gray-500 line-clamp-2">
+                            {(day.items || [])
+                              .map((it: any) => it.title)
+                              .filter(Boolean)
+                              .join(' · ') || '行程安排已就绪'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : partner.trip ? (
+                    <View
+                      className="bg-gray-50 rounded-xl p-3 space-y-2 active:opacity-80"
+                      onClick={() =>
+                        Taro.navigateTo({
+                          url: `/pages/trip/view/index?id=${partner.trip.id}`,
+                        })
+                      }
+                    >
+                      <Text className="text-[26px] font-bold text-gray-800">
+                        {partner.trip.title}
                       </Text>
-                    ))}
-                  </View>
-                </View>
-              </SectionCard>
-            )}
+                      {partner.trip.summary && (
+                        <Text className="text-[24px] text-gray-500 line-clamp-2">
+                          {partner.trip.summary}
+                        </Text>
+                      )}
+                      <View className="flex flex-row flex-wrap gap-1.5">
+                        {partner.trip.destinations?.map((d, i) => (
+                          <Text
+                            key={i}
+                            className="text-[20px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded"
+                          >
+                            {d}
+                          </Text>
+                        ))}
+                      </View>
+                    </View>
+                  ) : null}
+                </SectionCard>
+              ))}
 
             {/* ---- Comment Section ---- */}
             <View id="partner-comment-section">

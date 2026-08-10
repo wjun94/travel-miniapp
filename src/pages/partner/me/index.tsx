@@ -1,7 +1,6 @@
 import { View, Text, Textarea } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { usePullDownRefresh, useDidShow } from '@tarojs/taro'
 import { useRef, useState } from 'react'
-import { usePullDownRefresh } from '@tarojs/taro'
 import { ScrollLoadList, Image, Modal } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
@@ -57,6 +56,11 @@ export default function PartnerList() {
     Taro.stopPullDownRefresh()
   })
 
+  // 页面显示时刷新（详情页解散/退出/申请处理后返回同步数据）
+  useDidShow(() => {
+    listRef.current?.refresh()
+  })
+
   return (
     <View className='min-h-screen bg-gray-100/70 pb-6'>
 
@@ -92,10 +96,16 @@ export default function PartnerList() {
                   </View>
                 )}
 
-                {/* 浏览量 */}
-                <View className='absolute bottom-3 right-3 bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full z-10 flex items-center'>
-                  <Text className='iconfont icon-eye mr-1' />
-                  <Text className='text-22px'>{item.viewCount ?? 0}</Text>
+                {/* 浏览/点赞 */}
+                <View className='absolute bottom-3 right-3 flex flex-row items-center space-x-1.5 z-10'>
+                  <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
+                    <Text className='iconfont icon-eye mr-1' />
+                    <Text className='text-22px'>{item.viewCount ?? 0}</Text>
+                  </View>
+                  <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
+                    <Text className='iconfont icon-follow mr-1' />
+                    <Text className='text-22px'>{item.likeCount ?? 0}</Text>
+                  </View>
                 </View>
 
                 {/* 底部黑 gradient 渐变 */}

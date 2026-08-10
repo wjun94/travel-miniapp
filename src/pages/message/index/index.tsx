@@ -97,7 +97,7 @@
 
     const categories = useMemo(() => [
       { id: 1, title: '搭子申请', icon: 'icon-apply', bgColor: '#16a34a', textColor: '#fff', badge: unreadData?.partnerApplyCount || 0 },
-      { id: 2, title: '评论点赞', icon: 'icon-follow-fill', bgColor: '#ef4444', textColor: '#fff', badge: unreadData?.likeCount || 0 },
+      { id: 2, title: '点赞收藏', icon: 'icon-follow-fill', bgColor: '#ef4444', textColor: '#fff', badge: unreadData?.likeCount || 0 },
       { id: 3, title: '新增关注', icon: 'icon-people', bgColor: '#d97706', textColor: '#fff', badge: unreadData?.followCount || 0 },
       { id: 5, title: '新增评论', icon: 'icon-msg', bgColor: '#0284c7', textColor: '#fff', badge: unreadData?.commentCount || 0 },
     ], [unreadData])

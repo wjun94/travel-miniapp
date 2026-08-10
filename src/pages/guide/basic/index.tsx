@@ -233,6 +233,7 @@ export default function BasicInfoPage() {
       setTimeout(() => {
         Taro.removeStorageSync('TEMP_ITINERARY_PLANS');
         Taro.removeStorageSync('TEMP_GUIDE_DESTINATION');
+        Taro.removeStorageSync('TEMP_GUIDE_DATES');
       }, 500);
       Taro.switchTab({ url: '/pages/publish/index/index' });
     }, 1500);
