@@ -62,3 +62,58 @@ button.rounded-full {
   }
 }
 
+// 列表加载/刷新旋转指示器（ScrollLoadList）
+.sll-spinner {
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid rgba(233, 116, 66, 0.2);
+  border-top-color: #e97442;
+  border-radius: 50%;
+  animation: sll-spin 0.8s linear infinite;
+}
+
+@keyframes sll-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 加载省略号动画：三个点依次出现（. → .. → ...），随后一起消失循环
+.sll-dot-1,
+.sll-dot-2,
+.sll-dot-3 {
+  display: inline-block;
+  opacity: 0;
+  animation: sll-dot 1.2s infinite;
+}
+
+.sll-dot-1 {
+  animation-delay: 0s;
+}
+
+.sll-dot-2 {
+  animation-delay: 0.2s;
+}
+
+.sll-dot-3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes sll-dot {
+  0% {
+    opacity: 0;
+  }
+  16.7% {
+    opacity: 1;
+  }
+  33.3% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+

@@ -29,7 +29,7 @@ export default function HomePage() {
   const listRef = useRef<ScrollLoadListRef>(null)
 
   useDidShow(() => {
-    listRef.current?.refresh()
+    listRef.current?.refresh(true)
   })
 
   // 点击搜索：跳转搜索页并携带关键词

@@ -40,8 +40,12 @@ export interface ScrollLoadListProps<T = any> {
 }
 
 export interface ScrollLoadListRef {
-  refresh: () => void
+  /** 刷新列表；默认静默不触发下拉刷新动画，手动下拉场景传 false */
+  refresh: (silent?: boolean) => void
 }
+
+// 静默刷新 loading 最小展示时长（ms）：请求过快时避免一闪而过
+const MIN_SILENT_LOADING_MS = 400
 
 const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: React.Ref<ScrollLoadListRef | any>) => {
   const {
@@ -75,6 +79,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   const [page, setPage] = useState(initialPage)
   const [loadingMore, setLoadingMore] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [silentLoading, setSilentLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [error, setError] = useState(false)
   const [initialLoading, setInitialLoading] = useState(immediate)
@@ -83,43 +88,70 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   const isLoadingMoreRef = useRef(false)
   // 标记是否首次渲染，避免 params effect 与初始加载 effect 重复请求
   const isFirstRender = useRef(true)
+  // 数据快照：用于静默刷新时对比数据是否变化（避免重复渲染导致瀑布流重排闪动）
+  const dataRef = useRef<T[]>([])
+  // 静默加载开始时间：用于保证 loading 最小展示时长
+  const silentStartRef = useRef(0)
 
   // 加载数据（通用）
-  const loadData = useCallback(async (currentPage: number, isRefresh = false) => {
+  const loadData = useCallback(async (currentPage: number, isRefresh = false, silent = false) => {
     if (!isRefresh && loadingMore) return
-    if (isRefresh) {
+    if (isRefresh && !silent) {
       setRefreshing(true)
-    } else {
+    } else if (isRefresh && silent) {
+      silentStartRef.current = Date.now()
+      setSilentLoading(true)
+    } else if (!isRefresh) {
       setLoadingMore(true)
     }
     setError(false)
 
     const res = await request(currentPage, pageSize, params).catch(() => null)
-      if (!isMounted.current) return
+    if (!isMounted.current) return
 
-      if (res) {
-        const { list, total } = res
-        const totalPage = Math.ceil(total / pageSize)
+    if (res) {
+      const { list, total } = res
+      const totalPage = Math.ceil(total / pageSize)
 
-        if (isRefresh) {
-          setData(list || [])
-          setPage(currentPage)
-        } else {
-          setData(prev => [...prev, ...list])
-        }
-        setHasMore(currentPage < totalPage)
-        setError(false)
-      } else {
-        setError(true)
-      }
       if (isRefresh) {
-        setRefreshing(false)
+        const nextList = list || []
+        // 静默刷新：数据未变化时跳过 setData，避免列表整体替换导致瀑布流重排闪动
+        if (!silent || JSON.stringify(nextList) !== JSON.stringify(dataRef.current)) {
+          dataRef.current = nextList
+          setData(nextList)
+        }
+        setPage(currentPage)
       } else {
-        setLoadingMore(false)
+        const merged = [...dataRef.current, ...list]
+        dataRef.current = merged
+        setData(merged)
       }
-      if (isRefresh && isMounted.current) {
-        setInitialLoading(false)
+      setHasMore(currentPage < totalPage)
+      setError(false)
+    } else {
+      setError(true)
+    }
+    if (isRefresh) {
+      setRefreshing(false)
+      // 已有数据的静默刷新：保证 loading 至少展示 MIN_SILENT_LOADING_MS，避免一闪而过
+      if (silent && dataRef.current.length > 0) {
+        const remain = MIN_SILENT_LOADING_MS - (Date.now() - silentStartRef.current)
+        if (remain > 0) {
+          setTimeout(() => {
+            if (isMounted.current) setSilentLoading(false)
+          }, remain)
+        } else {
+          setSilentLoading(false)
+        }
+      } else {
+        setSilentLoading(false)
       }
+    } else {
+      setLoadingMore(false)
+    }
+    if (isRefresh && isMounted.current) {
+      setInitialLoading(false)
+    }
   }, [request, pageSize, loadingMore, params])
 
   // params 变化时自动刷新列表（首次挂载由初始加载 effect 负责，避免重复请求）
@@ -131,20 +163,20 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     refresh()
   }, [JSON.stringify(params)])
 
-  // 对外暴露的刷新方法
-  const refresh = useCallback(() => {
-    if (refreshing || loadingMore) return
-    loadData(initialPage, true)
-  }, [refreshing, loadingMore, initialPage, loadData])
+  // 对外暴露的刷新方法：默认静默（不触发下拉刷新动画），手动下拉时传入 false
+  const refresh = useCallback((silent = true) => {
+    if (refreshing || loadingMore || silentLoading) return
+    loadData(initialPage, true, silent)
+  }, [refreshing, loadingMore, silentLoading, initialPage, loadData])
 
   useImperativeHandle(ref, () => ({
     refresh
   }), [refresh])
 
-  // 初始加载
+  // 初始加载（静默，不触发下拉刷新动画）
   useEffect(() => {
     if (immediate) {
-      loadData(initialPage, true)
+      loadData(initialPage, true, true)
     }
     return () => {
       isMounted.current = false
@@ -153,7 +185,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
 
   // 上拉加载更多
   const handleLoadMore = useCallback(() => {
-    if (loadingMore || !hasMore || refreshing || error || isLoadingMoreRef.current) return
+    if (loadingMore || !hasMore || refreshing || error || silentLoading || isLoadingMoreRef.current) return
     isLoadingMoreRef.current = true
     const nextPage = page + 1
     loadData(nextPage, false).finally(() => {
@@ -163,17 +195,17 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     })
   }, [loadingMore, hasMore, refreshing, error, page, loadData])
 
-  // 下拉刷新
+  // 下拉刷新（用户手动下拉时保留刷新动画）
   const handleRefresh = useCallback(() => {
-    if (refreshing || loadingMore) return
-    loadData(initialPage, true)
-  }, [refreshing, loadingMore, initialPage, loadData])
+    if (refreshing || loadingMore || silentLoading) return
+    loadData(initialPage, true, false)
+  }, [refreshing, loadingMore, silentLoading, initialPage, loadData])
 
   // 重试
   const handleRetry = useCallback(() => {
     if (error) {
       if (data.length === 0) {
-        loadData(initialPage, true)
+        loadData(initialPage, true, true)
       } else {
         handleLoadMore()
       }
@@ -193,8 +225,8 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     if (loadingMore) {
       return (
         <View className="flex justify-center items-center py-4">
-          <View className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mr-2" />
-          <Text className="text-gray-500 text-sm">{loadingMoreText}</Text>
+          <View className="sll-spinner mr-10px" />
+          <Text className="text-[22px] text-stone-500">{loadingMoreText}</Text>
         </View>
       )
     }
@@ -218,7 +250,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     )
   }
 
-  const showEmpty = data.length === 0 && !loadingMore && !refreshing && !error && !initialLoading
+  const showEmpty = data.length === 0 && !loadingMore && !refreshing && !silentLoading && !error && !initialLoading
 
   // 判断是否启用瀑布流布局（masonry 模式且多列）
   const isMasonry = masonry && numColumns > 1
@@ -321,6 +353,30 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
       {renderFooter && renderFooter()}
 
       {showEmpty && renderEmptyContent()}
+      {/* 静默刷新 loading：有数据时顶部胶囊条，无数据时居中指示 */}
+      {silentLoading && (
+        <View
+          className={data.length > 0
+            ? 'flex justify-center items-center py-6px'
+            : 'flex flex-col justify-center items-center py-40px'}
+        >
+          {data.length > 0 ? (
+            <View className="flex flex-row items-center px-16px py-6px rounded-full bg-white shadow-sm">
+              <View className="sll-spinner" />
+              <Text className="text-[22px] text-stone-500 ml-10px">
+                刷新中<Text className="sll-dot-1">.</Text><Text className="sll-dot-2">.</Text><Text className="sll-dot-3">.</Text>
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View className="sll-spinner" />
+              <Text className="text-[24px] text-stone-400 mt-12px">
+                加载中<Text className="sll-dot-1">.</Text><Text className="sll-dot-2">.</Text><Text className="sll-dot-3">.</Text>
+              </Text>
+            </>
+          )}
+        </View>
+      )}
     </ScrollView>
   )
 })
