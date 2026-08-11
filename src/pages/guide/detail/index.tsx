@@ -25,7 +25,7 @@ import {
   getTransportLabel,
   difficultyOptions,
 } from '@/constants/travel';
-import { getHeaderHeight, openMapLocation, getImageCdnUrl } from '@/utils';
+import { getHeaderHeight, openMapLocation, getImageUrl, getImageCdnUrl } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
 import { BottomActionBar, CommentSection } from '@/features';
 
@@ -212,7 +212,7 @@ export default function TravelGuideDetail() {
       title: guide?.title || '发现一篇好攻略，一起看看吧！',
       path: `/pages/guide/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: guide?.coverImage
-        ? guide.coverImage
+        ? getImageUrl(guide.coverImage)
         : getImageCdnUrl('share.png'),
     };
   });
@@ -224,7 +224,7 @@ export default function TravelGuideDetail() {
       title: guide?.title || '发现一篇好攻略，一起看看吧！',
       query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: guide?.coverImage
-        ? guide.coverImage
+        ? getImageUrl(guide.coverImage)
         : getImageCdnUrl('share.png'),
     };
   });

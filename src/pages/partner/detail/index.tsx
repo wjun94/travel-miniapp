@@ -30,7 +30,7 @@ import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
 import { addFavorite, deleteFavorite } from '@/api/favorite';
 import { createComment } from '@/api/comment';
-import { openMapLocation, getImageCdnUrl } from '@/utils';
+import { openMapLocation, getImageUrl, getImageCdnUrl } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
 
 const TYPE_LABELS: Record<number, string> = {
@@ -119,7 +119,7 @@ export default function PartnerDetail() {
         '发现一个有趣搭子，一起出发吧！',
       path: `/pages/partner/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: partner?.cover
-        ? partner.cover
+        ? getImageUrl(partner.cover)
         : getImageCdnUrl('share.png'),
     };
   });
@@ -134,7 +134,7 @@ export default function PartnerDetail() {
         '发现一个有趣搭子，一起出发吧！',
       query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: partner?.cover
-        ? partner.cover
+        ? getImageUrl(partner.cover)
         : getImageCdnUrl('share.png'),
     };
   });

@@ -24,7 +24,7 @@ import {
   typeConfigMap,
   getTransportLabel,
 } from '@/constants/travel';
-import { getHeaderHeight, openMapLocation, getImageCdnUrl } from '@/utils';
+import { getHeaderHeight, openMapLocation, getImageUrl, getImageCdnUrl } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
 import { BottomActionBar, CommentSection } from '@/features';
 
@@ -226,7 +226,7 @@ export default function TripDetail() {
       title: guide?.title || '发现一个好行程，一起出发吧！',
       path: `/pages/trip/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: guide?.coverImage
-        ? guide.coverImage
+        ? getImageUrl(guide.coverImage)
         : getImageCdnUrl('share.png'),
     };
   });
@@ -238,7 +238,7 @@ export default function TripDetail() {
       title: guide?.title || '发现一个好行程，一起出发吧！',
       query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
       imageUrl: guide?.coverImage
-        ? guide.coverImage
+        ? getImageUrl(guide.coverImage)
         : getImageCdnUrl('share.png'),
     };
   });
