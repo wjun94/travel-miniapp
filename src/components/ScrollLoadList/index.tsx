@@ -103,10 +103,13 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   const loadData = useCallback(async (currentPage: number, isRefresh = false, silent = false) => {
     if (!isRefresh && loadingMore) return
     if (isRefresh && !silent) {
+      // 手动刷新（下拉等显式触发）：先关闭静默 loading，避免两种 loading 状态并存，再开启下拉刷新动画
+      setSilentLoading(false)
       setRefreshing(true)
     } else if (isRefresh && silent) {
+      // 静默刷新（页面切回/参数切换等后台刷新）：记录开始时间，保证 loading 最小展示时长，避免请求过快一闪而过
+      setSilentLoading(false)
       silentStartRef.current = Date.now()
-      setSilentLoading(true)
     } else if (!isRefresh) {
       setLoadingMore(true)
     }
@@ -201,6 +204,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   // 页面滚动触底加载：默认生效，与 scroll-view 内部触底（onScrollToLower）互为补充，无需调用方传参
   // 覆盖场景：scroll-view 被内容撑开无内部滚动空间时（页面级滚动承载），页面滚动到底部自动加载下一页
   useReachBottom(() => {
+    console.log(111)
     handleLoadMore()
   })
 
