@@ -120,11 +120,11 @@ export default function ProfilePage() {
                 <Button
                     openType='chooseAvatar'
                     onChooseAvatar={onChooseAvatar}
-                    className='p-0 bg-transparent after:border-none w-[96px] h-[96px] rounded-full overflow-hidden mb-3 shadow-sm'
+                    className='p-0 bg-transparent after:border-none w-[140px] h-[140px] rounded-full overflow-hidden mb-3 shadow-sm'
                 >
                     <Avatar
                         name={nickname}
-                        className='w-full h-full'
+                        className='w-full h-full text-44px'
                         src={avatar}
                         mode='aspectFill'
                     />

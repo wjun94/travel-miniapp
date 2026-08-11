@@ -130,7 +130,7 @@ export default function ProfilePage() {
               name={profile?.nickname}
               src={profile?.avatarUrl!}
               mode="aspectFill"
-              className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm"
+              className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm text-44px"
             />
 
             {/* 名字与标签 */}
