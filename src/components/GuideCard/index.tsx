@@ -84,7 +84,7 @@ export default function GuideCard({
       onClick={handleClick}
     >
       <View className="w-full h-44 relative">
-        <CoverImage src={item.coverImage} title={item.title} />
+        <CoverImage src={item.coverImage} title={item.title} className="w-full h-44 max-h-44" />
 
         {/* 刚刚看过蒙层 */}
         {isJustViewed && (
@@ -148,7 +148,7 @@ export default function GuideCard({
               <Avatar
                 name={item.authorName}
                 src={item.authorAvatar}
-                className="w-[32px] h-[32px] text-16px rounded-full flex-shrink-0"
+                className="w-[36px] h-[36px] text-16px rounded-full flex-shrink-0"
               />
               <Text className="text-[22px] text-stone-500 ml-1 truncate flex-1">
                 {item.authorName}

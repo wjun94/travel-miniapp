@@ -1,9 +1,29 @@
-import { getWindowInfo, getMenuButtonBoundingClientRect } from '@tarojs/taro'
+import { getWindowInfo, getMenuButtonBoundingClientRect, openLocation, showToast } from '@tarojs/taro'
 import dayjs from 'dayjs'
 
 /** cdn图片域名地址 */
 export function getImageCdnUrl(url: string): string {
   return url ? `${STATIC_BASE_URL}/travel/img/${url}?imageView2/1/w/750` : "";
+}
+
+/** 打开地图导航：有坐标调起 openLocation，无坐标时提示 */
+export function openMapLocation(
+  latitude?: number | null,
+  longitude?: number | null,
+  name = '',
+  address = '',
+) {
+  if (!latitude || !longitude) {
+    showToast({ title: '暂无位置信息，无法导航', icon: 'none' });
+    return;
+  }
+  openLocation({
+    latitude,
+    longitude,
+    name: name || address || '',
+    address: address || name || '',
+    scale: 18,
+  });
 }
 
 /** 接口返回的图片域名地址 */

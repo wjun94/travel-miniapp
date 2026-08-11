@@ -18,7 +18,7 @@ import {
   typeConfigMap,
   getTransportLabel,
 } from '@/constants/travel';
-import { getHeaderHeight } from '@/utils';
+import { getHeaderHeight, openMapLocation } from '@/utils';
 import { BottomActionBar, CommentSection } from '@/features';
 
 export default function TripDetail() {
@@ -505,13 +505,19 @@ export default function TripDetail() {
                                           </Text>
                                         )}
                                         {item.address && (
-                                          <View className="flex flex-row items-center gap-1 mt-2 bg-stone-50 px-2.5 py-1 rounded-xl w-fit">
+                                          <View
+                                            className="flex flex-row items-center gap-1 mt-2 bg-stone-50 px-2.5 py-1 rounded-xl w-fit active:opacity-70"
+                                            onClick={() => openMapLocation(item.latitude, item.longitude, item.title, item.address)}
+                                          >
                                             <Image
                                               src={LocationsSvg}
                                               className="h-3.5 w-3.5"
                                             />
                                             <Text className="text-[21px] text-stone-400 font-medium break-all">
                                               {item.address}
+                                              {item.latitude && item.longitude && (
+                                                <Text className="text-[#e97442]">（点击导航）</Text>
+                                              )}
                                             </Text>
                                           </View>
                                         )}

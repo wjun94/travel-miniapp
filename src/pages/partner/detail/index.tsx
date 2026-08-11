@@ -25,6 +25,7 @@ import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
 import { addFavorite, deleteFavorite } from '@/api/favorite';
 import { createComment } from '@/api/comment';
+import { openMapLocation } from '@/utils';
 
 const TYPE_LABELS: Record<number, string> = {
   0: '不限',
@@ -365,7 +366,26 @@ export default function PartnerDetail() {
                 <Row label="出行方式" value={TYPE_LABELS[partner.type]} />
               )}
               {partner.address && (
-                <Row label="集合地点" value={partner.address} />
+                <Row
+                  label="集合地点"
+                  value={
+                    <View
+                      className="flex items-center justify-end active:opacity-70"
+                      onClick={() => openMapLocation(partner.latitude, partner.longitude, partner.title, partner.address)}
+                    >
+                      <Image
+                        src={LocationsSvg}
+                        className="h-3.5 w-3.5 mr-6px flex-shrink-0"
+                      />
+                      <Text className="text-[26px] text-gray-800 font-medium break-all">
+                        {partner.address}
+                        {partner.latitude && partner.longitude && (
+                          <Text className="text-[#F97316]">（点击导航）</Text>
+                        )}
+                      </Text>
+                    </View>
+                  }
+                />
               )}
 
               <View className="flex items-center justify-between">
