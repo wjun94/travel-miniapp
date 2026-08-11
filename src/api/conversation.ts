@@ -84,6 +84,13 @@ export const sendGroupMessage = (id: string, content: string) =>
     params: { content },
   });
 
+/** 解散群聊（仅群主，解散后成员不可再进入/发言） */
+export const dissolveConversation = (id: string) =>
+  request({
+    url: `/conversation/${id}`,
+    method: 'DELETE',
+  });
+
 /** 踢出群成员（仅群主可操作） */
 export const kickConversationMember = (id: string, userId: string) =>
   request({

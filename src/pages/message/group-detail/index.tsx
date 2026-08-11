@@ -2,7 +2,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { NavBar, Avatar } from '@/components'
 import { useRequest } from 'ahooks'
-import { getConversationDetail, kickConversationMember } from '@/api/conversation'
+import { getConversationDetail, kickConversationMember, dissolveConversation } from '@/api/conversation'
 import { getImageUrl } from '@/utils'
 
 export default function GroupDetailPage() {
@@ -14,6 +14,22 @@ export default function GroupDetailPage() {
   useDidShow(() => {
     refresh()
   })
+
+  // 解散群聊（仅群主，二次确认）
+  const handleDissolve = () => {
+    Taro.showModal({
+      title: '解散群聊',
+      content: '解散后所有成员将无法再进入群聊，且不可恢复，确定解散吗？',
+      confirmText: '解散',
+      confirmColor: '#FF3B30',
+      success: async (res) => {
+        if (!res.confirm) return
+        await dissolveConversation(convId)
+        Taro.showToast({ title: '群聊已解散', icon: 'success' })
+        setTimeout(() => Taro.navigateBack(), 600)
+      }
+    })
+  }
 
   // 踢出成员（仅群主）
   const handleKick = (member: { userId: string; nickname: string }) => {
@@ -83,6 +99,16 @@ export default function GroupDetailPage() {
               </View>
             ))}
           </View>
+
+          {/* 解散群聊（仅群主） */}
+          {detail?.isOwner && (
+            <View
+              className='mt-4 bg-white rounded-2xl shadow-sm py-4 flex items-center justify-center'
+              onClick={handleDissolve}
+            >
+              <Text className='text-[28px] font-medium text-[#FF3B30] active:opacity-70'>解散群聊</Text>
+            </View>
+          )}
         </>
       )}
     </View>

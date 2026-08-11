@@ -316,12 +316,12 @@ export default function MessageList() {
                                     </View>
                                 )}
 
-                                {/* 第五行：解散原因（仅已拒绝状态展示） */}
+                                {/* 第五行：拒绝原因（仅已拒绝状态展示） */}
                                 {item.type === 1 && status === 2 && reason && (
                                     <View className='mt-2 flex flex-row items-start bg-red-50/70 border border-solid border-red-100 px-3 py-2.5 rounded-lg'>
                                         <View className='w-[8px] h-[8px] rounded-full bg-red-400 mt-[9px] mr-2 shrink-0' />
                                         <View className='flex-1 min-w-0'>
-                                            <Text className='text-[20px] font-medium text-red-400 block mb-1'>解散原因</Text>
+                                            <Text className='text-[20px] font-medium text-red-400 block mb-1'>拒绝原因</Text>
                                             <Text className='text-[22px] text-red-600 leading-relaxed break-all'>{reason}</Text>
                                         </View>
                                     </View>

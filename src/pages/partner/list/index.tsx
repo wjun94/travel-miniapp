@@ -89,8 +89,7 @@ export default function PartnerList() {
 
   return (
     <View
-      className='flex flex-col bg-gray-100/70 box-border overflow-hidden'
-      style={{ height: `calc(100vh - ${headerHeight}px)` }}
+      className='flex flex-col bg-gray-100/70 box-border overflow-hidden pb-6'
     >
       {/* 搜索框（固定顶部） */}
       <View className='flex flex-row items-center px-4 pt-2 pb-2'>
@@ -155,7 +154,7 @@ export default function PartnerList() {
                       {statusInfo.label}
                     </View>
                     {item.category && (
-                      <View className='bg-white/80 backdrop-blur-md text-orange-600 text-[20px] px-2.5 py-0.5 rounded-full font-medium'>
+                      <View className='bg-white/80 backdrop-blur-md text-orange-600 text-[24px] leading-[inherit] px-2.5 py-0.5 rounded-full font-medium'>
                         {item.category}
                       </View>
                     )}
@@ -168,10 +167,10 @@ export default function PartnerList() {
 
                   {/* 浏览/点赞 */}
                   <View className='absolute bottom-3 right-3 flex flex-row items-center space-x-1.5 z-10'>
-                    <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
+                    {/* <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
                       <Text className='iconfont icon-eye mr-1' />
                       <Text className='text-22px'>{item.viewCount ?? 0}</Text>
-                    </View>
+                    </View> */}
                     <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
                       <Text className='iconfont icon-follow mr-1' />
                       <Text className='text-22px'>{item.likeCount ?? 0}</Text>

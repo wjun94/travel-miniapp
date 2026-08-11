@@ -119,18 +119,30 @@ export default function NotesPage() {
 
       {/* 顶部 Tab 切换（吸顶） */}
       <View
-        className="flex border-b border-gray-100 bg-[#FCFBF7] sticky z-20"
+        className="flex border-b border-gray-100 bg-[#FCFBF7] sticky z-30 px-4 pt-2.5 pb-2"
         style={{ top: headerHeight }}
       >
-        {TABS.map((tab) => (
-          <View
-            key={tab.key}
-            className={`flex-1 py-3 text-center text-[28px] font-semibold transition-colors ${activeTab === tab.key ? 'text-[#F97316] border-b-[4px] border-[#F97316]' : 'text-gray-500'}`}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-          </View>
-        ))}
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.key
+          return (
+            <View
+              key={tab.key}
+              className="flex-1 relative flex flex-col items-center py-0.5"
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <Text
+                className={`text-sm tracking-wide transition-all ${
+                  isActive ? 'font-bold text-gray-900 scale-110' : 'text-gray-400'
+                }`}
+              >
+                {tab.label}
+              </Text>
+              {isActive && (
+                <View className="absolute -bottom-1.5 w-4 h-[3px] bg-[#e97442] rounded-full" />
+              )}
+            </View>
+          )
+        })}
       </View>
 
       {/* 列表区：仅内容区域滚动，Tab 固定 */}

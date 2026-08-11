@@ -75,13 +75,13 @@ export default function TripDetail() {
     svg?: string;
     iconClass?: string;
   }[] = [
-    {
+    /* {
       key: 'city',
       svg: CitySvg,
       label: '途经城市数',
       value: `${guide.cities?.length || 0} 个城市`,
       iconClass: 'h-3.5 w-3.5 mr-6px',
-    },
+    }, */
     {
       key: 'days',
       svg: WatchSvg,

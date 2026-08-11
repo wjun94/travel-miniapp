@@ -181,7 +181,7 @@
                       name={item.name}
                       src={item.avatarUrl || ''}
                       mode='aspectFill'
-                      className={`w-full h-full ${item.type === 'group' ? 'rounded-2xl' : 'rounded-full'} text-24px`}
+                      className={`w-full h-full ${item.type === 'group' ? 'rounded-full' : 'rounded-full'} text-24px`}
                     />
                   )}
                   {item.type === 'group' && (

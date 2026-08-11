@@ -7,7 +7,12 @@ import {
   Button,
   ScrollView,
 } from '@tarojs/components';
-import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
+import Taro, {
+  useRouter,
+  usePullDownRefresh,
+  useShareAppMessage,
+  useShareTimeline,
+} from '@tarojs/taro';
 import { useRequest } from 'ahooks';
 import { NavBar, Image, Modal, Avatar } from '@/components';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
@@ -25,7 +30,8 @@ import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
 import { addFavorite, deleteFavorite } from '@/api/favorite';
 import { createComment } from '@/api/comment';
-import { openMapLocation } from '@/utils';
+import { openMapLocation, getImageCdnUrl } from '@/utils';
+import { useAuthStore } from '@/store/authStore';
 
 const TYPE_LABELS: Record<number, string> = {
   0: '不限',
@@ -101,6 +107,36 @@ export default function PartnerDetail() {
         }).catch(() => {});
       }
     },
+  });
+
+  // 分享好友：标题用搭子标题，携带搭子 ID 与邀请码
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title:
+        partner?.title ||
+        partner?.destination ||
+        '发现一个有趣搭子，一起出发吧！',
+      path: `/pages/partner/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: partner?.cover
+        ? partner.cover
+        : getImageCdnUrl('share.png'),
+    };
+  });
+
+  // 分享朋友圈
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title:
+        partner?.title ||
+        partner?.destination ||
+        '发现一个有趣搭子，一起出发吧！',
+      query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: partner?.cover
+        ? partner.cover
+        : getImageCdnUrl('share.png'),
+    };
   });
 
   const isSelf = partner?.isSelf;
@@ -315,7 +351,7 @@ export default function PartnerDetail() {
               />
             ) : (
               <View className="w-full h-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center">
-                <Text className="text-white/70 text-4xl font-bold text-center line-clamp-2 break-all block px-6">
+                <Text className="text-white/70 text-50px font-bold text-center line-clamp-2 break-all block px-6 max-w-560px">
                   {partner.title || partner.destination}
                 </Text>
               </View>

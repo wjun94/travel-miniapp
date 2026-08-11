@@ -8,7 +8,13 @@ import WatchSvg from '@/assets/img/watch.svg';
 import BeanSvg from '@/assets/img/bean.svg';
 import MountainSvg from '@/assets/img/mountain.svg';
 import CarSvg from '@/assets/img/car.svg';
-import Taro, { useRouter, usePullDownRefresh, usePageScroll } from '@tarojs/taro';
+import Taro, {
+  useRouter,
+  usePullDownRefresh,
+  usePageScroll,
+  useShareAppMessage,
+  useShareTimeline,
+} from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -19,7 +25,8 @@ import {
   getTransportLabel,
   difficultyOptions,
 } from '@/constants/travel';
-import { getHeaderHeight, openMapLocation } from '@/utils';
+import { getHeaderHeight, openMapLocation, getImageCdnUrl } from '@/utils';
+import { useAuthStore } from '@/store/authStore';
 import { BottomActionBar, CommentSection } from '@/features';
 
 export default function TravelGuideDetail() {
@@ -198,6 +205,30 @@ export default function TravelGuideDetail() {
     mutate((prev: any) => ({ ...prev, isFollowed: false }));
   };
 
+  // 分享好友：标题用攻略标题，携带攻略 ID 与邀请码
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: guide?.title || '发现一篇好攻略，一起看看吧！',
+      path: `/pages/guide/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: guide?.coverImage
+        ? guide.coverImage
+        : getImageCdnUrl('share.png'),
+    };
+  });
+
+  // 分享朋友圈
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: guide?.title || '发现一篇好攻略，一起看看吧！',
+      query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: guide?.coverImage
+        ? guide.coverImage
+        : getImageCdnUrl('share.png'),
+    };
+  });
+
   /** 刷新 */
   usePullDownRefresh(async () => {
     refresh();
@@ -270,7 +301,7 @@ export default function TravelGuideDetail() {
           <View className="w-full box-border">
             {/* 顶部沉浸式大图封面 */}
             <View className="relative w-full h-[520px]">
-              <CoverImage src={guide.coverImage} title={guide.title}>
+              <CoverImage src={guide.coverImage} title={guide.title} titleClassName="text-50px" titleMaxWidth="560rpx">
                 <View className="w-full h-full bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               </CoverImage>
             </View>

@@ -8,7 +8,13 @@ import CitySvg from '@/assets/img/city.svg';
 import WatchSvg from '@/assets/img/watch.svg';
 import HotSvg from '@/assets/img/hot.svg';
 import CarSvg from '@/assets/img/car.svg';
-import Taro, { useRouter, usePullDownRefresh, usePageScroll } from '@tarojs/taro';
+import Taro, {
+  useRouter,
+  usePullDownRefresh,
+  usePageScroll,
+  useShareAppMessage,
+  useShareTimeline,
+} from '@tarojs/taro';
 import { getTripDetail, likeTrip, unlikeTrip, Trip } from '@/api/trip';
 import { followUser, unfollowUser } from '@/api/follow';
 import { useRequest } from 'ahooks';
@@ -18,7 +24,8 @@ import {
   typeConfigMap,
   getTransportLabel,
 } from '@/constants/travel';
-import { getHeaderHeight, openMapLocation } from '@/utils';
+import { getHeaderHeight, openMapLocation, getImageCdnUrl } from '@/utils';
+import { useAuthStore } from '@/store/authStore';
 import { BottomActionBar, CommentSection } from '@/features';
 
 export default function TripDetail() {
@@ -60,6 +67,22 @@ export default function TripDetail() {
   const guide = guideData || ({} as Trip);
   const days = guideData?.days || [];
 
+  // 目的地文案（cities → provinces → countries 逐级降级）
+  const getDestinationText = () => {
+    if (guide.cities && guide.cities.length > 0) {
+      return guide.cities.join(' · ');
+    }
+    if (guide.provinces && guide.provinces.length > 0) {
+      return guide.provinces.join(' · ');
+    }
+    if (guide.countries && guide.countries.length > 0) {
+      return guide.countries.join(' · ');
+    }
+    return '';
+  };
+
+  const destinationText = getDestinationText();
+
   // 信息卡片（数组驱动渲染，字体最小 24px）
   const tripStats: {
     key: string;
@@ -70,10 +93,10 @@ export default function TripDetail() {
     iconClass?: string;
   }[] = [
     {
-      key: 'city',
+      key: 'destination',
       svg: CitySvg,
-      label: '途经城市数',
-      value: `${guide.cities?.length || 0} 个城市`,
+      label: '目的地',
+      value: destinationText || '未设置目的地',
       iconClass: 'h-4 w-4 mr-6px',
     },
     {
@@ -196,21 +219,29 @@ export default function TripDetail() {
     mutate((prev: any) => ({ ...prev, isFollowed: false }));
   };
 
-  // 目的地文本拼接逻辑
-  const getDestinationText = () => {
-    if (guide.cities && guide.cities.length > 0) {
-      return guide.cities.join(' · ');
-    }
-    if (guide.provinces && guide.provinces.length > 0) {
-      return guide.provinces.join(' · ');
-    }
-    if (guide.countries && guide.countries.length > 0) {
-      return guide.countries.join(' · ');
-    }
-    return '';
-  };
+  // 分享好友：标题用行程标题，携带行程 ID 与邀请码
+  useShareAppMessage(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: guide?.title || '发现一个好行程，一起出发吧！',
+      path: `/pages/trip/detail/index?id=${id}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: guide?.coverImage
+        ? guide.coverImage
+        : getImageCdnUrl('share.png'),
+    };
+  });
 
-  const destinationText = getDestinationText();
+  // 分享朋友圈
+  useShareTimeline(() => {
+    const inviteCode = useAuthStore.getState().userInfo?.inviteCode;
+    return {
+      title: guide?.title || '发现一个好行程，一起出发吧！',
+      query: `${id ? `id=${id}` : ''}${inviteCode ? `&inviteCode=${inviteCode}` : ''}`,
+      imageUrl: guide?.coverImage
+        ? guide.coverImage
+        : getImageCdnUrl('share.png'),
+    };
+  });
 
   /** 刷新 */
   usePullDownRefresh(async () => {
@@ -283,7 +314,7 @@ export default function TripDetail() {
           <View className="w-full box-border">
             {/* 顶部沉浸式大图封面 */}
             <View className="relative w-full h-[520px]">
-              <CoverImage src={guide.coverImage} title={guide.title}>
+              <CoverImage src={guide.coverImage} title={guide.title} titleClassName="text-50px" titleMaxWidth="560rpx">
                 <View className="w-full h-full bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               </CoverImage>
             </View>

@@ -6,12 +6,13 @@ interface Props {
   title?: string
   className?: string
   titleClassName?: string
+  titleMaxWidth?: string
   style?: React.CSSProperties
   children?: React.ReactNode
 }
 
 /** 封面图片组件：有图展示图片，无图显示标题占位，children 作为顶层遮罩渲染 */
-export default function CoverImage({ src, title, className = '', titleClassName, style, children }: Props) {
+export default function CoverImage({ src, title, className = '', titleClassName, titleMaxWidth, style, children }: Props) {
   return (
     <View
       className={`w-full h-full relative overflow-hidden ${className}`}
@@ -22,8 +23,9 @@ export default function CoverImage({ src, title, className = '', titleClassName,
       ) : (
         <View className='w-full h-full flex items-center justify-center'>
           <Text
-            className={`font-bold text-stone-700 text-center leading-relaxed ${titleClassName || 'text-32px'} max-w-220px`}
+            className={`font-bold text-stone-700 text-center leading-relaxed ${titleClassName || 'text-32px'}`}
             style={{
+              maxWidth: titleMaxWidth || '220px',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               display: '-webkit-box',
