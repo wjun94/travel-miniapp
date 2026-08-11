@@ -38,14 +38,14 @@ export interface ScrollLoadListProps<T = any> {
   rowGap?: number
   /** 是否启用瀑布流布局（仅当 numColumns > 1 时生效），默认 false */
   masonry?: boolean
-  /** 页面级滚动模式：scroll-view 不拦截滚动（高度自适应内容），由页面滚动承载，触底加载走 useReachBottom；用于外层有 sticky 吸顶元素的页面 */
+  /** 页面级滚动模式：scroll-view 不拦截滚动（高度自适应内容），由页面滚动承载；分页已默认生效，此参数仅控制滚动承载方式，用于外层有 sticky 吸顶元素的页面 */
   pageScroll?: boolean
 }
 
 export interface ScrollLoadListRef {
   /** 刷新列表；默认静默不触发下拉刷新动画，手动下拉场景传 false */
   refresh: (silent?: boolean) => void
-  /** 加载下一页（页面级滚动场景触底时调用） */
+  /** 手动加载下一页（滚动触底已默认自动分页，此方法用于自定义触发场景） */
   loadMore: () => void
 }
 
@@ -198,9 +198,10 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     })
   }, [loadingMore, hasMore, refreshing, error, page, loadData])
 
-  // 页面级滚动模式：页面触底时加载下一页（scroll-view 不拦截滚动，保证外层 sticky 元素相对页面吸顶生效）
+  // 页面滚动触底加载：默认生效，与 scroll-view 内部触底（onScrollToLower）互为补充，无需调用方传参
+  // 覆盖场景：scroll-view 被内容撑开无内部滚动空间时（页面级滚动承载），页面滚动到底部自动加载下一页
   useReachBottom(() => {
-    if (pageScroll) handleLoadMore()
+    handleLoadMore()
   })
 
   useImperativeHandle(ref, () => ({
