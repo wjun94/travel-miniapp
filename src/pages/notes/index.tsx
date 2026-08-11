@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { NavBar, ScrollLoadList, Image } from '@/components'
+import { NavBar, ScrollLoadList, Image, CoverImage } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
 import LandmarkSvg from '@/assets/img/landmark.svg'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
@@ -26,14 +26,13 @@ const renderNoteCard = (item: Guide, type: 'guide' | 'trip') => (
     className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
     onClick={() => Taro.navigateTo({ url: `/pages/${type}/detail/index?id=${item.id}` })}
   >
-    <View className="w-full h-44 relative bg-gray-50">
-      <Image src={item.coverImage} mode="aspectFill" className="w-full h-full" />
+    <CoverImage src={item.coverImage} title={item.title} className="w-full h-44">
       {/* 浏览量 */}
       <View className='absolute top-2 right-2 bg-black/40 backdrop-blur-md text-white text-[20px] px-2 py-0.5 rounded-full z-10 flex items-center'>
         <Text className='iconfont icon-eye mr-1' />
         <Text className='text-22px'>{item.viewCount ?? 0}</Text>
       </View>
-    </View>
+    </CoverImage>
     <View className="p-2.5 flex flex-col">
       <Text className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 white-space-normal mb-1">
         {item.title}

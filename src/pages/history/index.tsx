@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { getHistoryList, clearAllHistory, deleteHistoryRecord, type HistoryRecord } from '@/api/history';
-import { ScrollLoadList, Modal, Image } from '@/components';
+import { ScrollLoadList, Modal, CoverImage } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
 import { formatTime } from '@/utils'
 
@@ -57,22 +57,24 @@ export default function BrowseHistoryPage() {
       onClick={() => navToDetail(item)}
     >
       {/* 封面图 */}
-      <Image
+      <CoverImage
         src={item.coverImage}
-        className="w-16 h-16 rounded-2xl bg-stone-100 shrink-0"
+        title={item.title}
+        titleClassName="text-20px"
+        className="w-16 h-16 rounded-2xl shrink-0"
       />
 
       {/* 内容展示区 */}
       <View className="flex-1 min-w-0">
-        <Text className="text-stone-800 font-bold block truncate mb-4">
+        <Text className="text-stone-800 font-bold block truncate mb-4 text-[28px]">
           {item.title}
         </Text>
         <View className="flex flex-row items-center gap-2">
-          <Text className="text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md font-medium text-[22px] shrink-0">
+          <Text className="text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md font-medium text-[20px] shrink-0">
             {targetTypeLabel[item.targetType] || item.targetType}
           </Text>
-          <Text className="text-stone-300 text-[24px]">|</Text>
-          <Text className="text-stone-400 text-[22px] truncate">
+          <Text className="text-stone-300 text-[20px]">|</Text>
+          <Text className="text-stone-400 text-[20px] truncate">
             {formatTime(item.createdAt)}
           </Text>
         </View>
@@ -86,7 +88,7 @@ export default function BrowseHistoryPage() {
           setDeleteTarget(item);
         }}
       >
-        <Text className="iconfont icon-remove text-[24px] text-stone-500" />
+        <Text className="iconfont icon-remove text-[22px] text-stone-500" />
       </View>
     </View>
   );

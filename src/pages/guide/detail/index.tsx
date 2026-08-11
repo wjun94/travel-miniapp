@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import { NavBar, Image, CoverImage, Avatar, Modal } from '@/components';
 import LocationsSvg from '@/assets/itinerary/locations.svg';
@@ -8,7 +8,7 @@ import WatchSvg from '@/assets/img/watch.svg';
 import BeanSvg from '@/assets/img/bean.svg';
 import MountainSvg from '@/assets/img/mountain.svg';
 import CarSvg from '@/assets/img/car.svg';
-import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
+import Taro, { useRouter, usePullDownRefresh, usePageScroll } from '@tarojs/taro';
 import { getTravelGuideDetail, TravelGuideDetailData } from '@/api/guide';
 import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
@@ -118,6 +118,43 @@ export default function TravelGuideDetail() {
     if (!start && !end) return '全天/待定';
     return start && end ? `${start} - ${end}` : start || end;
   };
+
+  // 各天锚点在文档中的位置缓存（滚动联动高亮天数 Tab 用）
+  const dayTopsRef = useRef<number[]>([]);
+
+  // 测量各天锚点文档位置（视口坐标 + 当前滚动偏移，滚动状态下同样准确）
+  const measureDayTops = useCallback(() => {
+    if (days.length === 0) return;
+    const query = Taro.createSelectorQuery();
+    query.selectAll('.day-node').boundingClientRect();
+    query.selectViewport().scrollOffset();
+    query.exec((res) => {
+      if (!Array.isArray(res)) return;
+      const rects = res[0] as Taro.NodesRef.BoundingClientRectCallbackResult[] | undefined;
+      const viewport = res[1] as { scrollTop?: number } | undefined;
+      if (rects && viewport) {
+        dayTopsRef.current = rects.map((r) => r.top + (viewport.scrollTop || 0));
+      }
+    });
+  }, [days.length]);
+
+  // 天数数据就绪后测量锚点位置（延迟等待图片等异步渲染稳定）
+  useEffect(() => {
+    if (days.length === 0) return;
+    const timer = setTimeout(measureDayTops, 150);
+    return () => clearTimeout(timer);
+  }, [days.length, measureDayTops]);
+
+  // 页面滚动：根据滚动位置自动高亮对应天数 Tab（某天内容顶部滚到吸顶条下沿即激活）
+  usePageScroll((e) => {
+    if (dayTopsRef.current.length === 0) return;
+    const threshold = e.scrollTop + headerHeight + 140 + 20;
+    let next = 0;
+    dayTopsRef.current.forEach((top, i) => {
+      if (top <= threshold) next = i;
+    });
+    if (next !== currentDayIdx) setCurrentDayIdx(next);
+  });
 
   const handleTabClick = (idx: number) => {
     setCurrentDayIdx(idx);
@@ -362,7 +399,7 @@ export default function TravelGuideDetail() {
                   <View
                     key={dayItem.id || dIdx}
                     id={`day-node-${dIdx}`}
-                    className="w-full px-4 box-border scroll-mt-4"
+                    className="w-full px-4 box-border scroll-mt-4 day-node"
                   >
                     <View className="flex flex-row items-center justify-between my-3 px-2">
                       <Text className="text-[30px] font-black text-stone-800">

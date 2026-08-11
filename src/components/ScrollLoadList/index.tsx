@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { ScrollView, View, Text } from '@tarojs/components'
 import type { ScrollViewProps } from '@tarojs/components'
+import { useReachBottom } from '@tarojs/taro'
 import { Image } from '@/components'
 
 export interface RequestResult<T> {
@@ -26,7 +27,7 @@ export interface ScrollLoadListProps<T = any> {
   renderLoadMoreIndicator?: () => React.ReactNode
   keyExtractor?: (item: T | any, index: number) => string
   lowerThreshold?: number
-  scrollViewProps?: Omit<ScrollViewProps, 'onScrollToLower' | 'onRefresherRefresh' | 'refresherTriggered' | 'refresherEnabled'>
+  scrollViewProps?: Omit<ScrollViewProps, 'onScrollToLower'>
   className?: string
   style?: React.CSSProperties
   /** 每行显示的列数，默认 1（普通列表） */
@@ -37,11 +38,15 @@ export interface ScrollLoadListProps<T = any> {
   rowGap?: number
   /** 是否启用瀑布流布局（仅当 numColumns > 1 时生效），默认 false */
   masonry?: boolean
+  /** 页面级滚动模式：scroll-view 不拦截滚动（高度自适应内容），由页面滚动承载，触底加载走 useReachBottom；用于外层有 sticky 吸顶元素的页面 */
+  pageScroll?: boolean
 }
 
 export interface ScrollLoadListRef {
   /** 刷新列表；默认静默不触发下拉刷新动画，手动下拉场景传 false */
   refresh: (silent?: boolean) => void
+  /** 加载下一页（页面级滚动场景触底时调用） */
+  loadMore: () => void
 }
 
 // 静默刷新 loading 最小展示时长（ms）：请求过快时避免一闪而过
@@ -73,6 +78,7 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     columnGap = 0,
     rowGap = 0,
     masonry = false,
+    pageScroll = false,
   } = props
 
   const [data, setData] = useState<T[]>([])
@@ -155,12 +161,13 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   }, [request, pageSize, loadingMore, params])
 
   // params 变化时自动刷新列表（首次挂载由初始加载 effect 负责，避免重复请求）
+  // 直接调用 loadData 而非 refresh：绕过防重，避免快速切换参数时请求在飞导致数据停留在旧分类
   useEffect(() => {
     if (immediate && isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    refresh()
+    loadData(initialPage, true, true)
   }, [JSON.stringify(params)])
 
   // 对外暴露的刷新方法：默认静默（不触发下拉刷新动画），手动下拉时传入 false
@@ -168,10 +175,6 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     if (refreshing || loadingMore || silentLoading) return
     loadData(initialPage, true, silent)
   }, [refreshing, loadingMore, silentLoading, initialPage, loadData])
-
-  useImperativeHandle(ref, () => ({
-    refresh
-  }), [refresh])
 
   // 初始加载（静默，不触发下拉刷新动画）
   useEffect(() => {
@@ -195,11 +198,15 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
     })
   }, [loadingMore, hasMore, refreshing, error, page, loadData])
 
-  // 下拉刷新（用户手动下拉时保留刷新动画）
-  const handleRefresh = useCallback(() => {
-    if (refreshing || loadingMore || silentLoading) return
-    loadData(initialPage, true, false)
-  }, [refreshing, loadingMore, silentLoading, initialPage, loadData])
+  // 页面级滚动模式：页面触底时加载下一页（scroll-view 不拦截滚动，保证外层 sticky 元素相对页面吸顶生效）
+  useReachBottom(() => {
+    if (pageScroll) handleLoadMore()
+  })
+
+  useImperativeHandle(ref, () => ({
+    refresh,
+    loadMore: handleLoadMore
+  }), [refresh, handleLoadMore])
 
   // 重试
   const handleRetry = useCallback(() => {
@@ -294,13 +301,10 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
 
   return (
     <ScrollView
-      scrollY
-      className={`h-full ${className}`}
+      scrollY={!pageScroll}
+      className={pageScroll ? className : `h-full ${className}`}
       style={style}
-      refresherEnabled
-      refresherTriggered={refreshing}
-      onRefresherRefresh={handleRefresh}
-      onScrollToLower={handleLoadMore}
+      onScrollToLower={pageScroll ? undefined : handleLoadMore}
       lowerThreshold={lowerThreshold}
       {...scrollViewProps}
     >
