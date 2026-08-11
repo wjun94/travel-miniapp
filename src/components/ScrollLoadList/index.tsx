@@ -204,7 +204,6 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   // 页面滚动触底加载：默认生效，与 scroll-view 内部触底（onScrollToLower）互为补充，无需调用方传参
   // 覆盖场景：scroll-view 被内容撑开无内部滚动空间时（页面级滚动承载），页面滚动到底部自动加载下一页
   useReachBottom(() => {
-    console.log(111)
     handleLoadMore()
   })
 
