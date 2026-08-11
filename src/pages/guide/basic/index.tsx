@@ -136,7 +136,7 @@ export default function BasicInfoPage() {
           setDayCount(plans.length);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [draftId]);
 
   const { runAsync: createRunAsync, loading: createLoading } = useRequest(
@@ -170,9 +170,14 @@ export default function BasicInfoPage() {
       isOriginal,
       coverImage,
     } = formState;
-
-    if (!title || !destination) {
-      Taro.showToast({ title: '请完善基本必填信息', icon: 'error' });
+    if (!title) {
+      Taro.showToast({ title: '请填写攻略标题', icon: 'none' });
+      return;
+    } else if (!destination) {
+      Taro.showToast({ title: '请选择目的地', icon: 'none' });
+      return;
+    } else if (!coverImage) {
+      Taro.showToast({ title: '请上传封面图片', icon: 'none' });
       return;
     }
 

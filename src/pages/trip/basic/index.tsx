@@ -138,7 +138,7 @@ export default function BasicInfoPage() {
     const { title, summary, coverImage, totalBudget } = formState;
 
     if (!title) {
-      Taro.showToast({ title: '请完善基本必填信息', icon: 'error' });
+      Taro.showToast({ title: '请填写标题', icon: 'error' });
       return;
     }
 
