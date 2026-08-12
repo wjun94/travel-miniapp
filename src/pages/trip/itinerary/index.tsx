@@ -382,17 +382,18 @@ export default function ItineraryPage() {
         </View>
       </View>
 
+
+      <ScrollView scrollX className='w-full sticky top-0 z-10 whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
+        {dayPlans.map((day) => (
+          <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>
+            {getFormatDayName(day.dayIndex)}
+          </View>
+        ))}
+      </ScrollView>
+
       {/* 主体滚动卡片区域 */}
       <ScrollView scrollY className='flex-1 h-0 w-full' scrollIntoView={toViewId} scrollWithAnimation onScroll={handlePageScroll}>
         <WeatherWidget />
-
-        <ScrollView scrollX className='w-full whitespace-nowrap px-4 py-2 bg-gray-50 border-t border-gray-100 box-border' scrollWithAnimation scrollIntoView={toTabId}>
-          {dayPlans.map((day) => (
-            <View key={day.dayIndex} id={`tab-node-${day.dayIndex}`} onClick={() => handleTabClick(day.dayIndex)} className={`inline-block mr-3 px-4 py-1.5 rounded-full font-bold transition-all text-[24px] ${activeTab === day.dayIndex ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>
-              {getFormatDayName(day.dayIndex)}
-            </View>
-          ))}
-        </ScrollView>
 
         <View className='pb-12 box-border'>
 
