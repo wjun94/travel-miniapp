@@ -69,29 +69,32 @@ export default function ChecklistPage() {
     return (
       <View className="bg-white rounded-[24px] shadow-[0_4px_20px_rgba(44,40,32,0.03)] border border-stone-100 overflow-hidden mb-4 box-border transition-all duration-300 ease-out active:scale-[0.99] active:shadow-none">
         {/* 卡片头部区域 */}
-        <View className="flex flex-row items-center justify-between px-5 pt-5 pb-2">
-          <View className="flex-1 flex flex-row items-center min-w-0 mr-3">
-            <Text className={`text-[28px] font-bold tracking-wide truncate transition-colors duration-200 ${isCompleted ? 'text-stone-400' : 'text-stone-800'}`}>
-              {checklist.name}
-            </Text>
-            {/* 关联类型 + 名称回显（行程/攻略/搭子） */}
+        <View className="flex flex-row items-start justify-between px-5 pt-5 pb-2">
+          <View className="flex-1 min-w-0 mr-3">
+            {/* 第一行：标题 + 进度徽章 */}
+            <View className="flex flex-row items-center">
+              <Text className={`text-[28px] font-bold tracking-wide truncate transition-colors duration-200 ${isCompleted ? 'text-stone-400' : 'text-stone-800'}`}>
+                {checklist.name}
+              </Text>
+              {checklist.items && (
+                <Text className={`text-[22px] ml-2.5 px-2 py-0.5 rounded-full flex-shrink-0 font-semibold transition-colors duration-200 tracking-wider ${isCompleted ? 'bg-stone-100 text-stone-400' : 'bg-[#10B981]/10 text-[#10B981]'
+                  }`}>
+                  {checkedItems}/{totalItems}
+                </Text>
+              )}
+            </View>
+            {/* 第二行：关联类型 + 名称回显（行程/攻略/搭子） */}
             {checklist.targetName && (
-              <View className="ml-2 flex flex-row items-center flex-shrink-0 space-x-1.5">
+              <View className="mt-2 flex flex-row items-center space-x-1.5">
+                <Text className="text-22px text-blue-500 font-medium truncate max-w-[240px]">
+                  {checklist.targetName}
+                </Text>
                 {checklist.targetType && (
-                  <Text className={`text-[20px] px-1.5 py-0.5 rounded flex-shrink-0 font-semibold ${TARGET_TYPE_TAG[checklist.targetType] || 'bg-stone-100 text-stone-500'}`}>
+                  <Text className={`text-20px px-1.5 py-0.5 rounded flex-shrink-0 font-semibold ${TARGET_TYPE_TAG[checklist.targetType] || 'bg-stone-100 text-stone-500'}`}>
                     {TARGET_TYPE_NAMES[checklist.targetType] || checklist.targetType}
                   </Text>
                 )}
-                <Text className="text-[20px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 font-medium truncate max-w-[200px]">
-                  {checklist.targetName}
-                </Text>
               </View>
-            )}
-            {checklist.items && (
-              <Text className={`text-[22px] ml-2.5 px-2 py-0.5 rounded-full flex-shrink-0 font-semibold transition-colors duration-200 tracking-wider ${isCompleted ? 'bg-stone-100 text-stone-400' : 'bg-[#10B981]/10 text-[#10B981]'
-                }`}>
-                {checkedItems}/{totalItems}
-              </Text>
             )}
           </View>
 
@@ -154,22 +157,13 @@ export default function ChecklistPage() {
     );
   };
 
-  // 页面顶部温和治愈的标题栏
-  const renderHeader = () => (
-    <View className="bg-[#FAFAF9] px-4 pb-4 pt-6">
-      <Text className="text-[32px] font-bold text-stone-800 tracking-tight">行前备忘</Text>
-      <Text className="text-[24px] text-stone-400 mt-1 block tracking-wider">探索世界，从井井有条的清单开始</Text>
-    </View>
-  );
-
   return (
-    <View className="min-h-screen bg-[#FAFAF9] relative w-full overflow-x-hidden box-border">
+    <View className="min-h-screen bg-[#FAFAF9] relative w-full overflow-x-hidden pt-4 box-border">
       {/* 瀑布式列表流 */}
       <ScrollLoadList
         ref={listRef}
         request={getChecklists}
         renderItem={renderCard}
-        renderHeader={renderHeader}
         emptyText="暂无清单，点击下方开始创建 🌿"
         scrollViewProps={{ className: 'px-4 pb-28 w-full box-border' }}
       />

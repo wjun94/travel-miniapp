@@ -31,20 +31,20 @@ export default function HomePage() {
   const tabsTopRef = useRef(0)
 
   // 页面显示时：刷新列表 + 测量 Tab 文档位置（视口坐标 + 当前滚动偏移，滚动状态下同样准确）
-  useDidShow(() => {
-    listRef.current?.refresh(true)
-    const query = Taro.createSelectorQuery()
-    query.select('#home-tabs').boundingClientRect()
-    query.selectViewport().scrollOffset()
-    query.exec((res) => {
-      if (!Array.isArray(res)) return
-      const rect = res[0] as Taro.NodesRef.BoundingClientRectCallbackResult | undefined
-      const viewport = res[1] as { scrollTop?: number } | undefined
-      if (rect && viewport) {
-        tabsTopRef.current = rect.top + (viewport.scrollTop || 0)
-      }
-    })
-  })
+  // useDidShow(() => {
+  //   listRef.current?.refresh(true)
+  //   const query = Taro.createSelectorQuery()
+  //   query.select('#home-tabs').boundingClientRect()
+  //   query.selectViewport().scrollOffset()
+  //   query.exec((res) => {
+  //     if (!Array.isArray(res)) return
+  //     const rect = res[0] as Taro.NodesRef.BoundingClientRectCallbackResult | undefined
+  //     const viewport = res[1] as { scrollTop?: number } | undefined
+  //     if (rect && viewport) {
+  //       tabsTopRef.current = rect.top + (viewport.scrollTop || 0)
+  //     }
+  //   })
+  // })
 
   // 点击搜索：跳转搜索页并携带关键词
   const handleSearch = useCallback(() => {

@@ -72,6 +72,9 @@ export default function TripDetail() {
         members: [],
         viewCount: partnerData.viewCount,
         userId: partnerData.userId,
+        authorName: partnerData.authorName,
+        authorAvatar: partnerData.authorAvatar,
+        isSelf: partnerData.isSelf,
         isFollowed: partnerData.isFollowed,
         isOverseas: 0,
         totalBudget: partnerData.budgetPerPerson || partnerData.officialPrice || 0,
@@ -288,7 +291,8 @@ export default function TripDetail() {
             {!guide.isSelf && (
               <View
                 onClick={handleToggleFollow}
-                className={`ml-3 px-2 py-1 rounded-full border leading-0 font-medium ${guide.isFollowed ? 'bg-gray-400' : 'bg-[#F97316]'}`}
+                className="ml-3 px-2 py-1 rounded-full border leading-0 font-medium"
+                style={{ backgroundColor: guide.isFollowed ? '#9CA3AF' : '#F97316' }}
               >
                 <Text className="border-white/60 text-white text-[20px]">
                   {guide.isFollowed ? '已关注' : '关注'}

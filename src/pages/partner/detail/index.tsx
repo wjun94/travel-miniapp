@@ -310,7 +310,8 @@ export default function PartnerDetail() {
                   e.stopPropagation();
                   handleToggleFollow();
                 }}
-                className={`ml-3 px-2 py-1 rounded-full border leading-0 font-medium ${partner.isFollowed ? 'bg-gray-400' : 'bg-[#F97316]'}`}
+                className="ml-3 px-2 py-1 rounded-full border leading-0 font-medium"
+                style={{ backgroundColor: partner.isFollowed ? '#9CA3AF' : '#F97316' }}
               >
                 <Text className="text-white text-[20px]">
                   {partner.isFollowed ? '已关注' : '关注'}
