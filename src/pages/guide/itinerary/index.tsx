@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/components';
+import { View, Text, Input, Button, ScrollView, Picker, Block } from '@tarojs/components';
 import Taro, { useDidHide } from '@tarojs/taro';
 import Modal from '@/components/Modal';
 import { Image } from '@/components';
@@ -440,15 +440,18 @@ export default function ItineraryPage() {
         <Button onClick={handleNextStep} className='w-full py-3 font-bold bg-green-500 text-white rounded-full text-[28px] m-0 shadow-md active:opacity-95'>下一步 (配置全局基本信息)</Button>
       </View>
 
-      {/* 删除确认弹窗 */}
-      <Modal visible={modalVisible} title={modalTitle} onConfirm={handleConfirmDelete} onCancel={() => setModalVisible(false)}>
-        <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>{modalContent}</Text>
-      </Modal>
+      {/* Block 包裹弹窗，隔离同级节点更新，避免 ScrollView 滚动位置被重置到顶部 */}
+      <Block>
+        {/* 删除确认弹窗 */}
+        <Modal visible={modalVisible} title={modalTitle} onConfirm={handleConfirmDelete} onCancel={() => setModalVisible(false)}>
+          <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>{modalContent}</Text>
+        </Modal>
 
-      {/* 类型切换确认弹窗 */}
-      <Modal visible={switchConfirmVisible} title='切换类型' onConfirm={handleConfirmSwitch} onCancel={() => { setSwitchConfirmVisible(false); setPendingSwitch(null); }}>
-        <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>切换类型后，已填写的内容将被清空，是否继续？</Text>
-      </Modal>
+        {/* 类型切换确认弹窗 */}
+        <Modal visible={switchConfirmVisible} title='切换类型' onConfirm={handleConfirmSwitch} onCancel={() => { setSwitchConfirmVisible(false); setPendingSwitch(null); }}>
+          <Text className='text-gray-600 block py-2 text-[26px] leading-relaxed text-center'>切换类型后，已填写的内容将被清空，是否继续？</Text>
+        </Modal>
+      </Block>
     </View>
   );
 }
