@@ -140,6 +140,8 @@ export default function PublishForm() {
             budgetPerPerson: formData.feeMode === 3 ? Number(formData.budgetPerPerson) : undefined,
             isDraft,
         };
+        // 天数由 days 数组长度派生，后端不再接收 totalDays
+        delete params.totalDays;
 
         Object.keys(params).forEach(k => {
             if (params[k] === undefined || params[k] === '') {
@@ -209,7 +211,7 @@ export default function PublishForm() {
                 }
                 const startDate = (detail.startDate || '').slice(0, 10);
                 const endDate = (detail.endDate || '').slice(0, 10);
-                const totalDays = Number(detail.days) || 0;
+                const totalDays = Array.isArray(detail.days) ? detail.days.length : 0;
 
                 setFormData({
                     title: detail.title || '',
@@ -246,13 +248,10 @@ export default function PublishForm() {
                 });
 
                 // 关联行程：保留 ID（老数据兼容），行程安排优先取搭子自身 itinerary
-                if (detail.trip?.id) {
-                    setTripId(detail.trip.id);
+                if (detail.tripId) {
+                    setTripId(detail.tripId);
                 }
-                const itineraryDays =
-                    (detail.itinerary && Array.isArray(detail.itinerary) && detail.itinerary.length > 0
-                        ? detail.itinerary
-                        : detail.trip?.days) || [];
+                const itineraryDays = Array.isArray(detail.days) ? detail.days : [];
                 if (Array.isArray(itineraryDays) && itineraryDays.length > 0) {
                     const plans = itineraryDays.map((day: any) => ({
                         dayIndex: day.dayNumber || 1,

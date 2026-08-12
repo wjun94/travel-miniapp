@@ -21,11 +21,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/partner/detail/index",
+          "pathName": "pages/partner/detail/index",
+          "query": "id=2087087064033005568",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "发布",
           "pathName": "pages/publish/index/index",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/history/index",

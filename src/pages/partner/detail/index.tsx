@@ -104,7 +104,7 @@ export default function PartnerDetail() {
           targetType: 'partner',
           title: data.title || '',
           coverImage: data.cover || '',
-        }).catch(() => {});
+        }).catch(() => { });
       }
     },
   });
@@ -429,13 +429,13 @@ export default function PartnerDetail() {
                 <View className="text-right">
                   <Text className="text-[26px] text-gray-800 font-medium">
                     {formatDate(partner.startDate)}
-                    {partner.days !== 1 && partner.endDate && partner.endDate !== partner.startDate && (
+                    {(partner.days?.length || 0) !== 1 && partner.endDate && partner.endDate !== partner.startDate && (
                       <> - {formatDate(partner.endDate)}</>
                     )}
                   </Text>
-                  {partner.days > 0 && (
+                  {(partner.days?.length || 0) > 0 && (
                     <Text className="text-[22px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded ml-1.5 font-medium">
-                      {partner.days}天
+                      {partner.days?.length || 0}天
                     </Text>
                   )}
                 </View>
@@ -469,22 +469,22 @@ export default function PartnerDetail() {
               partner.feeInclude ||
               partner.feeExclude ||
               (partner.estTotal ?? 0) > 0) && (
-              <SectionCard title="费用详情">
-                <Row
-                  label="费用模式"
-                  value={FEE_LABELS[partner.feeMode] || '未知'}
-                />
-                {(partner.estTotal ?? 0) > 0 && (
-                  <Row label="预估总费用" value={`¥${partner.estTotal}`} />
-                )}
-                {partner.feeInclude && (
-                  <Row label="费用包含" value={partner.feeInclude} />
-                )}
-                {partner.feeExclude && (
-                  <Row label="费用不含" value={partner.feeExclude} />
-                )}
-              </SectionCard>
-            )}
+                <SectionCard title="费用详情">
+                  <Row
+                    label="费用模式"
+                    value={FEE_LABELS[partner.feeMode] || '未知'}
+                  />
+                  {(partner.estTotal ?? 0) > 0 && (
+                    <Row label="预估总费用" value={`¥${partner.estTotal}`} />
+                  )}
+                  {partner.feeInclude && (
+                    <Row label="费用包含" value={partner.feeInclude} />
+                  )}
+                  {partner.feeExclude && (
+                    <Row label="费用不含" value={partner.feeExclude} />
+                  )}
+                </SectionCard>
+              )}
 
             {/* Card 3: 招募要求 */}
             <SectionCard title="招募要求">
@@ -566,64 +566,42 @@ export default function PartnerDetail() {
               </SectionCard>
             )}
 
-            {/* Card 6: 行程安排 */}
-            {(Array.isArray(partner.itinerary) && partner.itinerary.length > 0) ||
-              (partner.trip && (
-                <SectionCard title="行程安排">
-                  {Array.isArray(partner.itinerary) && partner.itinerary.length > 0 ? (
-                    <View className="space-y-2">
-                      {partner.itinerary.map((day: any, di: number) => (
-                        <View key={di} className="bg-gray-50 rounded-xl p-3">
-                          <View className="flex flex-row items-center mb-1">
-                            <Text className="text-[22px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded">
-                              第{day.dayNumber || di + 1}天
-                            </Text>
-                            {day.title && (
-                              <Text className="text-[24px] font-medium text-gray-800 ml-2 flex-1 line-clamp-1">
-                                {day.title}
-                              </Text>
-                            )}
-                          </View>
-                          <Text className="text-[22px] text-gray-500 line-clamp-2">
-                            {(day.items || [])
-                              .map((it: any) => it.title)
-                              .filter(Boolean)
-                              .join(' · ') || '行程安排已就绪'}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : partner.trip ? (
-                    <View
-                      className="bg-gray-50 rounded-xl p-3 space-y-2 active:opacity-80"
-                      onClick={() =>
-                        Taro.navigateTo({
-                          url: `/pages/trip/view/index?id=${partner.trip.id}`,
-                        })
-                      }
-                    >
-                      <Text className="text-[26px] font-bold text-gray-800">
-                        {partner.trip.title}
-                      </Text>
-                      {partner.trip.summary && (
-                        <Text className="text-[24px] text-gray-500 line-clamp-2">
-                          {partner.trip.summary}
+            {/* Card 6: 行程安排（有关联行程时展示可跳转的行程卡片） */}
+            {(Array.isArray(partner.days) && partner.days.length > 0) ? (
+              <SectionCard title="行程安排">
+                <View className="space-y-2">
+                  {partner.days.map((day: any, di: number) => (
+                    <View key={di} className="bg-gray-50 rounded-xl p-3">
+                      <View className="flex flex-row items-center mb-1">
+                        <Text className="text-[22px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded">
+                          第{day.dayNumber || di + 1}天
                         </Text>
-                      )}
-                      <View className="flex flex-row flex-wrap gap-1.5">
-                        {partner.trip.destinations?.map((d, i) => (
-                          <Text
-                            key={i}
-                            className="text-[20px] text-orange-500 bg-orange-50 px-2 py-0.5 rounded"
-                          >
-                            {d}
+                        {day.title && (
+                          <Text className="text-[24px] font-medium text-gray-800 ml-2 flex-1 line-clamp-1">
+                            {day.title}
                           </Text>
-                        ))}
+                        )}
                       </View>
+                      <Text className="text-[22px] text-gray-500 line-clamp-2">
+                        {(day.items || [])
+                          .map((it: any) => it.title)
+                          .filter(Boolean)
+                          .join(' · ') || '行程安排已就绪'}
+                      </Text>
                     </View>
-                  ) : null}
-                </SectionCard>
-              ))}
+                  ))}
+                </View>
+                {/* 查看完整行程详情 */}
+                <View
+                  className="mt-3 flex items-center justify-center bg-orange-50 border border-orange-200 rounded-xl py-2 active:opacity-80"
+                  onClick={() => Taro.navigateTo({ url: `../view/index?id=${id}` })}
+                >
+                  <Text className="text-[24px] text-[#F97316] font-bold">
+                    查看详情
+                  </Text>
+                </View>
+              </SectionCard>
+            ) : null}
 
             {/* ---- Comment Section ---- */}
             <View id="partner-comment-section">
@@ -827,11 +805,10 @@ export default function PartnerDetail() {
 
         {/* ===== Comment Input Overlay ===== */}
         <View
-          className={`fixed inset-0 z-50 transition-all duration-300 ${
-            showCommentInput
-              ? 'pointer-events-auto opacity-100'
-              : 'pointer-events-none opacity-0'
-          }`}
+          className={`fixed inset-0 z-50 transition-all duration-300 ${showCommentInput
+            ? 'pointer-events-auto opacity-100'
+            : 'pointer-events-none opacity-0'
+            }`}
         >
           <View
             className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
@@ -842,9 +819,8 @@ export default function PartnerDetail() {
             }}
           />
           <View
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] p-5 pb-safe shadow-lg transition-transform duration-300 ease-out transform ${
-              showCommentInput ? 'translate-y-0' : 'translate-y-full'
-            }`}
+            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] p-5 pb-safe shadow-lg transition-transform duration-300 ease-out transform ${showCommentInput ? 'translate-y-0' : 'translate-y-full'
+              }`}
           >
             {replyTo && (
               <View className="flex flex-row items-center justify-between mb-3 px-3 py-2 bg-orange-50/60 rounded-xl border border-orange-100/50">
@@ -882,11 +858,10 @@ export default function PartnerDetail() {
               />
               <View
                 onClick={handleSubmitComment}
-                className={`h-12 px-6 rounded-2xl flex items-center justify-center transition-all active:scale-95 ${
-                  !commentText.trim() || submitting
-                    ? 'bg-stone-100 text-stone-400'
-                    : 'bg-[#F97316] text-white shadow-md'
-                }`}
+                className={`h-12 px-6 rounded-2xl flex items-center justify-center transition-all active:scale-95 ${!commentText.trim() || submitting
+                  ? 'bg-stone-100 text-stone-400'
+                  : 'bg-[#F97316] text-white shadow-md'
+                  }`}
               >
                 <Text
                   className={`text-[24px] font-bold ${!commentText.trim() || submitting ? 'text-stone-400' : 'text-white'}`}

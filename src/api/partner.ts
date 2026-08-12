@@ -1,5 +1,5 @@
 import request, { PageResult } from './request'; // 确保路径正确指向你的 request 实例
-import type { Trip, AiGenerateTripData } from './trip';
+import type { AiGenerateTripData } from './trip';
 
 // --- 类型定义 (基于你提供的 JSON 结构) ---
 
@@ -72,7 +72,6 @@ export interface CreatePartnerParams {
   startDate?: string;          // 出发日期（ISO 8601）
   tags?: string;               // 标签（逗号分隔）
   title?: string;              // 招募标题
-  totalDays?: number;          // 总天数
   travelTags?: string;         // 出行标签（逗号分隔，如：自驾,徒步,美食）
   tripId?: string;             // 关联行程 ID
   visibility?: number;         // 可见性: 0-全部可见 1-仅粉丝 2-仅互关
@@ -120,8 +119,8 @@ export interface PartnerDetail {
   startDate: string;
   /** 结束日期 */
   endDate: string;
-  /** 行程天数 */
-  days: number;
+  /** 行程日列表（天数由数组长度派生） */
+  days: DayItem[];
   /** 创建时间 */
   createdAt: string;
   /** 更新时间 */
@@ -224,8 +223,8 @@ export interface PartnerDetail {
   commentCount: number;
 
   // --- 关联行程 ---
-  /** 关联行程详情 */
-  trip: Trip;
+  /** 关联行程 ID */
+  tripId: string;
 }
 
 /** 搭子/结伴游条目（列表接口响应） */
@@ -265,8 +264,8 @@ export interface PartnerItem {
   startDate: string;
   /** 结束日期 */
   endDate: string;
-  /** 行程天数 */
-  days: number;
+  /** 行程天数（由行程日列表长度派生） */
+  dayCount: number;
   /** 关联行程的行程项总数 */
   itemCount: number;
   /** 创建时间 */

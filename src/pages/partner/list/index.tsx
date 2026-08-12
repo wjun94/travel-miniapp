@@ -210,9 +210,9 @@ export default function PartnerList() {
                           {item.endDate ? ` - ${formatShortDate(item.endDate)}` : ''}
                         </Text>
                       </View>
-                      {item.days > 0 && (
+                      {item.dayCount > 0 && (
                         <Text className='text-orange-600 bg-orange-50 px-1.5 py-0.2 rounded text-[20px] font-medium'>
-                          {item.days}天
+                          {item.dayCount}天
                         </Text>
                       )}
                       {item.itemCount > 0 && (
