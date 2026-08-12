@@ -50,7 +50,7 @@ export const getUserInfo = () =>
  * @param data 可更新昵称和头像
  * @returns void
  */
-export const updateProfile = (params: { nickname?: string; avatarUrl?: string }) =>
+export const updateProfile = (params: { nickname?: string; avatarUrl?: string; gender?: string }) =>
   request({
     url: '/user/profile',
     method: 'PUT',
@@ -64,6 +64,7 @@ export interface UserProfile {
   id: string;
   avatarUrl: string;
   nickname: string;
+  gender: string;  // 性别：unknown未知 male男 female女
   role: number;  // 0普通 1领队 2管理员
   followCount: number;  // 关注数
   followerCount: number;  // 粉丝数

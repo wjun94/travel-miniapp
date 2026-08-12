@@ -7,6 +7,7 @@ import request, { PageResult } from './request';
  */
 export interface ProfileData {
     avatarUrl: string;
+    gender: string;  // 性别：unknown未知 male男 female女
     followCount: number;
     followerCount: number;
     guideCount: number;

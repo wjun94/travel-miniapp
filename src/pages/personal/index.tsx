@@ -17,6 +17,7 @@ import { getProfile, getUserFeed, getUserFavorites } from '@/api/personal';
 import { getMyJoinedPartners } from '@/api/partner';
 import type { PartnerItem } from '@/api/partner';
 import { followUser, unfollowUser, blockUser, unblockUser } from '@/api/follow';
+import { GENDER_META } from '@/constants/gender';
 
 // --- 搭子列表卡片（我的搭子/我参与的搭子共用） ---
 const PARTNER_STATUS_LABELS: Record<number, { label: string; bg: string }> = {
@@ -269,9 +270,22 @@ export default function PersonalPage() {
             </View>
 
             <View className="flex-1">
-              <Text className="text-2xl font-bold tracking-wide">
-                {profile?.nickname || ''}
-              </Text>
+              <View className="flex items-center">
+                <Text className="text-2xl font-bold tracking-wide">
+                  {profile?.nickname || ''}
+                </Text>
+                {profile?.gender && profile.gender !== 'unknown' && (
+                  <View
+                    className='inline-flex items-center justify-center w-[36px] h-[36px] rounded-full ml-1'
+                    style={{ backgroundColor: GENDER_META[profile.gender]?.badge }}
+                  >
+                    <Text
+                      className={'iconfont ' + (GENDER_META[profile.gender]?.icon || '') + ' text-[22px]'}
+                      style={{ color: GENDER_META[profile.gender]?.color }}
+                    />
+                  </View>
+                )}
+              </View>
               <View className="flex items-center space-x-1 mt-1 text-xs text-gray-400">
                 <Text>用户ID: {userId}</Text>
                 <Text

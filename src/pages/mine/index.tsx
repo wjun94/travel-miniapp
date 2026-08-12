@@ -3,6 +3,7 @@ import { NavBar, Avatar } from '@/components'
 import { getImageCdnUrl } from '@/utils'
 import Taro, { useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 import { getProfile } from '@/api/auth'
+import { GENDER_META } from '@/constants/gender'
 import { useRequest } from 'ahooks'
 import { useAuthStore } from '@/store/authStore';
 
@@ -137,6 +138,17 @@ export default function ProfilePage() {
             <View className="flex flex-col ml-4 flex-1">
               <View className="flex flex-row items-center">
                 <Text className="text-xl font-black text-gray-800 tracking-wide max-w-40 truncate">{profile?.nickname || '驴友'}</Text>
+                {profile?.gender && profile.gender !== 'unknown' && (
+                  <View
+                    className='inline-flex items-center justify-center w-[36px] h-[36px] rounded-full ml-1 flex-shrink-0'
+                    style={{ backgroundColor: GENDER_META[profile.gender]?.badge }}
+                  >
+                    <Text
+                      className={'iconfont ' + (GENDER_META[profile.gender]?.icon || '') + ' text-[22px]'}
+                      style={{ color: GENDER_META[profile.gender]?.color }}
+                    />
+                  </View>
+                )}
                 {ROLE_BADGES[profile?.role ?? 0] && (
                   <Text className={`ml-1.5 text-[20px] text-white px-2 py-0.5 rounded-md flex-shrink-0 ${ROLE_BADGES[profile!.role!].bg}`}>
                     {ROLE_BADGES[profile!.role!].label}

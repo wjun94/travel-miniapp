@@ -7,6 +7,7 @@ import { useRequest } from 'ahooks';
 import { getUserInfo, updateProfile, bindWxPhone } from '@/api/auth';
 import { uploadSingleFile } from '@/utils/upload';
 import { useAuthStore } from '@/store/authStore';
+import { GENDER_META, GENDER_OPTIONS } from '@/constants/gender';
 
 export default function ProfilePage() {
     const setUserInfo = useAuthStore(s => s.setUserInfo);
@@ -19,6 +20,10 @@ export default function ProfilePage() {
     // 昵称编辑弹窗
     const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
     const [nicknameInput, setNicknameInput] = useState('');
+    // 性别：当前值 + 弹窗选择值
+    const [gender, setGender] = useState('unknown');
+    const [genderModalVisible, setGenderModalVisible] = useState(false);
+    const [genderInput, setGenderInput] = useState('unknown');
 
     // 加载当前用户信息
     const { loading } = useRequest(getUserInfo, {
@@ -29,6 +34,7 @@ export default function ProfilePage() {
                 setNickname(info.nickname || '');
                 initialNicknameRef.current = info.nickname || '';
                 setPhoneNumber(info.phone || '');
+                setGender(info.gender || 'unknown');
             }
         },
         onError: () => {
@@ -105,6 +111,30 @@ export default function ProfilePage() {
         Taro.showToast({ title: '昵称已更新', icon: 'success' });
     };
 
+    // 5. 打开性别选择弹窗
+    const openGenderModal = () => {
+        setGenderInput(gender);
+        setGenderModalVisible(true);
+    };
+
+    // 6. 性别弹窗确定：选择变化时才提交
+    const handleGenderConfirm = async () => {
+        if (genderInput === gender) {
+            setGenderModalVisible(false);
+            return;
+        }
+        // 全屏 loading 锁住页面，避免重复操作
+        Taro.showLoading({ title: '更新中...', mask: true });
+        const ok = await updateProfile({ gender: genderInput }).then(() => true).catch(() => false);
+        Taro.hideLoading();
+        if (!ok) return;
+        setGender(genderInput);
+        // 同步更新 store
+        setUserInfo({ gender: genderInput } as any);
+        setGenderModalVisible(false);
+        Taro.showToast({ title: '性别已更新', icon: 'success' });
+    };
+
     if (loading) {
         return (
             <View className='w-full h-screen flex items-center justify-center bg-[#FAFAF9]'>
@@ -142,6 +172,31 @@ export default function ProfilePage() {
                     <Text className='w-[100px] text-[26px] text-stone-700 font-bold'>昵称</Text>
                     <View className='flex-1 flex items-center justify-between'>
                         <Text className='text-[26px] text-stone-800 font-medium'>{nickname || '未设置昵称'}</Text>
+                        <Text className='iconfont icon-next text-[24px]' />
+                    </View>
+                </View>
+
+                {/* 性别 */}
+                <View
+                    className='flex items-center py-4 border-b border-stone-100 active:bg-stone-50'
+                    onClick={openGenderModal}
+                >
+                    <Text className='w-[100px] text-[26px] text-stone-700 font-bold'>性别</Text>
+                    <View className='flex-1 flex items-center justify-between'>
+                        <View className='flex items-center'>
+                            {gender !== 'unknown' && (
+                                <View
+                                    className='inline-flex items-center justify-center w-[36px] h-[36px] rounded-full mr-1'
+                                    style={{ backgroundColor: GENDER_META[gender]?.badge }}
+                                >
+                                    <Text
+                                        className={'iconfont ' + (GENDER_META[gender]?.icon || '') + ' text-[22px]'}
+                                        style={{ color: GENDER_META[gender]?.color }}
+                                    />
+                                </View>
+                            )}
+                            <Text className='text-[26px] text-stone-800 font-medium'>{GENDER_META[gender]?.label || '未知'}</Text>
+                        </View>
                         <Text className='iconfont icon-next text-[24px]' />
                     </View>
                 </View>
@@ -185,6 +240,40 @@ export default function ProfilePage() {
                         onInput={(e) => setNicknameInput(e.detail.value)}
                         focus
                     />
+                </View>
+            </Modal>
+            {/* 性别选择弹窗 */}
+            <Modal
+                visible={genderModalVisible}
+                title='选择性别'
+                confirmText='确定'
+                onConfirm={handleGenderConfirm}
+                onCancel={() => setGenderModalVisible(false)}
+                onMaskClick={() => setGenderModalVisible(false)}
+            >
+                <View className="py-2">
+                    {GENDER_OPTIONS.map((opt) => (
+                        <View
+                            key={opt.value}
+                            onClick={() => setGenderInput(opt.value)}
+                            className={'flex items-center justify-between px-4 py-3 rounded-xl mb-2 border ' + (genderInput === opt.value ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-100')}
+                        >
+                            <View className='flex items-center'>
+                                {opt.icon && (
+                                    <View
+                                        className='inline-flex items-center justify-center w-[40px] h-[40px] rounded-full mr-2'
+                                        style={{ backgroundColor: GENDER_META[opt.value]?.badge }}
+                                    >
+                                        <Text
+                                            className={'iconfont ' + opt.icon + ' text-[24px]'}
+                                            style={{ color: GENDER_META[opt.value]?.color }}
+                                        />
+                                    </View>
+                                )}
+                                <Text className='text-[26px] text-gray-800'>{opt.label}</Text>
+                            </View>
+                        </View>
+                    ))}
                 </View>
             </Modal>
         </View>
