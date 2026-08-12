@@ -1,4 +1,4 @@
-import request from './request';
+import request, { PageResult } from './request';
 
 // ==========================================
 // 1. 类型定义 (Interfaces)
@@ -92,7 +92,7 @@ export interface ChecklistDetail {
  * @returns 清单列表
  */
 export const getChecklists = (params) =>
-  request<Checklist[]>({
+  request<PageResult<Checklist>>({
     url: '/checklist',
     method: 'GET',
     params
