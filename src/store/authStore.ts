@@ -29,7 +29,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ userId: id });
   },
 
-  setUserInfo: (info) => set({ userInfo: info }),
+  // 浅合并：局部字段更新（如只改头像/昵称）不覆盖其余字段
+  setUserInfo: (info) =>
+    set({ userInfo: info ? { ...(get().userInfo || {}), ...info } : null }),
 
   fetchUserInfo: async () => {
     const token = get().token;

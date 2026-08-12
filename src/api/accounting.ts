@@ -32,6 +32,7 @@ export interface AccountOverviewItem {
   totalAmount: number; // 总支出
   count: number; // 总笔数
   lastTime: string; // 最后记账时间
+  lastNote?: string; // 最近一笔记账的笔记名称（备注）
 }
 
 /** 记账目标类型（custom 为自主账本） */

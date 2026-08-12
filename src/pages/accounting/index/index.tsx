@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { View, Text, Input } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { NavBar, Modal } from '@/components'
 import { useRequest } from 'ahooks'
-import { getAccountOverview, createAccountBook, deleteAccountBook, TARGET_TYPE_NAMES, type AccountOverviewItem, type TargetType } from '@/api/accounting'
+import { getAccountOverview, deleteAccountBook, TARGET_TYPE_NAMES, type AccountOverviewItem, type TargetType } from '@/api/accounting'
 import { formatTime } from '@/utils'
 
 // 各目标类型的图标与配色
@@ -22,8 +22,6 @@ export default function AccountingIndexPage() {
   })
 
   // 弹窗状态
-  const [createVisible, setCreateVisible] = useState(false)
-  const [bookName, setBookName] = useState('')
   const [deleteBook, setDeleteBook] = useState<AccountOverviewItem | null>(null)
 
   const totalAmount = list.reduce((sum, i) => sum + i.totalAmount, 0)
@@ -33,18 +31,9 @@ export default function AccountingIndexPage() {
       url: `/pages/accounting/list/index?targetType=${item.targetType}&targetId=${item.targetId}&name=${encodeURIComponent(item.targetName || '')}`,
     })
   }
-  // 新建自主账本（不绑定行程/攻略/搭子）
+  // 新建账本：直接进入记账页，账本名称与关联目标在记账页填写
   const handleCreateBook = () => {
-    setBookName('')
-    setCreateVisible(true)
-  }
-  const handleCreateConfirm = async () => {
-    const name = bookName.trim() || '我的账本'
-    const book = await createAccountBook(name)
-    setCreateVisible(false)
-    Taro.navigateTo({
-      url: `/pages/accounting/list/index?targetType=custom&targetId=${book.targetId}&name=${encodeURIComponent(book.targetName)}`,
-    })
+    Taro.navigateTo({ url: '/pages/accounting/list/index' })
   }
 
   // 删除账本确认（图标按钮 / 长按共用）
@@ -67,7 +56,7 @@ export default function AccountingIndexPage() {
   return (
     <>
       <NavBar title='记账本' showBack />
-      <View className='min-h-screen bg-[#FAFAF9] px-4 pb-8 font-sans'>
+      <View className='min-h-screen bg-[#FAFAF9] px-4 pt-4 pb-8 font-sans'>
 
         {/* 顶部统计卡 */}
         <View className='bg-white rounded-2xl px-5 py-4 shadow-sm mb-4'>
@@ -118,13 +107,13 @@ export default function AccountingIndexPage() {
                   {/* 中间信息 */}
                   <View className='flex-1 ml-3 overflow-hidden flex flex-col justify-center'>
                     <View className='flex flex-row items-center'>
-                      <Text className='font-bold text-stone-800 text-[28px] truncate tracking-wide'>{item.targetName || '未命名'}</Text>
+                      <Text className='font-bold text-stone-800 text-[28px] truncate tracking-wide'>{item.targetName || item.lastNote || '未命名'}</Text>
                       <Text className={`ml-2 text-[20px] px-1.5 py-0.5 rounded flex-shrink-0 ${style.cls}`}>
                         {TARGET_TYPE_NAMES[item.targetType as TargetType] || item.targetType}
                       </Text>
                     </View>
                     <Text className='text-[22px] text-stone-400 mt-1 truncate'>
-                      共 {item.count} 笔{item.lastTime ? ` · 最后记账 ${formatTime(item.lastTime)}` : ''}
+                      {item.lastNote ? `笔记：${item.lastNote} · ` : ''}共 {item.count} 笔{item.lastTime ? ` · 最后记账 ${formatTime(item.lastTime)}` : ''}
                     </Text>
                   </View>
 
@@ -133,7 +122,10 @@ export default function AccountingIndexPage() {
                     <Text className='font-black text-orange-500 text-[30px]'>¥{item.totalAmount.toFixed(2)}</Text>
                     <Text
                       className='iconfont icon-remove text-[30px] text-red-500 mt-2 active:opacity-60'
-                      onClick={() => confirmDeleteBook(item)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        confirmDeleteBook(item)
+                      }}
                     />
                   </View>
                 </View>
@@ -142,25 +134,6 @@ export default function AccountingIndexPage() {
           </View>
         )}
       </View>
-
-      {/* 新建账本弹窗 */}
-      <Modal
-        visible={createVisible}
-        title='新建账本'
-        confirmText='创建'
-        onCancel={() => setCreateVisible(false)}
-        onConfirm={handleCreateConfirm}
-      >
-        <View className='pt-1'>
-          <Input
-            className='bg-stone-50 rounded-xl px-4 py-3 text-[28px] text-stone-800'
-            placeholder='请输入账本名称（如：云南之旅）'
-            placeholderClass='text-stone-300'
-            value={bookName}
-            onInput={(e) => setBookName(e.detail.value)}
-          />
-        </View>
-      </Modal>
 
       {/* 删除账本确认 */}
       <Modal

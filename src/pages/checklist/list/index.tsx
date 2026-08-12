@@ -6,6 +6,14 @@ import { getChecklists, deleteChecklist, updateChecklistItem, type Checklist } f
 import { ScrollLoadList, Checkbox, Modal } from '@/components';
 import type { ScrollLoadListRef } from '@/components/ScrollLoadList';
 
+// 关联类型名称与标签配色（行程/攻略/搭子）
+const TARGET_TYPE_NAMES: Record<string, string> = { trip: '行程', guide: '攻略', partner: '搭子' };
+const TARGET_TYPE_TAG: Record<string, string> = {
+  trip: 'bg-blue-50 text-blue-500',
+  guide: 'bg-emerald-50 text-emerald-600',
+  partner: 'bg-orange-50 text-orange-500',
+};
+
 export default function ChecklistPage() {
   const listRef = useRef<ScrollLoadListRef>(null);
   const update = useUpdate();
@@ -66,6 +74,19 @@ export default function ChecklistPage() {
             <Text className={`text-[28px] font-bold tracking-wide truncate transition-colors duration-200 ${isCompleted ? 'text-stone-400' : 'text-stone-800'}`}>
               {checklist.name}
             </Text>
+            {/* 关联类型 + 名称回显（行程/攻略/搭子） */}
+            {checklist.targetName && (
+              <View className="ml-2 flex flex-row items-center flex-shrink-0 space-x-1.5">
+                {checklist.targetType && (
+                  <Text className={`text-[20px] px-1.5 py-0.5 rounded flex-shrink-0 font-semibold ${TARGET_TYPE_TAG[checklist.targetType] || 'bg-stone-100 text-stone-500'}`}>
+                    {TARGET_TYPE_NAMES[checklist.targetType] || checklist.targetType}
+                  </Text>
+                )}
+                <Text className="text-[20px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 font-medium truncate max-w-[200px]">
+                  {checklist.targetName}
+                </Text>
+              </View>
+            )}
             {checklist.items && (
               <Text className={`text-[22px] ml-2.5 px-2 py-0.5 rounded-full flex-shrink-0 font-semibold transition-colors duration-200 tracking-wider ${isCompleted ? 'bg-stone-100 text-stone-400' : 'bg-[#10B981]/10 text-[#10B981]'
                 }`}>

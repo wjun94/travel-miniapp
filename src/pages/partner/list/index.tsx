@@ -29,12 +29,6 @@ const formatDate = (dateStr: string) => {
   return `${m}月${day}日`
 }
 
-const formatShortDate = (dateStr: string) => {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return `${d.getMonth() + 1}.${d.getDate()}`
-}
-
 export default function PartnerList() {
   const listRef = useRef<any>(null)
   const headerHeight = getHeaderHeight()
@@ -207,7 +201,7 @@ export default function PartnerList() {
                         <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
                         <Text className='font-medium text-gray-700'>
                           {formatDate(item.startDate)}
-                          {item.endDate ? ` - ${formatShortDate(item.endDate)}` : ''}
+                          {item.endDate ? ` - ${formatDate(item.endDate)}` : ''}
                         </Text>
                       </View>
                       {item.dayCount > 0 && (

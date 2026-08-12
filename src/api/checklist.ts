@@ -22,7 +22,10 @@ export interface Checklist {
   userId: string;
   name: string;
   isTemplate: number; // 0 或 1
-  tripId?: string;
+  tripId?: string; // 关联行程（兼容旧字段，等同 targetType=trip）
+  targetType?: string; // 关联类型：trip行程 guide攻略 partner搭子（空=无关联）
+  targetId?: string; // 关联目标ID
+  targetName?: string; // 关联名称（行程/攻略/搭子标题，查询时返回）
   items: ChecklistItem[];
   createdAt: string;
 }
@@ -53,6 +56,9 @@ export interface ChecklistCategory {
  */
 export interface UpdateChecklistRequest {
   name: string;
+  /** 关联类型：trip行程 guide攻略 partner搭子（不传=不修改，传空串=取消关联） */
+  targetType?: string;
+  targetId?: string;
   items: Array<{
     id: string;
     checklistId: string;
@@ -68,6 +74,9 @@ export interface ChecklistDetail {
   id: string;
   userId: string;
   tripId: string;
+  targetType?: string; // 关联类型：trip行程 guide攻略 partner搭子（空=无关联）
+  targetId?: string; // 关联目标ID
+  targetName?: string; // 关联名称（行程/攻略/搭子标题）
   name: string;
   isTemplate: number; // 0 或 1
   createdAt: string;

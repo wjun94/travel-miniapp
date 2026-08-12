@@ -9,7 +9,7 @@ import {
     updateChecklist,
     getChecklistDetail
 } from '@/api/checklist';
-import { getMyTrips } from '@/api/trip';
+import { getRelationOptions } from '@/api/relation';
 
 export default function ChecklistFormPage() {
     const router = useRouter();
@@ -18,12 +18,14 @@ export default function ChecklistFormPage() {
 
     // 页面基础状态
     const [name, setName] = useState('');
-    const [tripId, setTripId] = useState('');
     const [items, setItems] = useState<ChecklistItem[]>([]);
 
-    // 关联行程选择
-    const [tripList, setTripList] = useState<any[]>([]);
-    const [selectedTripIdx, setSelectedTripIdx] = useState(-1);
+    // 关联目标（行程/攻略/搭子，合并列表选择，选填）
+    const [targetId, setTargetId] = useState(''); // 仅用于编辑回显时匹配选中项
+    const [selectedTargetIdx, setSelectedTargetIdx] = useState(-1);
+    const [trips, setTrips] = useState<any[]>([]);
+    const [guides, setGuides] = useState<any[]>([]);
+    const [partners, setPartners] = useState<any[]>([]);
 
     // 输入框受控状态
     const [customItemText, setCustomItemText] = useState('');
@@ -43,10 +45,12 @@ export default function ChecklistFormPage() {
             }
         });
 
-        // 3. 获取我的行程列表
-        getMyTrips(1, 100).then((res: any) => {
-            const list = res?.list || [];
-            setTripList(list);
+        // 3. 一个接口获取我的行程/攻略/搭子列表
+        getRelationOptions().then((res: any) => {
+            const data = res?.data || res;
+            setTrips(data?.trips || []);
+            setGuides(data?.guides || []);
+            setPartners(data?.partners || []);
         });
 
         // 2. 如果是编辑模式，通过详情接口回显数据
@@ -56,18 +60,12 @@ export default function ChecklistFormPage() {
                 const detail = res?.data || res;
                 if (detail) {
                     setName(detail.name);
-                    setTripId(detail.tripId || '');
                     setItems(detail.items || []);
-                    // 编辑模式回显时同步选中索引
-                    if (detail.tripId) {
-                        // 等 tripList 加载完成后匹配，或直接尝试匹配
-                        setTimeout(() => {
-                            setTripList(prev => {
-                                const idx = prev.findIndex((t: any) => t.id === detail.tripId);
-                                if (idx >= 0) setSelectedTripIdx(idx);
-                                return prev;
-                            });
-                        }, 300);
+                    // 回显关联（旧数据 targetType 为空但有 tripId 时按行程处理）
+                    const tt = detail.targetType || (detail.tripId ? 'trip' : '');
+                    const tid = detail.targetId || (tt === 'trip' ? detail.tripId : '');
+                    if (tt) {
+                        setTargetId(tid || '');
                     }
                 }
             });
@@ -75,6 +73,21 @@ export default function ChecklistFormPage() {
             Taro.setNavigationBarTitle({ title: '新建备忘清单' });
         }
     }, [id, isEdit]);
+
+    // 全部关联目标合并列表（行程/攻略/搭子），选项文本带类型备注，无需先切换类型
+    const targetOptions = [
+        ...trips.map((t: any) => ({ id: t.id, title: t.title, type: 'trip', label: `${t.title}（行程）` })),
+        ...guides.map((g: any) => ({ id: g.id, title: g.title, type: 'guide', label: `${g.title}（攻略）` })),
+        ...partners.map((p: any) => ({ id: p.id, title: p.title, type: 'partner', label: `${p.title}（搭子）` })),
+    ];
+
+    // 编辑回显时根据 targetId 匹配合并列表索引
+    useEffect(() => {
+        if (targetId && targetOptions.length > 0) {
+            const idx = targetOptions.findIndex((t: any) => t.id === targetId);
+            if (idx >= 0) setSelectedTargetIdx(idx);
+        }
+    }, [targetId, trips, guides, partners]);
 
     // 添加自定义清单项逻辑
     const handleAddItem = (text: string) => {
@@ -119,15 +132,24 @@ export default function ChecklistFormPage() {
         }
 
         Taro.showLoading({ title: '保存中...' });
+        // 选中项驱动关联字段（type 在合并列表中确定）
+        const target = selectedTargetIdx >= 0 ? targetOptions[selectedTargetIdx] : null;
         const payload: Partial<Checklist> = {
             name,
-            tripId: tripId || undefined,
+            targetType: target?.type || undefined,
+            targetId: target?.id || undefined,
             items,
             isTemplate: 0
         };
 
+        // 编辑时关联字段显式提交（空串=取消关联），创建时直接传
         const ok = isEdit
-            ? await updateChecklist(id!, { name, items }).then(() => true).catch(() => false)
+            ? await updateChecklist(id!, {
+                name,
+                targetType: target?.type || '',
+                targetId: target?.id || '',
+                items,
+            }).then(() => true).catch(() => false)
             : await createChecklist(payload).then(() => true).catch(() => false);
         Taro.hideLoading();
         if (!ok) return;
@@ -151,24 +173,25 @@ export default function ChecklistFormPage() {
                     />
                 </View>
                 <View>
-                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">关联行程(选填)</Text>
-                    {tripList.length > 0 ? (
+                    <Text className="font-semibold text-stone-400 tracking-wider block mb-2 text-[24px]">关联行程/攻略/搭子(选填)</Text>
+                    {/* 关联目标选择：全部列表合并，选项带类型备注，不选即不关联 */}
+                    {targetOptions.length > 0 ? (
                         <View className='relative'>
                             <Picker
                                 mode='selector'
-                                range={tripList}
-                                rangeKey='title'
-                                value={selectedTripIdx >= 0 ? selectedTripIdx : 0}
+                                range={targetOptions}
+                                rangeKey='label'
+                                value={selectedTargetIdx >= 0 ? selectedTargetIdx : 0}
                                 onChange={(e) => {
                                     const idx = Number(e.detail.value);
-                                    setSelectedTripIdx(idx);
-                                    setTripId(tripList[idx]?.id || '');
+                                    setSelectedTargetIdx(idx);
+                                    setTargetId(targetOptions[idx]?.id || '');
                                 }}
                                 className='w-full'
                             >
                                 <View className='w-full h-11 bg-stone-50 rounded-2xl px-4 flex flex-row items-center justify-between border-none box-border'>
-                                    <Text className={`text-[26px] ${selectedTripIdx >= 0 ? 'text-stone-700' : 'text-stone-300'}`}>
-                                        {selectedTripIdx >= 0 ? tripList[selectedTripIdx]?.title : '请选择关联的旅行行程'}
+                                    <Text className={`text-[26px] ${selectedTargetIdx >= 0 ? 'text-stone-700' : 'text-stone-300'}`}>
+                                        {selectedTargetIdx >= 0 ? targetOptions[selectedTargetIdx]?.label : '请选择要关联的行程/攻略/搭子（选填）'}
                                     </Text>
                                     <Text className='iconfont icon-arrow-down text-[24px] text-stone-300' />
                                 </View>
@@ -176,7 +199,7 @@ export default function ChecklistFormPage() {
                         </View>
                     ) : (
                         <View className='w-full h-11 bg-stone-50 rounded-2xl px-4 flex flex-row items-center border-none box-border'>
-                            <Text className='text-[26px] text-stone-300'>暂无行程数据</Text>
+                            <Text className='text-[26px] text-stone-300'>暂无相关数据</Text>
                         </View>
                     )}
                 </View>
