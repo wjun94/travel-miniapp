@@ -10,6 +10,7 @@ import HotSvg from '@/assets/img/hot.svg';
 import CarSvg from '@/assets/img/car.svg';
 import Taro, {
   useRouter,
+  useDidShow,
   usePullDownRefresh,
   usePageScroll,
   useShareAppMessage,
@@ -261,6 +262,19 @@ export default function TripDetail() {
       Taro.stopPullDownRefresh();
       setRefreshing(false);
     }
+  });
+
+  // 页面显示时静默刷新（评论/点赞等操作返回后同步数据）；首次进入由 useRequest 初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true);
+  useDidShow(async () => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      return;
+    }
+    setCommentRefreshKey((v) => v + 1);
+    try {
+      await refresh();
+    } catch (e) { /* 静默失败，保留原数据 */ }
   });
 
   // 仅首次加载（无数据）显示全屏 loading；下拉刷新时保留页面内容，避免白屏闪烁

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from '@tarojs/components';
 import Taro, {
   useRouter,
+  useDidShow,
   usePullDownRefresh,
   useShareAppMessage,
   useShareTimeline,
@@ -294,6 +295,19 @@ export default function PartnerDetail() {
       Taro.stopPullDownRefresh();
       setRefreshing(false);
     }
+  });
+
+  // 页面显示时静默刷新（评论/点赞/申请等操作返回后同步数据）；首次进入由 useRequest 初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true);
+  useDidShow(async () => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      return;
+    }
+    setCommentRefreshKey((v) => v + 1);
+    try {
+      await refresh();
+    } catch (e) { /* 静默失败，保留原数据 */ }
   });
 
   if (!partner) return null;
