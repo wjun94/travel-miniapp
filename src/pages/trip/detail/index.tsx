@@ -98,7 +98,7 @@ export default function TripDetail() {
       svg: CitySvg,
       label: '目的地',
       value: destinationText || '未设置目的地',
-      iconClass: 'h-4 w-4 mr-6px',
+      iconClass: 'h-4 min-w-4 w-4 mr-6px',
     },
     {
       key: 'days',
@@ -398,7 +398,7 @@ export default function TripDetail() {
                     <View className="flex items-center mb-1">
                       <Image
                         src={s.svg!}
-                        className={s.iconClass || 'h-4 w-4 mr-6px'}
+                        className={s.iconClass || 'h-4 min-w-4 w-4 mr-6px'}
                       />
                       <Text className="block text-stone-400 text-[24px] font-medium">
                         {s.label}
@@ -532,7 +532,7 @@ export default function TripDetail() {
                                     <View className="bg-stone-100/80 rounded-full px-4 py-1.5 flex flex-row items-center space-x-2 border border-white shadow-xs">
                                       <Image
                                         src={CarSvg}
-                                        className="h-4 w-4 mr-6px"
+                                        className="h-4 min-w-4 w-4 mr-6px"
                                       />
                                       <Text className="text-[22px] text-stone-600 font-semibold">
                                         {getTransportLabel(

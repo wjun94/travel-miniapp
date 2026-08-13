@@ -104,7 +104,7 @@ export default function GuideCard({
             </View>
           ) : isPartner ? (
             <View className="bg-orange-500/90 backdrop-blur-sm px-2 py-0.5 rounded-lg shadow-sm flex items-center">
-              <Image src={TeamSvg} className="h-4 w-4 mr-6px" />
+              <Image src={TeamSvg} className="h-4 min-w-4 w-4 mr-6px" />
               <Text className="text-[22px] text-white font-bold">结伴搭子</Text>
             </View>
           ) : (

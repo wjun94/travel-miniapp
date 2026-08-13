@@ -619,7 +619,7 @@ export default function PartnerDetail() {
                   <View className="flex items-center justify-end">
                     <Image
                       src={TeamSvg}
-                      className="h-4 w-4 mr-6px flex-shrink-0"
+                      className="h-4 min-w-4 w-4 mr-6px flex-shrink-0"
                     />
                     <Text className="text-[26px] text-gray-800 font-medium">
                       {partner.currentMembers} / {partner.maxMembers} 人

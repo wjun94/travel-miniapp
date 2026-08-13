@@ -99,7 +99,7 @@ const renderPartnerCard = (item: any) => (
           </Text>
         </View>
         <View className="flex items-center">
-          <Image src={TeamSvg} className='h-4 w-4 mr-6px' />
+          <Image src={TeamSvg} className='h-4 min-w-4 w-4 mr-6px' />
           <Text className="text-[24px] font-medium text-gray-700">
             {item.currentMembers}/{item.maxMembers} 人
           </Text>

@@ -143,7 +143,7 @@ export default function TravelGuideDetail() {
                                                             <View key={item.id || index} className='relative my-2 py-1 flex flex-row items-center pl-2'>
                                                                 <View className='absolute -left-[52px] w-2 h-2 rounded-full bg-[#D1CFC9] z-10 border border-white' />
                                                                 <View className='bg-[#F1F6F2] rounded-full px-3 py-1 flex flex-row items-center space-x-2 border border-white shadow-sm'>
-                                                                    <Image src={CarSvg} className='h-4 w-4 mr-6px' />
+                                                                    <Image src={CarSvg} className='h-4 min-w-4 w-4 mr-6px' />
                                                                     <Text className='text-[22px] text-gray-500 font-medium'>
                                                                         {getTransportLabel((item as any).transportMode)}
                                                                         {item.description ? ` · ${item.description}` : ''}

@@ -400,7 +400,7 @@ export default function TripDetail() {
                       <View className="flex items-center">
                         <Image
                           src={s.svg!}
-                          className={s.iconClass || 'h-4 w-4 mr-6px'}
+                          className={s.iconClass || 'h-4 min-w-4 w-4 mr-6px'}
                         />
                         <Text className="block text-stone-400 mb-0.5 text-[24px] font-medium">
                           {s.label}
@@ -535,7 +535,7 @@ export default function TripDetail() {
                                     <View className="bg-stone-100/80 rounded-full px-4 py-1.5 flex flex-row items-center space-x-2 border border-white shadow-xs">
                                       <Image
                                         src={CarSvg}
-                                        className="h-4 w-4 mr-6px"
+                                        className="h-4 min-w-4 w-4 mr-6px"
                                       />
                                       <Text className="text-[22px] text-stone-600 font-semibold">
                                         {getTransportLabel(
