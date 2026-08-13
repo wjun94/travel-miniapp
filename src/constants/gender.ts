@@ -11,7 +11,6 @@ export const GENDER_META: Record<string, { label: string; icon: string; color: s
 
 /** 性别选择选项（编辑资料用） */
 export const GENDER_OPTIONS: { value: string; label: string; icon: string }[] = [
-  { value: 'unknown', label: '未知', icon: '' },
   { value: 'male', label: '男', icon: 'icon-nan' },
   { value: 'female', label: '女', icon: 'icon-nv' },
 ];

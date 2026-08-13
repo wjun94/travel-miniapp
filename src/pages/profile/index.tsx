@@ -111,9 +111,9 @@ export default function ProfilePage() {
         Taro.showToast({ title: '昵称已更新', icon: 'success' });
     };
 
-    // 5. 打开性别选择弹窗
+    // 5. 打开性别选择弹窗（未知用户回退默认选中男，选项已取消未知）
     const openGenderModal = () => {
-        setGenderInput(gender);
+        setGenderInput(gender === 'unknown' ? 'male' : gender);
         setGenderModalVisible(true);
     };
 
@@ -132,7 +132,7 @@ export default function ProfilePage() {
         // 同步更新 store
         setUserInfo({ gender: genderInput } as any);
         setGenderModalVisible(false);
-        Taro.showToast({ title: '性别已更新', icon: 'success' });
+        Taro.showToast({ title: '性别已更新', icon: 'none' });
     };
 
     if (loading) {
