@@ -139,7 +139,7 @@ export default function ProfilePage() {
                 className="absolute -right-1 bottom-0 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center active:opacity-80"
                 onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
               >
-                <Text className="iconfont icon-edit1 text-[#F97316] text-30px" />
+                <Text className="iconfont icon-edit1 font-bold text-[#F97316] text-30px" />
               </View>
             </View>
 
