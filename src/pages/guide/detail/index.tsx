@@ -229,13 +229,28 @@ export default function TravelGuideDetail() {
     };
   });
 
-  /** 刷新 */
+  /** 下拉刷新：等待详情与评论刷新完成后收起指示器（失败也收起，避免一直转圈），期间显示页面内刷新提示 */
+  const [refreshing, setRefreshing] = useState(false);
   usePullDownRefresh(async () => {
-    refresh();
+    if (refreshing) {
+      Taro.stopPullDownRefresh();
+      return;
+    }
+    setRefreshing(true);
     setCommentRefreshKey((v) => v + 1);
+    try {
+      await refresh();
+    } catch (e) {
+      // 刷新失败：保留原数据，轻提示后收起
+      Taro.showToast({ title: '刷新失败，请稍后重试', icon: 'none' });
+    } finally {
+      Taro.stopPullDownRefresh();
+      setRefreshing(false);
+    }
   });
 
-  if (loading) {
+  // 仅首次加载（无数据）显示全屏 loading；下拉刷新时保留页面内容，避免白屏闪烁
+  if (loading && !guide) {
     return (
       <View className="w-full h-screen flex items-center justify-center bg-stone-50 text-stone-400 text-[24px]">
         <Text>正在探索行程中...</Text>
@@ -289,6 +304,20 @@ export default function TravelGuideDetail() {
           </Text>
         </View>
       </NavBar>
+      {/* 下拉刷新中提示（复用列表刷新胶囊样式） */}
+      {refreshing && (
+        <View
+          className="fixed left-0 right-0 flex justify-center z-30 pointer-events-none"
+          style={{ top: headerHeight + 8 }}
+        >
+          <View className="flex flex-row items-center px-16px py-6px rounded-full bg-white shadow-sm">
+            <View className="sll-spinner" />
+            <Text className="text-[22px] text-stone-500 ml-10px">
+              刷新中<Text className="sll-dot-1">.</Text><Text className="sll-dot-2">.</Text><Text className="sll-dot-3">.</Text>
+            </Text>
+          </View>
+        </View>
+      )}
       {error || !guide ? (
         <View className="w-full h-screen flex flex-col items-center justify-center bg-stone-50 text-stone-400 text-[24px] space-y-2">
           <Image src={WarningsSvg} className="h-3.5 w-3.5" />

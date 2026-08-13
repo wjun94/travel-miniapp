@@ -28,6 +28,7 @@ import {
 } from '@/api/partner';
 import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
+import { getHeaderHeight } from '@/utils';
 import { addFavorite, deleteFavorite } from '@/api/favorite';
 import { createComment } from '@/api/comment';
 import { openMapLocation, getImageUrl, getImageCdnUrl } from '@/utils';
@@ -88,6 +89,7 @@ export default function PartnerDetail() {
   const [dissolving, setDissolving] = useState(false);
   const [leaveVisible, setLeaveVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const headerHeight = getHeaderHeight();
 
   // --- Data ---
   const {
@@ -274,11 +276,24 @@ export default function PartnerDetail() {
     }));
   };
 
-  // Pull-to-refresh
+  // 下拉刷新：等待详情与评论刷新完成后收起指示器（失败也收起，避免一直转圈），期间显示页面内刷新提示
+  const [refreshing, setRefreshing] = useState(false);
   usePullDownRefresh(async () => {
-    refresh();
+    if (refreshing) {
+      Taro.stopPullDownRefresh();
+      return;
+    }
+    setRefreshing(true);
     setCommentRefreshKey((v) => v + 1);
-    Taro.stopPullDownRefresh();
+    try {
+      await refresh();
+    } catch (e) {
+      // 刷新失败：保留原数据，轻提示后收起
+      Taro.showToast({ title: '刷新失败，请稍后重试', icon: 'none' });
+    } finally {
+      Taro.stopPullDownRefresh();
+      setRefreshing(false);
+    }
   });
 
   if (!partner) return null;
@@ -338,6 +353,20 @@ export default function PartnerDetail() {
           </Text>
         </View>
       </NavBar>
+      {/* 下拉刷新中提示（复用列表刷新胶囊样式） */}
+      {refreshing && (
+        <View
+          className="fixed left-0 right-0 flex justify-center z-30 pointer-events-none"
+          style={{ top: headerHeight + 8 }}
+        >
+          <View className="flex flex-row items-center px-16px py-6px rounded-full bg-white shadow-sm">
+            <View className="sll-spinner" />
+            <Text className="text-[22px] text-stone-500 ml-10px">
+              刷新中<Text className="sll-dot-1">.</Text><Text className="sll-dot-2">.</Text><Text className="sll-dot-3">.</Text>
+            </Text>
+          </View>
+        </View>
+      )}
 
       <View className="min-h-screen bg-gray-100/70 pb-100px flex flex-col">
         {/* ===== Scrollable Content ===== */}
