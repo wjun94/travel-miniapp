@@ -76,6 +76,12 @@ export default defineAppConfig({
       //   selectedIconPath: imgUrl + 'addr1.png',
       // },
       {
+        pagePath: 'pages/partner/list/index',
+        text: '搭子',
+        iconPath: imgUrl + 'team.png',
+        selectedIconPath: imgUrl + 'team1.png',
+      },
+      {
         pagePath: 'pages/publish/index/index',
         text: '发布',
         iconPath: imgUrl + 'publish.png',

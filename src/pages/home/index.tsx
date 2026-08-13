@@ -144,14 +144,13 @@ export default function HomePage() {
         </View>
 
         {/* 2. "寻找搭子" Banner 区域 */}
-        <View className="relative w-full h-40 rounded-2xl overflow-hidden my-3 shadow-sm">
+        {/* <View className="relative w-full h-40 rounded-2xl overflow-hidden my-3 shadow-sm">
           <Image
             src="home-banner.jfif"
             cdn
             mode="aspectFill"
             className="w-full h-full absolute inset-0"
           />
-          {/* 蒙层渐变 */}
           <View className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }} />
 
           <View className="absolute inset-y-0 left-0 flex flex-col justify-center pl-6 pr-20 z-10">
@@ -164,7 +163,7 @@ export default function HomePage() {
               </View>
             </View>
           </View>
-        </View>
+        </View> */}
       </View>
       {/* 3. Tab 导航栏 */}
       <View
