@@ -171,7 +171,7 @@ export default function PartnerList() {
                     </View> */}
                       <View className='bg-black/40 backdrop-blur-md text-white text-[20px] px-2.5 py-0.5 rounded-full flex items-center'>
                         <Text className='iconfont icon-follow mr-1' />
-                        <Text className='text-22px'>{item.likeCount ?? 0}</Text>
+                        <Text className='text-26px'>{item.likeCount ?? 0}</Text>
                       </View>
                     </View>
 

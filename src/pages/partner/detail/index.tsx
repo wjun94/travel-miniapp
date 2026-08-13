@@ -6,6 +6,8 @@ import {
   Input,
   Button,
   ScrollView,
+  Swiper,
+  SwiperItem,
 } from '@tarojs/components';
 import Taro, {
   useRouter,
@@ -91,12 +93,16 @@ export default function PartnerDetail() {
   const [leaveVisible, setLeaveVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const headerHeight = getHeaderHeight();
+  // 头部活动图轮播当前索引
+  const [swiperIndex, setSwiperIndex] = useState(0);
 
   // --- Data ---
   const {
     data: partner,
     mutate,
     refresh,
+    loading,
+    error,
   } = useRequest(() => getPartnerDetail(id || ''), {
     refreshDeps: [id],
     onSuccess: (data: any) => {
@@ -310,9 +316,43 @@ export default function PartnerDetail() {
     } catch (e) { /* 静默失败，保留原数据 */ }
   });
 
-  if (!partner) return null;
-  // 活动图片（创建时上传的图集），详情页回显；兼容后端返回的字符串数组与 {url} 对象数组
-  const activityImages = partner.images || []
+  // 首次加载（无数据）：全屏 loading 反馈；下拉/返回刷新时保留页面内容不闪白
+  if (loading && !partner) {
+    return (
+      <View className="min-h-screen flex flex-col bg-stone-50">
+        <NavBar showBack />
+        <View className="flex-1 flex items-center justify-center text-stone-400 text-[24px] py-20">
+          <Text>正在加载搭子信息...</Text>
+        </View>
+      </View>
+    );
+  }
+  // 加载失败（无数据可展示）：错误提示 + 重新加载
+  if (error || !partner) {
+    return (
+      <View className="min-h-screen flex flex-col bg-stone-50">
+        <NavBar showBack />
+        <View className="flex-1 flex flex-col items-center justify-center text-stone-400 text-[24px] py-20">
+          <Text className="mb-8">加载失败，请稍后重试</Text>
+          <View
+            className="px-10 py-2.5 rounded-full bg-orange-500 text-white text-[26px] font-medium active:opacity-80"
+            onClick={() => refresh()}
+          >
+            重新加载
+          </View>
+        </View>
+      </View>
+    );
+  }
+  // 活动图片（创建时上传的图集），详情页回显（后端返回字符串数组）；封面图有值则优先作为轮播第一张，并去重
+  const activityImages = partner.cover
+    ? [
+        partner.cover,
+        ...(partner.images || []).filter(
+          (img: string) => img !== partner.cover
+        ),
+      ]
+    : partner.images || []
 
   return (
     <>
@@ -389,7 +429,35 @@ export default function PartnerDetail() {
         <ScrollView scrollY className="flex-1 pb-[130px]">
           {/* ---- Cover Header ---- */}
           <View className="relative w-full h-60 bg-gray-900 overflow-hidden">
-            {partner.cover ? (
+            {/* 有活动图：头部轮播；单图直接展示 */}
+            {activityImages.length > 0 ? (
+              activityImages.length === 1 ? (
+                <Image
+                  src={activityImages[0]}
+                  mode="aspectFill"
+                  className="w-full h-full opacity-90"
+                />
+              ) : (
+                <Swiper
+                  circular
+                  interval={4000}
+                  onChange={(e) => setSwiperIndex(e.detail.current)}
+                  className="w-full h-full"
+                >
+                  {activityImages.map((imgUrl, i) => (
+                    <SwiperItem key={i} className="w-full h-full">
+                      <Image
+                        src={imgUrl}
+                        mode="aspectFill"
+                        className="w-full h-full"
+                        preview
+                        urls={activityImages}
+                      />
+                    </SwiperItem>
+                  ))}
+                </Swiper>
+              )
+            ) : partner.cover ? (
               <Image
                 src={partner.cover}
                 mode="aspectFill"
@@ -411,55 +479,31 @@ export default function PartnerDetail() {
               </View>
             </View>
 
-            <View className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-            <View className="absolute bottom-3 right-4 z-10">
-              <View className="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center">
-                <Text className="iconfont icon-eye text-white/90 text-[22px] mr-1" />
-                <Text className="text-white/90 text-[24px] font-medium">
+            {/* 浏览量：右上角轻量胶囊，与左侧状态标签对称 */}
+            <View className="absolute top-3 right-4 z-10">
+              <View className="bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center border border-white/20">
+                <Text className="iconfont icon-eye text-white text-[22px] mr-1" />
+                <Text className="text-white text-[24px] font-medium">
                   {partner.viewCount ?? 0}
                 </Text>
               </View>
             </View>
+
+            {/* 轮播页码：右下角贴近轮播 */}
+            {activityImages.length > 1 && (
+              <View className="absolute bottom-3 right-4 z-10">
+                <View className="bg-black/50 px-2.5 py-1 rounded-full flex items-center">
+                  <Text className="text-white/90 text-26px font-medium">
+                    {(swiperIndex % activityImages.length) + 1}/
+                    {activityImages.length}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
 
           {/* ---- Content Cards ---- */}
           <View className="px-4 pt-3 space-y-3.5">
-            {/* 活动图片：创建时上传的图集回显 */}
-            {activityImages.length > 0 && (
-              <View className="w-full rounded-xl overflow-hidden">
-                {activityImages.length === 1 ? (
-                  <View className="w-full h-[320px] bg-stone-100">
-                    <Image
-                      preview
-                      src={activityImages[0]}
-                      mode="aspectFill"
-                      className="w-full h-full"
-                    />
-                  </View>
-                ) : (
-                  <View
-                    className={`grid ${activityImages.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1.5 w-full`}
-                  >
-                    {activityImages.map((imgUrl, i) => (
-                      <View
-                        key={i}
-                        className="relative w-full h-0 pb-[100%] bg-stone-100 rounded-lg overflow-hidden"
-                      >
-                        <Image
-                          urls={activityImages}
-                          preview
-                          src={imgUrl}
-                          mode="aspectFill"
-                          className="absolute top-0 left-0 w-full h-full"
-                        />
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            )}
-
             {/* Card 1: 行程信息 */}
             <SectionCard title="行程信息">
               <Row
