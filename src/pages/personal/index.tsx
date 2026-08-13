@@ -217,10 +217,10 @@ export default function PersonalPage() {
     setProfile((prev: any) =>
       prev
         ? {
-            ...prev,
-            isBlocked: !prev.isBlocked,
-            isFollowed: blocked ? prev.isFollowed : false,
-          }
+          ...prev,
+          isBlocked: !prev.isBlocked,
+          isFollowed: blocked ? prev.isFollowed : false,
+        }
         : prev,
     );
     Taro.showToast({
@@ -263,6 +263,7 @@ export default function PersonalPage() {
             {/* 头像 */}
             <View className="relative">
               <Avatar
+                preview
                 name={profile?.nickname}
                 src={profile?.avatarUrl || ''}
                 className="w-20 h-20 rounded-full border-2 border-white object-cover text-50px"

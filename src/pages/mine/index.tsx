@@ -126,18 +126,27 @@ export default function ProfilePage() {
         <View className="px-4">
           {/* 2. 用户个人信息区域 */}
           <View className="flex flex-row items-center px-1 mb-6">
-            {/* 头像 */}
-            <Avatar
-              name={profile?.nickname}
-              src={profile?.avatarUrl!}
-              mode="aspectFill"
-              className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm text-44px"
-            />
+            {/* 头像（右下角为编辑资料入口） */}
+            <View className="relative">
+              <Avatar
+                name={profile?.nickname}
+                src={profile?.avatarUrl!}
+                mode="aspectFill"
+                preview
+                className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm text-44px"
+              />
+              <View
+                className="absolute -right-1 bottom-0 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center active:opacity-80"
+                onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
+              >
+                <Text className="iconfont icon-edit1 text-[#F97316] text-30px" />
+              </View>
+            </View>
 
             {/* 名字与标签 */}
             <View className="flex flex-col ml-4 flex-1">
               <View className="flex flex-row items-center">
-                <Text className="text-xl font-black text-gray-800 tracking-wide max-w-40 truncate">{profile?.nickname || '驴友'}</Text>
+                <Text onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })} className="text-xl font-black text-gray-800 tracking-wide max-w-40 truncate">{profile?.nickname || '驴友'}</Text>
                 {profile?.gender && profile.gender !== 'unknown' && (
                   <View
                     className='inline-flex items-center justify-center w-[36px] h-[36px] rounded-full ml-1 flex-shrink-0'
@@ -161,14 +170,6 @@ export default function ProfilePage() {
                   ID: {profile?.id ?? '-'}
                 </Text>
               </View>
-            </View>
-
-            {/* 编辑资料按钮 - 右侧居中 */}
-            <View
-              className="bg-[#ecf3fd] px-3 py-1.5 rounded-full active:opacity-70 flex-shrink-0"
-              onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
-            >
-              <Text className="text-[#3688C7] text-[24px] font-medium">编辑资料</Text>
             </View>
           </View>
 
