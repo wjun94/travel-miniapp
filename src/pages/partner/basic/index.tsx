@@ -13,20 +13,10 @@ import LocationPicker from '@/features/guide/LocationPicker';
 
 export default function PublishForm() {
     const params = Taro.getCurrentInstance().router?.params;
-    const aiId = (params?.aiId as string) || '';
-    // 编辑模式：URL 携带 draftId 时加载草稿数据（AI 流程复用 AI 草稿 ID，更新而非新建）
-    const [draftId, setDraftId] = useState((params?.draftId as string) || '');
+    // 编辑模式：URL 携带 draftId 时加载草稿数据（AI 生成不落草稿，确认发布时直接新建）
+    const [draftId] = useState((params?.draftId as string) || '');
     // 编辑草稿时保留原关联行程 ID，提交时复用更新行程安排
     const [tripId, setTripId] = useState('');
-
-    // AI 生成流程兜底：URL 带 aiId 且与本地缓存匹配时，复用 AI 草稿 ID 走更新（避免重复创建）
-    useEffect(() => {
-        if (draftId) return;
-        const aiData = Taro.getStorageSync('TEMP_PARTNER_AI_GENERATED') as AiGenerateTripData | undefined;
-        if (aiId && aiData && aiData.id === aiId) {
-            setDraftId(aiId);
-        }
-    }, []);
 
     const [formData, setFormData] = useState({
         title: '',

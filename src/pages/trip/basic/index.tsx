@@ -206,8 +206,8 @@ export default function BasicInfoPage() {
           : aiData?.days || [],
     };
 
-    // 编辑已有草稿（draftId），或 AI 生成后首次发布（缓存含 AI 草稿行程ID）→ 更新而非新建
-    const existingId = draftId || (aiData?.id ? String(aiData.id) : '');
+    // 编辑已有草稿（draftId）走更新；AI 生成不落草稿，确认发布时直接新建
+    const existingId = draftId;
     if (existingId) {
       await updateTrip(existingId, payload as any);
     } else {
