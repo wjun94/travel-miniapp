@@ -84,7 +84,7 @@ export default function GuideCard({
       onClick={handleClick}
     >
       <View className="w-full h-44 relative">
-        <CoverImage src={item.coverImage} title={item.title} className="w-full h-44 max-h-44" />
+        <CoverImage src={item.coverImage} title={item.title} titleClassName="px-4" className="w-full h-44 max-h-44" />
 
         {/* 刚刚看过蒙层 */}
         {isJustViewed && (
