@@ -136,7 +136,7 @@ export default function ProfilePage() {
                 className="w-full h-full w-16 h-16 rounded-full overflow-hidden border border-white shadow-sm text-44px"
               />
               <View
-                className="absolute -right-1 bottom-0 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center active:opacity-80"
+                className="absolute -right-1 -bottom-1 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center active:opacity-80"
                 onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}
               >
                 <Text className="iconfont icon-edit1 font-bold text-[#F97316] text-30px" />
@@ -173,15 +173,16 @@ export default function ProfilePage() {
             </View>
           </View>
 
-          {/* 3. 数据统计交互行：笔记(攻略+行程+搭子) / 粉丝 / 关注 / 拉黑 */}
-          <View className="grid grid-cols-4 text-center my-4 px-1">
+          {/* 3. 数据统计交互行：获赞+收藏合并为一个数 / 笔记(攻略+行程+搭子) / 粉丝 / 关注 / 拉黑 */}
+          <View className="grid grid-cols-5 text-center my-4 px-1 gap-y-3">
             {[
               { value: (profile?.guideCount ?? 0) + (profile?.tripCount ?? 0) + (profile?.partnerCount ?? 0), label: '笔记', url: '/pages/notes/index' },
               { value: profile?.followerCount ?? '0', label: '粉丝', url: '/pages/fans/index' },
               { value: profile?.followCount ?? '0', label: '关注', url: '/pages/follow/index' },
+              { value: (profile?.totalLikes ?? 0) + (profile?.totalFavs ?? 0), label: '获赞与收藏' },
               { value: profile?.blockCount ?? '0', label: '拉黑', url: '/pages/blacklist/index' }
             ].map((stat, i) => (
-              <View key={i} className="flex flex-col active:opacity-70" onClick={() => Taro.navigateTo({ url: stat.url })}>
+              <View key={i} className="flex flex-col items-center active:opacity-70" onClick={() => stat.url && Taro.navigateTo({ url: stat.url })}>
                 <Text className="text-lg font-black text-gray-800 tracking-tight">{stat.value}</Text>
                 <Text className="text-xs mt-1 font-medium">{stat.label}</Text>
               </View>
