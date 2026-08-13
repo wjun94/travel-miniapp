@@ -311,6 +311,8 @@ export default function PartnerDetail() {
   });
 
   if (!partner) return null;
+  // 活动图片（创建时上传的图集），详情页回显；兼容后端返回的字符串数组与 {url} 对象数组
+  const activityImages = partner.images || []
 
   return (
     <>
@@ -423,6 +425,41 @@ export default function PartnerDetail() {
 
           {/* ---- Content Cards ---- */}
           <View className="px-4 pt-3 space-y-3.5">
+            {/* 活动图片：创建时上传的图集回显 */}
+            {activityImages.length > 0 && (
+              <View className="w-full rounded-xl overflow-hidden">
+                {activityImages.length === 1 ? (
+                  <View className="w-full h-[320px] bg-stone-100">
+                    <Image
+                      preview
+                      src={activityImages[0]}
+                      mode="aspectFill"
+                      className="w-full h-full"
+                    />
+                  </View>
+                ) : (
+                  <View
+                    className={`grid ${activityImages.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1.5 w-full`}
+                  >
+                    {activityImages.map((imgUrl, i) => (
+                      <View
+                        key={i}
+                        className="relative w-full h-0 pb-[100%] bg-stone-100 rounded-lg overflow-hidden"
+                      >
+                        <Image
+                          urls={activityImages}
+                          preview
+                          src={imgUrl}
+                          mode="aspectFill"
+                          className="absolute top-0 left-0 w-full h-full"
+                        />
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+
             {/* Card 1: 行程信息 */}
             <SectionCard title="行程信息">
               <Row

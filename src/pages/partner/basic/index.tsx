@@ -191,13 +191,18 @@ export default function PublishForm() {
         getPartnerDetail(draftId)
             .then((detail: any) => {
                 if (!detail) return;
-                // 多图：后端存 JSON 字符串，兼容逗号分隔
+                // 多图：后端返回数组（兼容旧数据 JSON 字符串/逗号分隔）
                 let images: string[] = [];
-                try {
-                    const arr = JSON.parse(detail.images || '[]');
-                    if (Array.isArray(arr)) images = arr;
-                } catch {
-                    images = (detail.images || '').split(',').filter(Boolean);
+                const raw = detail.images;
+                if (Array.isArray(raw)) {
+                    images = raw;
+                } else if (typeof raw === 'string') {
+                    try {
+                        const arr = JSON.parse(raw);
+                        if (Array.isArray(arr)) images = arr;
+                    } catch {
+                        images = raw.split(',').filter(Boolean);
+                    }
                 }
                 const startDate = (detail.startDate || '').slice(0, 10);
                 const endDate = (detail.endDate || '').slice(0, 10);
