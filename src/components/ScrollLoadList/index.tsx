@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { ScrollView, View, Text } from '@tarojs/components'
 import type { ScrollViewProps } from '@tarojs/components'
-import { useReachBottom } from '@tarojs/taro'
+import { useReachBottom, usePullDownRefresh, stopPullDownRefresh } from '@tarojs/taro'
 import { Image } from '@/components'
 
 export interface RequestResult<T> {
@@ -96,6 +96,8 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   const isFirstRender = useRef(true)
   // 数据快照：用于静默刷新时对比数据是否变化（避免重复渲染导致瀑布流重排闪动）
   const dataRef = useRef<T[]>([])
+  // 页面下拉刷新进行中标记（ref 级防重：React 状态异步更新，连续快速下拉时状态可能未及时生效）
+  const refreshingRef = useRef(false)
   // 静默加载开始时间：用于保证 loading 最小展示时长
   const silentStartRef = useRef(0)
 
@@ -205,6 +207,23 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
   // 覆盖场景：scroll-view 被内容撑开无内部滚动空间时（页面级滚动承载），页面滚动到底部自动加载下一页
   useReachBottom(() => {
     handleLoadMore()
+  })
+
+  // 页面级下拉刷新（需页面配置 enablePullDownRefresh）：显式触发时保留刷新动画，结束后收起下拉状态
+  const handleRefresh = useCallback(() => {
+    if (refreshingRef.current || refreshing || loadingMore || silentLoading) {
+      stopPullDownRefresh()
+      return
+    }
+    refreshingRef.current = true
+    loadData(initialPage, true, false).finally(() => {
+      refreshingRef.current = false
+      stopPullDownRefresh()
+    })
+  }, [refreshing, loadingMore, silentLoading, initialPage, loadData])
+
+  usePullDownRefresh(() => {
+    handleRefresh()
   })
 
   useImperativeHandle(ref, () => ({
@@ -361,8 +380,8 @@ const ScrollLoadList = forwardRef(<T = any>(props: ScrollLoadListProps<T>, ref: 
       {renderFooter && renderFooter()}
 
       {showEmpty && renderEmptyContent()}
-      {/* 静默刷新 loading：有数据时顶部胶囊条，无数据时居中指示 */}
-      {silentLoading && (
+      {/* 刷新 loading：静默刷新或页面下拉刷新时展示，有数据时顶部胶囊条，无数据时居中指示 */}
+      {(silentLoading || refreshing) && (
         <View
           className={data.length > 0
             ? 'flex justify-center items-center py-6px'

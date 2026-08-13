@@ -1,5 +1,5 @@
 import { View, Text, Textarea } from '@tarojs/components'
-import Taro, { usePullDownRefresh, useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useRef, useState } from 'react'
 import { ScrollLoadList, Image, Modal } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
@@ -53,13 +53,13 @@ export default function PartnerList() {
     listRef.current?.refresh()
   }
 
-  usePullDownRefresh(async () => {
-    listRef.current?.refresh()
-    Taro.stopPullDownRefresh()
-  })
-
-  // 页面显示时刷新（详情页解散/退出/申请处理后返回同步数据）
+  // 页面显示时刷新（详情页解散/退出/申请处理后返回同步数据）；首次进入由列表组件初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true)
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false
+      return
+    }
     listRef.current?.refresh()
   })
 

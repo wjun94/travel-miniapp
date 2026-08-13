@@ -1,5 +1,5 @@
 import { View, Text, Textarea, Input } from '@tarojs/components'
-import Taro, { usePullDownRefresh, useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useRef, useState, useCallback } from 'react'
 import { ScrollLoadList, Image, Modal, Avatar, NavBar } from '@/components'
 import CalendarSvg from '@/assets/img/calendar.svg'
@@ -71,50 +71,52 @@ export default function PartnerList() {
     })
   }, [])
 
-  usePullDownRefresh(async () => {
-    listRef.current?.refresh()
-    Taro.stopPullDownRefresh()
-  })
-
-  // 页面显示时刷新（详情页点赞/收藏/申请处理后返回同步数据）
+  // 页面显示时刷新（详情页点赞/收藏/申请处理后返回同步数据）；首次进入由列表组件初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true)
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false
+      return
+    }
     listRef.current?.refresh()
   })
 
   return (
     <>
       <NavBar />
+      {/* 搜索框（固定顶部） */}
+      <View
+        className='flex flex-row items-center px-4 py-1 sticky z-11 bg-[#FCFBF7]'
+        style={{ top: headerHeight, position: 'sticky' }}
+      >
+        <View className='flex-1 flex flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 mr-3'>
+          <Text className='iconfont icon-search text-gray-400 mr-2 text-base leading-none' />
+          <Input
+            placeholder='搜索标题/目的地/标签'
+            placeholderClass='text-gray-300 text-sm'
+            className='text-sm text-gray-700 flex-1 h-5 min-h-5'
+            value={inputValue}
+            onInput={(e) => setInputValue(e.detail.value)}
+            confirmType='search'
+            onConfirm={handleSearch}
+          />
+          {inputValue && (
+            <Text
+              className='iconfont icon-close text-gray-300 text-base leading-none ml-1 active:opacity-60'
+              onClick={clearSearch}
+            />
+          )}
+        </View>
+        <Text
+          className='text-[#e97442] text-sm font-bold flex-shrink-0 active:opacity-70'
+          onClick={handleSearch}
+        >
+          搜索
+        </Text>
+      </View>
       <View
         className='flex flex-col box-border overflow-hidden pb-6'
       >
-        {/* 搜索框（固定顶部） */}
-        <View className='flex flex-row items-center px-4 pt-2 pb-2'>
-          <View className='flex-1 flex flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 mr-3'>
-            <Text className='iconfont icon-search text-gray-400 mr-2 text-base leading-none' />
-            <Input
-              placeholder='搜索标题/目的地/标签'
-              placeholderClass='text-gray-300 text-sm'
-              className='text-sm text-gray-700 flex-1 h-5 min-h-5'
-              value={inputValue}
-              onInput={(e) => setInputValue(e.detail.value)}
-              confirmType='search'
-              onConfirm={handleSearch}
-            />
-            {inputValue && (
-              <Text
-                className='iconfont icon-close text-gray-300 text-base leading-none ml-1 active:opacity-60'
-                onClick={clearSearch}
-              />
-            )}
-          </View>
-          <Text
-            className='text-[#e97442] text-sm font-bold flex-shrink-0 active:opacity-70'
-            onClick={handleSearch}
-          >
-            搜索
-          </Text>
-        </View>
-
         <View className='flex-1 min-h-0'>
           <ScrollLoadList
             ref={listRef}

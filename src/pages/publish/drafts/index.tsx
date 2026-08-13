@@ -110,7 +110,13 @@ export default function DraftsPage() {
   const [deleting, setDeleting] = useState(false)
   const headerHeight = getHeaderHeight()
 
+  // 页面显示时刷新（草稿状态变更后返回同步数据）；首次进入由列表组件初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true)
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false
+      return
+    }
     listRef.current?.refresh()
   })
 

@@ -1,3 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: '备忘清单'
+  navigationBarTitleText: '备忘清单',
+  enablePullDownRefresh: true,
 })

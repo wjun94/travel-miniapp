@@ -23,7 +23,15 @@ export default function ChecklistPage() {
     listRef.current?.refresh();
   };
 
-  useDidShow(refreshList);
+  // 页面显示时刷新（编辑/新建返回后同步数据）；首次进入由列表组件初始加载负责，跳过避免重复请求
+  const isFirstShow = useRef(true);
+  useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      return;
+    }
+    refreshList();
+  });
 
   // 跳转到新建页面
   const navToCreate = () => {

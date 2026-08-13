@@ -89,8 +89,14 @@
       }
     }
 
+    // 页面显示时连接 WebSocket 并刷新数据；首次进入由 useRequest 初始加载负责，跳过数据刷新避免重复请求（WS 仍需连接）
+    const isFirstShow = useRef(true)
     useDidShow(async () => {
       connectWS()
+      if (isFirstShow.current) {
+        isFirstShow.current = false
+        return
+      }
       await Promise.all([refreshUnread(), refreshList()])
     })
 
