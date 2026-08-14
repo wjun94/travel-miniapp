@@ -370,7 +370,7 @@ export default function PartnerDetail() {
             <Avatar
               name={partner.authorName}
               src={partner.authorAvatar}
-              className="w-[40px] h-[40px] text-[20px] rounded-full border-2 border-white/80"
+              className="w-[46px] h-[46px] text-[20px] rounded-full border-2 border-white/80"
             />
             <Text className="ml-2 text-[26px] font-bold text-gray-800">
               {partner.authorName || ''}

@@ -69,9 +69,12 @@ export interface UserProfile {
   followCount: number;  // 关注数
   followerCount: number;  // 粉丝数
   partnerCount: number;  // 搭子数
+  joinedPartnerCount: number;  // 我参与的搭子数
   guideCount: number;  // 已发布的攻略数
   tripCount: number;  // 行程数
   blockCount: number;  // 拉黑数
+  totalLikes: number;  // 总获赞数
+  totalFavs: number;  // 总收藏数
 }
 
 /**

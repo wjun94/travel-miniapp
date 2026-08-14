@@ -298,9 +298,9 @@ export default function TripDetail() {
             <Avatar
               name={guide.authorName}
               src={guide.authorAvatar}
-              className="w-[48px] h-[48px] text-20px rounded-full border-2 border-white/80"
+              className="w-[46px] h-[46px] text-20px rounded-full border-2 border-white/80"
             />
-            <Text className="ml-2 text-[24px] font-bold drop-shadow-md">
+            <Text className="ml-2 text-[26px] font-bold drop-shadow-md">
               {guide.authorName || ''}
             </Text>
             {!guide.isSelf && (
