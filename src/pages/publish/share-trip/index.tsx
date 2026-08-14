@@ -43,8 +43,12 @@ export default function ShareTripPage() {
                 {item.coverImage ? (
                   <Image src={item.coverImage} className="w-20 h-20 rounded-xl flex-shrink-0" mode="aspectFill" />
                 ) : (
-                  <View className="w-20 h-20 rounded-xl flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                    <Text className="text-gray-300 text-2xl">🧭</Text>
+                  <View className="w-20 h-20 rounded-xl flex-shrink-0 overflow-hidden border border-gray-100">
+                    <View className="w-full h-full bg-[#ffedd5] flex items-center justify-center">
+                      <Text className="text-stone-700 text-[26px] font-bold text-center break-all leading-[27px] block w-full overflow-hidden px-1">
+                        {item.title || 'TRAVEL'}
+                      </Text>
+                    </View>
                   </View>
                 )}
                 <View className="flex-1 ml-3 flex flex-col overflow-hidden">
