@@ -22,6 +22,7 @@ export interface AccountSummary {
   totalAmount: number; // 总支出
   count: number; // 总笔数
   categoryStat: Record<string, number>; // 各分类金额
+  targetName?: string; // 关联目标名称（行程/攻略/搭子标题，自主账本为账本名）
 }
 
 /** 账本总览项（按目标聚合） */

@@ -64,14 +64,29 @@ export default function AccountingListPage() {
     })
   }, [isNew])
 
-  // 动态设置原生导航栏标题
+  // 动态设置原生导航栏标题（绑定行程/攻略/搭子时名称由汇总卡关联行展示，避免重复；自主账本保留账本名）
   useEffect(() => {
-    Taro.setNavigationBarTitle({ title: isNew ? '新建账本' : name ? `账本 · ${name}` : '记账本' })
-  }, [isNew, name])
+    const title = isNew
+      ? '新建账本'
+      : targetType === 'custom'
+        ? (name ? `账本 · ${name}` : '记账本')
+        : '记账本'
+    Taro.setNavigationBarTitle({ title })
+  }, [isNew, targetType, name])
 
   // 明细 + 汇总并行加载（新建模式不请求）
   const { data: list = [], loading, refresh } = useRequest(() => getAccountList(targetType, targetId), { manual: isNew })
   const { data: summary, refresh: refreshSummary } = useRequest(() => getAccountSummary(targetType, targetId), { manual: isNew })
+
+  // 关联目标名称：优先取入口传入的 name，缺失时回退接口返回的 targetName
+  const relatedName = name || summary?.targetName || ''
+
+  // 点击关联目标跳转对应详情页（行程/攻略/搭子）
+  const goRelatedDetail = () => {
+    if (!targetType || targetType === 'custom' || !targetId) return
+    const page = targetType === 'trip' ? 'trip/detail' : targetType === 'guide' ? 'guide/detail' : 'partner/detail'
+    Taro.navigateTo({ url: `/pages/${page}/index?id=${targetId}` })
+  }
 
   useDidShow(() => {
     if (isNew) return
@@ -121,7 +136,7 @@ export default function AccountingListPage() {
       return
     }
 
-    const ok = (editTarget
+    const ok = await (editTarget
       ? updateAccount(editTarget.id, { category, amount: value, note: note.trim() })
       : addAccount({
         targetType,
@@ -232,6 +247,18 @@ export default function AccountingListPage() {
             </View>
           </View>
         </View>
+        {/* 关联目标（行程/攻略/搭子）：显示名称，点击跳详情 */}
+        {targetType !== 'custom' && relatedName && (
+          <View
+            className='mt-3 pt-3 border-t border-stone-100 flex flex-row items-center active:opacity-70'
+            onClick={goRelatedDetail}
+          >
+            <Text className='text-[22px] px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 mr-2 flex-shrink-0'>
+              {TARGET_TYPE_NAMES[targetType] || targetType}
+            </Text>
+            <Text className='text-[24px] text-stone-600 truncate'>{relatedName}</Text>
+          </View>
+        )}
         {/* 分类金额 */}
         {summary && Object.keys(summary.categoryStat).length > 0 && (
           <View className='flex flex-row flex-wrap gap-2 mt-3 pt-3 border-t border-stone-100'>

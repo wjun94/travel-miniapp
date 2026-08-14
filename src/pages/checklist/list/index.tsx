@@ -40,6 +40,14 @@ export default function ChecklistPage() {
     });
   };
 
+  // 跳转到关联目标详情页（行程/攻略/搭子）
+  const goTargetDetail = (checklist: Checklist) => {
+    const { targetType, targetId } = checklist;
+    if (!targetType || !targetId) return;
+    const page = targetType === 'trip' ? 'trip/detail' : targetType === 'guide' ? 'guide/detail' : 'partner/detail';
+    Taro.navigateTo({ url: `/pages/${page}/index?id=${targetId}` });
+  };
+
   // 跳转到编辑页面
   const navToEdit = (checklist: Checklist) => {
     Taro.navigateTo({
@@ -91,17 +99,18 @@ export default function ChecklistPage() {
                 </Text>
               )}
             </View>
-            {/* 第二行：关联类型 + 名称回显（行程/攻略/搭子） */}
-            {checklist.targetName && (
-              <View className="mt-2 flex flex-row items-center space-x-1.5">
-                <Text className="text-22px text-blue-500 font-medium truncate max-w-[240px]">
+            {/* 第二行：关联目标（行程/攻略/搭子）胶囊样式，点击跳详情 */}
+            {checklist.targetType && checklist.targetName && (
+              <View
+                className="mt-2.5 self-start flex flex-row items-center bg-stone-50 rounded-full border border-stone-100 py-1 px-1 active:opacity-70"
+                onClick={() => goTargetDetail(checklist)}
+              >
+                <Text className={`text-20px px-2 py-0.5 rounded-full flex-shrink-0 font-semibold ${TARGET_TYPE_TAG[checklist.targetType] || 'bg-stone-100 text-stone-500'}`}>
+                  {TARGET_TYPE_NAMES[checklist.targetType] || checklist.targetType}
+                </Text>
+                <Text className="text-[22px] text-stone-600 font-medium truncate max-w-[240px] ml-2">
                   {checklist.targetName}
                 </Text>
-                {checklist.targetType && (
-                  <Text className={`text-20px px-1.5 py-0.5 rounded flex-shrink-0 font-semibold ${TARGET_TYPE_TAG[checklist.targetType] || 'bg-stone-100 text-stone-500'}`}>
-                    {TARGET_TYPE_NAMES[checklist.targetType] || checklist.targetType}
-                  </Text>
-                )}
               </View>
             )}
           </View>
