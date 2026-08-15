@@ -6,19 +6,27 @@ import CalendarSvg from '@/assets/img/calendar.svg'
 import LandmarkSvg from '@/assets/img/landmark.svg'
 import LocationsSvg from '@/assets/itinerary/locations.svg'
 import TeamSvg from '@/assets/img/team.svg'
-import { getMyGuides } from '@/api/guide'
+import { getMyGuides, getMyNotes } from '@/api/guide'
 import { getMyTrips } from '@/api/trip'
 import { getMyPartners } from '@/api/partner'
 import type { Guide } from '@/api/post'
 import { getHeaderHeight } from '@/utils'
 
-type TabKey = 'guide' | 'trip' | 'partner'
+type TabKey = 'all' | 'guide' | 'trip' | 'partner'
 
 const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all', label: '全部' },
   { key: 'guide', label: '攻略' },
   { key: 'trip', label: '行程' },
   { key: 'partner', label: '搭子' },
 ]
+
+// 全部流中区分笔记类型的标签
+const TYPE_LABEL: Record<string, string> = {
+  guide: '攻略',
+  trip: '行程',
+  partner: '搭子',
+}
 
 // 攻略/行程 双列卡片
 const renderNoteCard = (item: Guide, type: 'guide' | 'trip') => (
@@ -56,6 +64,58 @@ const renderNoteCard = (item: Guide, type: 'guide' | 'trip') => (
     </View>
   </View>
 )
+
+// 全部笔记 统一卡片（攻略/行程/搭子混合展示）
+const renderAllNoteCard = (item: any) => {
+  const type = item.itemType || 'guide'
+  const cover = item.coverImage || item.cover || ''
+  const destination = item.destinations?.[0] || item.destination || ''
+  return (
+    <View
+      className="bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col border border-gray-100 w-full box-border"
+      onClick={() => Taro.navigateTo({ url: `/pages/${type}/detail/index?id=${item.id}` })}
+    >
+      <CoverImage src={cover} title={item.title} className="w-full h-44">
+        {/* 类型标签 */}
+        <View className='absolute top-2 left-2 bg-black/40 backdrop-blur-md text-white text-[18px] px-2 py-0.5 rounded-full z-10'>
+          <Text>{TYPE_LABEL[type] || '笔记'}</Text>
+        </View>
+        {/* 浏览量 */}
+        <View className='absolute top-2 right-2 bg-black/40 backdrop-blur-md text-white text-[20px] px-2 py-0.5 rounded-full z-10 flex items-center'>
+          <Text className='iconfont icon-eye mr-1' />
+          <Text className='text-22px'>{item.viewCount ?? 0}</Text>
+        </View>
+      </CoverImage>
+      <View className="p-2.5 flex flex-col">
+        <Text className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 white-space-normal mb-1">
+          {item.title}
+        </Text>
+        {destination ? (
+          <View className="flex flex-row items-center mb-1">
+            <Image src={LocationsSvg} className='h-3.5 w-3.5 mr-6px' />
+            <Text className="text-[20rpx] text-stone-500 font-medium line-clamp-1">{destination}</Text>
+          </View>
+        ) : null}
+        {(item.tripDays || item.sectionCount) && (
+          <View className="flex flex-row items-center gap-2">
+            {item.tripDays ? (
+              <View className="bg-emerald-50 px-2 py-0.5 rounded-full flex items-center">
+                <Image src={CalendarSvg} className='h-3.5 w-3.5 mr-6px' />
+                <Text className="text-[20rpx] text-emerald-600 font-medium">{item.tripDays}天</Text>
+              </View>
+            ) : null}
+            {item.sectionCount ? (
+              <View className="bg-stone-50 px-2 py-0.5 rounded-full flex items-center">
+                <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
+                <Text className="text-[20rpx] text-stone-500 font-medium">{item.sectionCount}个行程</Text>
+              </View>
+            ) : null}
+          </View>
+        )}
+      </View>
+    </View>
+  )
+}
 
 // 搭子 单列卡片
 const renderPartnerCard = (item: any) => (
@@ -110,43 +170,58 @@ const renderPartnerCard = (item: any) => (
 )
 
 export default function NotesPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('guide')
+  const [activeTab, setActiveTab] = useState<TabKey>('all')
   const headerHeight = getHeaderHeight()
 
   return (
     <View className="min-h-screen bg-[#FCFBF7] font-sans flex flex-col">
       <NavBar title="我的笔记" showBack />
 
-      {/* 顶部 Tab 切换（吸顶） */}
+      {/* 顶部 Tab 切换（吸顶，分段胶囊样式） */}
       <View
-        className="flex border-b border-gray-100 bg-[#FCFBF7] sticky z-30 px-4 pt-2.5 pb-2"
+        className="sticky z-30 px-4 pt-3 pb-2.5 bg-[#FCFBF7] border-b border-gray-100"
         style={{ top: headerHeight }}
       >
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.key
-          return (
-            <View
-              key={tab.key}
-              className="flex-1 relative flex flex-col items-center py-0.5"
-              onClick={() => setActiveTab(tab.key)}
-            >
-              <Text
-                className={`text-sm tracking-wide transition-all ${
-                  isActive ? 'font-bold text-gray-900 scale-110' : 'text-gray-400'
+        <View className="flex flex-row items-center gap-1 bg-gray-200/40 rounded-full p-1">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <View
+                key={tab.key}
+                className={`flex-1 flex items-center justify-center py-1.5 rounded-full transition-all ${
+                  isActive ? 'bg-white shadow-sm' : ''
                 }`}
+                onClick={() => setActiveTab(tab.key)}
               >
-                {tab.label}
-              </Text>
-              {isActive && (
-                <View className="absolute -bottom-1.5 w-4 h-[3px] bg-[#e97442] rounded-full" />
-              )}
-            </View>
-          )
-        })}
+                <Text
+                  className={`text-sm tracking-wide transition-all ${
+                    isActive ? 'font-bold text-[#e97442]' : 'text-gray-400'
+                  }`}
+                >
+                  {tab.label}
+                </Text>
+              </View>
+            )
+          })}
+        </View>
       </View>
 
       {/* 列表区：仅内容区域滚动，Tab 固定 */}
       <View className="flex-1 overflow-hidden">
+        {activeTab === 'all' && (
+          <ScrollLoadList
+            key="all"
+            request={getMyNotes}
+            renderItem={renderAllNoteCard}
+            numColumns={2}
+            columnGap={12}
+            rowGap={12}
+            masonry
+            pageSize={10}
+            emptyText="暂无笔记"
+            scrollViewProps={{ className: 'px-4 pt-3 pb-6 box-border' }}
+          />
+        )}
         {activeTab === 'guide' && (
           <ScrollLoadList
             key="guide"

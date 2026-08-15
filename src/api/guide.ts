@@ -149,6 +149,31 @@ export const getMyGuides = (page: number, pageSize: number, status?: number) =>
     params: { page, pageSize, ...(typeof status === 'number' ? { status } : {}) },
   });
 
+/** 我的全部笔记合并项（攻略/行程/搭子） */
+export interface MyNoteItem {
+  id: string
+  itemType: 'guide' | 'trip' | 'partner'
+  title: string
+  coverImage: string
+  destinations: string[]
+  viewCount: number
+  tripDays: number
+  sectionCount: number
+  createdAt: string
+}
+
+/**
+ * 获取我的全部笔记（攻略+行程+搭子，合并按时间倒序）
+ * @param page 页码
+ * @param pageSize 每页条数
+ */
+export const getMyNotes = (page: number, pageSize: number) =>
+  request<{ list: MyNoteItem[]; total: number }>({
+    url: '/my/notes',
+    method: 'GET',
+    params: { page, pageSize },
+  });
+
 /**
  * 更新攻略（编辑草稿/已发布，支持全量替换每日行程）
  * @param id 攻略ID
