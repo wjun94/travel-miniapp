@@ -11,12 +11,23 @@ import type { PartnerItem } from '@/api/partner'
 const TYPE_LABELS: Record<number, string> = { 0: '不限', 1: '自由行', 2: '跟团游', 3: '自驾游' }
 const GENDER_LABELS: Record<number, string> = { 0: '不限', 1: '仅限男', 2: '仅限女' }
 const FEE_LABELS: Record<number, string> = { 0: '免费', 1: 'AA制', 2: '组织者全包', 3: '人均预算' }
-const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
-  0: { label: '招募中', bg: 'bg-emerald-500/90' },
-  1: { label: '已满员', bg: 'bg-gray-500/80' },
-  2: { label: '已解散', bg: 'bg-rose-500/80' },
-  3: { label: '已结束', bg: 'bg-gray-500/80' },
-  4: { label: '已结束', bg: 'bg-gray-500/80' },
+// 状态文案 → 背景色（文案由后端 /my/partners 返回 statusText）
+const STATUS_TEXT_COLORS: Record<string, string> = {
+  草稿: '#F59E0B',
+  仅自己可见: '#6B7280',
+  招募中: '#10B981',
+  已满员: '#6B7280',
+  已解散: '#F43F5E',
+  已过期: '#6B7280',
+  行程结束: '#6B7280',
+}
+// 兼容后端未返回 statusText 时的兜底文案
+const STATUS_TEXT_FALLBACK: Record<number, string> = {
+  0: '招募中',
+  1: '已满员',
+  2: '已解散',
+  3: '已过期',
+  4: '行程结束',
 }
 
 const formatDate = (dateStr: string) => {
@@ -77,7 +88,7 @@ export default function PartnerList() {
         pageSize={10}
         emptyText='暂无搭子信息'
         renderItem={(item: PartnerItem) => {
-          const statusInfo = STATUS_LABELS[item.status] || STATUS_LABELS[0]
+          const statusText = item.statusText || STATUS_TEXT_FALLBACK[item.status] || '招募中'
           return (
             <View
               key={item.id}
@@ -135,8 +146,11 @@ export default function PartnerList() {
 
                 {/* 状态标签 */}
                 <View className='flex flex-row items-center flex-wrap gap-1.5'>
-                  <View className={`${statusInfo.bg} text-white text-[20px] px-2 py-0.5 rounded-md font-medium`}>
-                    {statusInfo.label}
+                  <View
+                    className='text-white text-[20px] px-2 py-0.5 rounded-md font-medium'
+                    style={{ backgroundColor: STATUS_TEXT_COLORS[statusText] || '#6B7280' }}
+                  >
+                    {statusText}
                   </View>
                   {item.category && (
                     <View className='bg-orange-50 text-orange-600 text-[20px] px-2 py-0.5 rounded-md font-medium'>
@@ -205,11 +219,10 @@ export default function PartnerList() {
                 {!item.isSelf && (
                   <View className='flex flex-row items-center justify-end pt-1'>
                     <View
-                      className={`shrink-0 px-4 py-2 rounded-xl font-bold text-[26px] shadow-sm transition-all active:scale-[0.98] ${
-                        item.isApplied
+                      className={`shrink-0 px-4 py-2 rounded-xl font-bold text-[26px] shadow-sm transition-all active:scale-[0.98] ${item.isApplied
                           ? 'bg-gray-100 text-gray-400'
                           : 'bg-[#F97316] active:bg-[#EA580C] text-white'
-                      }`}
+                        }`}
                       onClick={(e) => {
                         if (item.isApplied) return
                         e.stopPropagation()

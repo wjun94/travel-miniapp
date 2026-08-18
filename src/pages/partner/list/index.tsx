@@ -9,16 +9,17 @@ import TeamSvg from '@/assets/img/team.svg'
 import { getPartnerList, applyPartner } from '@/api/partner'
 import type { PartnerItem } from '@/api/partner'
 import { getHeaderHeight } from '@/utils'
+import { getPartnerStatusColor, PARTNER_STATUS_BADGE_CLASS } from '@/utils/partnerStatus'
 
 const TYPE_LABELS: Record<number, string> = { 0: '不限', 1: '自由行', 2: '跟团游', 3: '自驾游' }
 const GENDER_LABELS: Record<number, string> = { 0: '不限', 1: '仅限男', 2: '仅限女' }
 const FEE_LABELS: Record<number, string> = { 0: '免费', 1: 'AA制', 2: '组织者全包', 3: '人均预算' }
 const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
-  0: { label: '招募中', bg: 'bg-emerald-500/90' },
-  1: { label: '已满员', bg: 'bg-gray-500/80' },
-  2: { label: '已解散', bg: 'bg-rose-500/80' },
-  3: { label: '已结束', bg: 'bg-gray-500/80' },
-  4: { label: '已结束', bg: 'bg-gray-500/80' },
+  0: { label: '招募中', bg: getPartnerStatusColor('招募中') },
+  1: { label: '已满员', bg: getPartnerStatusColor('已满员') },
+  2: { label: '已解散', bg: getPartnerStatusColor('已解散') },
+  3: { label: '已过期', bg: getPartnerStatusColor('已过期') },
+  4: { label: '行程结束', bg: getPartnerStatusColor('行程结束') },
 }
 
 const formatDate = (dateStr: string) => {
@@ -126,6 +127,7 @@ export default function PartnerList() {
             emptyText={keyword ? '未找到相关搭子' : '暂无搭子信息'}
             renderItem={(item: PartnerItem) => {
               const statusInfo = STATUS_LABELS[item.status] || STATUS_LABELS[0]
+              const sectionCount = item.sectionCount ?? 0
               return (
                 <View
                   key={item.id}
@@ -148,7 +150,10 @@ export default function PartnerList() {
 
                     {/* 顶部左侧状态 Badges */}
                     <View className='absolute top-3 left-3 flex flex-row space-x-1.5 z-10'>
-                      <View className={`${statusInfo.bg} text-white text-[20px] px-2.5 py-0.5 rounded-full font-medium shadow-sm backdrop-blur-md`}>
+                      <View
+                        className={PARTNER_STATUS_BADGE_CLASS}
+                        style={{ backgroundColor: statusInfo.bg }}
+                      >
                         {statusInfo.label}
                       </View>
                       {item.category && (
@@ -213,10 +218,10 @@ export default function PartnerList() {
                             {item.dayCount}天
                           </Text>
                         )}
-                        {item.itemCount > 0 && (
+                        {sectionCount > 0 && (
                           <View className='bg-stone-50 px-2 py-0.5 rounded-full flex items-center'>
                             <Image src={LandmarkSvg} className='h-3.5 w-3.5 mr-6px' />
-                            <Text className='text-[20px] text-stone-500 font-medium'>{item.itemCount}项行程</Text>
+                            <Text className='text-[20px] text-stone-500 font-medium'>{sectionCount}个行程</Text>
                           </View>
                         )}
                       </View>

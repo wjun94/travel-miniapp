@@ -40,6 +40,8 @@ export interface Guide {
   createdAt: string;
   /** 目的地名称 */
   destination: string;
+  /** 目的地列表（行程类数据） */
+  destinations?: string[];
   /** 攻略/行程 ID */
   id: string;
   /** 是否已点赞 */
@@ -60,6 +62,10 @@ export interface Guide {
   viewCount: number;
   /** 内容类型：guide(攻略) / trip(行程) */
   itemType: 'trip' | 'guide';
+  /** 状态：攻略 0草稿1已发布2下架；行程 1草稿2已发布3已归档 */
+  status?: number;
+  /** 是否公开（行程：0私密 1公开） */
+  isPublic?: number;
 }
 
 /**

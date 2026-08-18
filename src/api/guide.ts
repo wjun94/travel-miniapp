@@ -159,6 +159,9 @@ export interface MyNoteItem {
   viewCount: number
   tripDays: number
   sectionCount: number
+  status?: number
+  isDraft?: number
+  isPublic?: number
   createdAt: string
 }
 

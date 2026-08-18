@@ -32,6 +32,7 @@ import {
 import { createHistoryRecord } from '@/api/history';
 import { followUser, unfollowUser } from '@/api/follow';
 import { getHeaderHeight } from '@/utils';
+import { getPartnerStatusColor, PARTNER_STATUS_BADGE_CLASS } from '@/utils/partnerStatus';
 import { addFavorite, deleteFavorite } from '@/api/favorite';
 import { createComment } from '@/api/comment';
 import { openMapLocation, getImageUrl, getImageCdnUrl } from '@/utils';
@@ -54,15 +55,12 @@ const FEE_LABELS: Record<number, string> = {
   2: '组织者全包',
   3: '人均预算',
 };
-const STATUS_LABELS: Record<
-  number,
-  { label: string; bg: string; text: string }
-> = {
-  0: { label: '招募中', bg: 'bg-emerald-500/90', text: 'text-white' },
-  1: { label: '已满员', bg: 'bg-gray-500/80', text: 'text-white' },
-  2: { label: '已解散', bg: 'bg-rose-500/80', text: 'text-white' },
-  3: { label: '已结束', bg: 'bg-gray-500/80', text: 'text-white' },
-  4: { label: '已结束', bg: 'bg-gray-500/80', text: 'text-white' },
+const STATUS_LABELS: Record<number, { label: string; bg: string }> = {
+  0: { label: '招募中', bg: getPartnerStatusColor('招募中') },
+  1: { label: '已满员', bg: getPartnerStatusColor('已满员') },
+  2: { label: '已解散', bg: getPartnerStatusColor('已解散') },
+  3: { label: '已过期', bg: getPartnerStatusColor('已过期') },
+  4: { label: '行程结束', bg: getPartnerStatusColor('行程结束') },
 };
 
 const formatDate = (dateStr: string) => {
@@ -149,7 +147,13 @@ export default function PartnerDetail() {
   });
 
   const isSelf = partner?.isSelf;
-  const statusInfo = STATUS_LABELS[partner?.status ?? 0] || STATUS_LABELS[0];
+  // 状态徽标：草稿/仅自己可见优先于招募状态展示
+  const statusInfo =
+    partner?.isDraft === 1
+      ? { label: '草稿', bg: getPartnerStatusColor('草稿') }
+      : partner?.isPublic === 0
+        ? { label: '仅自己可见', bg: getPartnerStatusColor('仅自己可见') }
+        : STATUS_LABELS[partner?.status ?? 0] || STATUS_LABELS[0];
   const canApply =
     !isSelf && !partner?.isApplied && (partner?.status ?? 0) === 0;
   // 距出发不足 24 小时（用于退出提醒）
@@ -473,7 +477,8 @@ export default function PartnerDetail() {
 
             <View className="absolute top-3 left-4 flex items-center space-x-2 z-10">
               <View
-                className={`${statusInfo.bg} ${statusInfo.text} text-[22px] px-3 py-1 rounded-full font-medium shadow-sm backdrop-blur-md`}
+                className={PARTNER_STATUS_BADGE_CLASS}
+                style={{ backgroundColor: statusInfo.bg }}
               >
                 {statusInfo.label}
               </View>
@@ -764,7 +769,7 @@ export default function PartnerDetail() {
                   </View>
                 ) : (
                   <View className="w-full bg-gray-100 text-gray-400 text-center py-2.5 rounded-xl font-medium text-[26px]">
-                    {partner?.status === 2 ? '已解散' : '已结束'}
+                    {partner?.status === 2 ? '已解散' : partner?.status === 3 ? '已过期' : '行程结束'}
                   </View>
                 )
               ) : partner?.isApplied ? (

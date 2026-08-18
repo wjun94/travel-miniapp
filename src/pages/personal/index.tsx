@@ -21,11 +21,11 @@ import { GENDER_META } from '@/constants/gender';
 
 // --- 搭子列表卡片（我的搭子/我参与的搭子共用） ---
 const PARTNER_STATUS_LABELS: Record<number, { label: string; bg: string }> = {
-  0: { label: '招募中', bg: 'bg-emerald-500/90' },
-  1: { label: '已满员', bg: 'bg-gray-500/80' },
-  2: { label: '已解散', bg: 'bg-rose-500/80' },
-  3: { label: '已结束', bg: 'bg-gray-500/80' },
-  4: { label: '已结束', bg: 'bg-gray-500/80' },
+  0: { label: '招募中', bg: 'bg-[#10B981]' },
+  1: { label: '已满员', bg: 'bg-[#6B7280]' },
+  2: { label: '已解散', bg: 'bg-[#F43F5E]' },
+  3: { label: '已过期', bg: 'bg-[#6B7280]' },
+  4: { label: '行程结束', bg: 'bg-[#6B7280]' },
 };
 const PARTNER_TYPE_LABELS: Record<number, string> = {
   0: '不限',

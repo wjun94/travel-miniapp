@@ -175,6 +175,10 @@ export interface PartnerDetail {
   isPublic: 0 | 1;
   /** 状态: 0 招募中 / 1 已满员 / 2 已结束 */
   status: number;
+  /** 状态文案（后端计算）：草稿/仅自己可见/招募中/已满员/已解散/已过期/行程结束 */
+  statusText?: string;
+  /** 自有行程安排的行程项总数（与首页 sectionCount 一致） */
+  sectionCount?: number;
   /** 排序权重 */
   sortWeight: number;
 
@@ -322,6 +326,10 @@ export interface PartnerItem {
   isPublic: 0 | 1;
   /** 状态: 0 招募中 / 1 已满员 / 2 已结束 */
   status: number;
+  /** 状态文案（后端计算）：草稿/仅自己可见/招募中/已满员/已解散/已过期/行程结束 */
+  statusText?: string;
+  /** 自有行程安排的行程项总数（与首页 sectionCount 一致） */
+  sectionCount?: number;
   /** 排序权重 */
   sortWeight: number;
 
