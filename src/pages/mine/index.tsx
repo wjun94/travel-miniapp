@@ -56,14 +56,14 @@ export default function ProfilePage() {
         Taro.navigateTo({ url: '/pages/checklist/list/index' })
       }
     },
-    {
+    /* {
       id: 4,
       title: '汇率换算',
       icon: 'icon-rates',
       onFn: () => {
         Taro.navigateTo({ url: `/pages/webview/index?src=${encodeURIComponent(`${H5_BASE_URL}/convert`)}` })
       }
-    },
+    }, */
   ]
 
   // 角色徽标配置：0普通 1领队 2管理员
