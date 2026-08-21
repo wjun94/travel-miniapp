@@ -26,8 +26,12 @@ export interface CommentItem {
     userId: string;
     /** 被回复人昵称（仅回复列表有效） */
     replyToNickname: string;
-    /** 是否是作者 */
+    /** 是否是作者（评论者是否为发帖人） */
     isAuthor: boolean;
+    /** 当前浏览者是否为该评论作者（用于删除入口） */
+    isMine?: boolean;
+    /** 当前浏览者是否为帖子作者（帖主可删除任意评论） */
+    isViewerAuthor?: boolean;
 }
 
 // 1. 获取评论列表参数

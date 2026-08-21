@@ -3,7 +3,7 @@ import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { Avatar } from '@/components';
 import { useRequest } from 'ahooks';
-import { getComments, getCommentReplies, type CommentItem } from '@/api/comment';
+import { getComments, getCommentReplies, deleteComment, type CommentItem } from '@/api/comment';
 import { formatTime } from '@/utils';
 
 interface CommentSectionProps {
@@ -17,9 +17,11 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ targetId, data, targetType, refreshKey, className = 'mx-4', onLikeComment, onReplyComment }: CommentSectionProps) {
+    // 内部刷新标记：删除评论后触发重新拉取
+    const [reloadKey, setReloadKey] = useState(0);
     const { data: commentRes, loading } = useRequest(
         () => getComments({ target_type: targetType, target_id: targetId, page: 1, pageSize: 20 }),
-        { ready: !!targetId, refreshDeps: [targetId, targetType, refreshKey] }
+        { ready: !!targetId, refreshDeps: [targetId, targetType, refreshKey, reloadKey] }
     );
 
     const comments: CommentItem[] = commentRes?.list || [];
@@ -27,6 +29,34 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
     // 展开回复状态：记录已展开的评论 id
     const [expandedIds, setExpandedIds] = useState<Record<string, CommentItem[]>>({});
     const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>({});
+
+    // 删除评论（本人或帖主）：确认后删除并刷新
+    const handleDeleteComment = (comment: CommentItem) => {
+        Taro.showModal({
+            title: '删除评论',
+            content: '确定删除这条评论吗？',
+            confirmColor: '#ef4444',
+            success: async (res) => {
+                if (!res.confirm) return;
+                try {
+                    await deleteComment(comment.id);
+                    Taro.showToast({ title: '已删除', icon: 'success' });
+                    // 清理本地展开状态并刷新列表
+                    setExpandedIds(prev => {
+                        const next = { ...prev };
+                        delete next[comment.id];
+                        return next;
+                    });
+                    setReloadKey(k => k + 1);
+                } catch (e) {
+                    // 错误提示由 request 统一处理
+                }
+            }
+        });
+    };
+
+    // 是否可删除：本人评论或当前浏览者是帖主
+    const canDelete = (item: CommentItem) => !!item.isMine || !!item.isViewerAuthor;
 
     /** 评论刷新后重新加载所有已展开的子回复 */
     useEffect(() => {
@@ -137,6 +167,19 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                         回复
                                     </Text>
 
+                                    {/* 删除：本人评论或帖主可删 */}
+                                    {canDelete(item) && (
+                                        <>
+                                            <Text className='text-stone-300'>•</Text>
+                                            <Text
+                                                onClick={() => handleDeleteComment(item)}
+                                                className='font-bold text-red-400 active:text-red-600 transition-colors duration-150'
+                                            >
+                                                删除
+                                            </Text>
+                                        </>
+                                    )}
+
                                     {/* 展开/收起 触发器 */}
                                     {(item.replyCount ?? 0) > 0 && (
                                         <>
@@ -199,6 +242,17 @@ export default function CommentSection({ targetId, data, targetType, refreshKey,
                                                         >
                                                             回复
                                                         </Text>
+                                                        {canDelete(reply) && (
+                                                            <>
+                                                                <Text className='text-stone-300'>•</Text>
+                                                                <Text
+                                                                    onClick={() => handleDeleteComment(reply)}
+                                                                    className='font-bold text-red-400 active:text-red-600 transition-colors duration-150'
+                                                                >
+                                                                    删除
+                                                                </Text>
+                                                            </>
+                                                        )}
                                                     </View>
                                                 </View>
                                             </View>
