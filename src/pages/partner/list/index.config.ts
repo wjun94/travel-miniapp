@@ -1,5 +1,5 @@
 export default definePageConfig({
   navigationStyle: 'custom',
-  navigationBarTitleText: '搭子列表',
+  navigationBarTitleText: '找搭子同行｜邻刻走',
   enablePullDownRefresh: true,
 })

@@ -1,4 +1,4 @@
 export default definePageConfig({
   navigationStyle: 'custom',
-  navigationBarTitleText: '我的'
+  navigationBarTitleText: '个人中心｜邻刻走'
 })
